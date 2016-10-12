@@ -1,0 +1,8 @@
+steps:
+        - name: gcr.io/cloud-builders/go
+          args: ['test', '-c', 'structure_test.go', '-o', '/workspace/structure_test']
+          env: ['PROJECT_ROOT=structure_tests']
+        - name: gcr.io/cloud-builders/docker
+          args: ['build', '-t', 'gcr.io/gcp-runtimes/structure_test', '.']
+images:
+        - 'gcr.io/gcp-runtimes/structure_test'
