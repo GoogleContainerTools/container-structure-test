@@ -16,7 +16,9 @@ type CommandTest struct {
 	Command        string   // command to run
 	Flags          string   // optional flags
 	ExpectedOutput []string // expected output of running command
+	ExcludedOutput []string // excluded output of running command
 	ExpectedError  []string // expected error from running command
+	ExcludedError  []string // excluded error from running command
 }
 
 type FileExistenceTest struct {
@@ -30,6 +32,7 @@ type FileContentTest struct {
 	Name             string   // name of test
 	Path             string   // file to check existence of
 	ExpectedContents []string // list of expected contents of file
+	ExcludedContents []string // list of excluded contents of file
 }
 
 type StructureTest struct {
@@ -60,13 +63,21 @@ func TestRunCommand(t *testing.T) {
 		if err != nil {
 			for _, errStr := range tt.ExpectedError {
 				errMessage = "Expected string " + errStr + " not found in error!"
-				compileAndRunRegex(errStr, stderr, t, errMessage)
+				compileAndRunRegex(errStr, stderr, t, errMessage, true)
+			}
+			for _, errStr := range tt.ExcludedError {
+				errMessage = "Excluded string " + errStr + " found in error!"
+				compileAndRunRegex(errStr, stderr, t, errMessage, false)
 			}
 		}
 
 		for _, outStr := range tt.ExpectedOutput {
 			errMessage = "Expected string " + outStr + " not found in output!"
-			compileAndRunRegex(outStr, stdout, t, errMessage)
+			compileAndRunRegex(outStr, stdout, t, errMessage, true)
+		}
+		for _, outStr := range tt.ExcludedError {
+			errMessage = "Excluded string " + outStr + " found in output!"
+			compileAndRunRegex(outStr, stdout, t, errMessage, false)
 		}
 	}
 }
@@ -101,18 +112,22 @@ func TestFileContents(t *testing.T) {
 		var errMessage string
 		for _, s := range tt.ExpectedContents {
 			errMessage = "Expected string " + s + " not found in file contents!"
-			compileAndRunRegex(s, contents, t, errMessage)
+			compileAndRunRegex(s, contents, t, errMessage, true)
+		}
+		for _, s := range tt.ExcludedContents {
+			errMessage = "Excluded string " + s + " found in file contents!"
+			compileAndRunRegex(s, contents, t, errMessage, false)
 		}
 	}
 }
 
-func compileAndRunRegex(regex string, base string, t *testing.T, err string) {
+func compileAndRunRegex(regex string, base string, t *testing.T, err string, shouldMatch bool) {
 	r, rErr := regexp.Compile(regex)
 	if rErr != nil {
 		t.Errorf("Error compiling regex %s : %s", regex, rErr.Error())
 		return
 	}
-	if !r.MatchString(base) {
+	if shouldMatch != r.MatchString(base) {
 		t.Errorf(err)
 	}
 }
