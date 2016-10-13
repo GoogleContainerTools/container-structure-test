@@ -1,0 +1,105 @@
+Container Build Structure Tests
+===============================
+
+This code builds an image which serves as a framework to run structure-based tests on a target image as part of a CI/CD build flow. These tests can be run before pushing an image to GCR, or post-push as part of a continuous system. The image under tests runs as a docker container **inside** of this image, which itself runs as a docker container on a host machine in the cloud (when run through a [Google Cloud Container Build](https://cloud.google.com/container-builder/docs/overview)).
+
+To use this test image with any cloudbuild, add the following build step to the **end** your container build config (cloudbuild.yaml or cloudbuild.json):
+
+	name: gcr.io/gcp-runtimes/structure_test
+	args:
+		- <your_target_image>
+
+It's **very important that this step appears at the end of your build** (or at least after the image itself it assembled by Docker); without a built image, there will be nothing to test, and your build will fail!
+
+Tests within this framework are specified through a JSON config file, by default called `structure_test.json` (this can be specified through a `--config` flag argument to the build step). This file will be copied into the workspace of the structure test image and loaded in by the test driver, which will execute the tests in order. Within this config file, three distinct types of tests can be written:
+
+- Command Tests (testing output/error of a specific command issued)
+- File Existence Tests (making sure a file is, or isn't, present in the file system of the image)
+- File Content Tests (making sure files in the file system of the image contain, or do not contain, specific contents)
+
+## Command Tests
+Command tests ensure that certain commands run properly on top of the shell of the target image. Regexes can be used to check for expected or excluded strings in both stdout and stderr. Additionally, any number of flags can be passed to the argument as normal.
+
+####Supported JSON Fields:
+
+- Name (string, **required**): The name of the test
+- Command (string, **required**): The command to run
+- Flags (string[], *optional*): Optional flags to pass to the command
+- Expected Output (string[], *optional*): List of regexes that should match the stdout from running the command.
+- Excluded Output (string[], *optional*): List of regexes that should **not** match the stdout from running the command.
+- Expected Error (string[], *optional*): List of regexes that should match the stderr from running the command.
+- Excluded Error (string[], *optional*): List of regexes that should **not** match the stderr from running the command.
+
+Example:
+```json
+"commands": [
+	{
+		"name": "apt-get",
+		"command": "apt-get",
+		"flags": "help",
+		"expectedOutput": [".*Usage.*"],
+		"excludedError": [".*FAIL.*"]
+	},{
+		"name": "apt-get upgrade",
+		"command": "apt-get",
+		"flags": "-qqs upgrade",
+		"excludedOutput": [".*Inst.*Security.* | .*Security.*Inst.*"],
+		"excludedError": [".*Inst.*Security.* | .*Security.*Inst.*"]
+	}
+]
+```
+
+
+##File Existence Tests
+File existence tests check to make sure a specific file (or directory) exist within the file system of the image. No contents of the files or directories are checked. These tests can also be used to ensure a file or directory is **not** present in the file system.
+
+####Supported JSON Fields:
+
+- Name (string, **required**): The name of the test
+- Path (string, **required**): Path to the file or directory under test
+- IsDirectory (boolean, **required**): Whether or not the specified path is a directory (as opposed to a file)
+- ShouldExist (boolean, **required**): Whether or not the specified file or directory should exist in the file system
+
+Example:
+```json
+"file_existence": [
+	{
+		"name": "Root",
+		"path": "/",
+		"isDirectory": true,
+		"shouldExist": true
+	},{
+		"name": "Fake file",
+		"path": "/foo/bar",
+		"isDirectory": false,
+		"shouldExist": false
+	}
+]
+```
+
+
+##File Content Tests
+File content tests open a file on the file system and check its contents. These tests assume the specified file **is a file**, and that it **exists** (if unsure about either or these criteria, see the above **File Existence Tests** section). Regexes can again be used to check for expected or excluded content in the specified file.
+
+####Supported JSON Fields:
+
+- Name (string, **required**): The name of the test
+- Path (string, **required**): Path to the file under test
+- ExpectedContents (string[], *optional*): List of regexes that should match the contents of the file
+- ExcludedContents (string[], *optional*): List of regexes that should **not** match the contents of the file
+
+Example:
+```json
+"file_contents": [
+	{
+		"name": "Debian Sources",
+		"path": "/etc/apt/sources.list",
+		"expectedContents": [
+			".*httpredir\\.debian\\.org.*"
+		],
+		"excludedContents": [
+			".*gce_debian_mirror.*"
+		]
+	}
+]
+```
