@@ -4,20 +4,24 @@ import (
 	"bytes"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os/exec"
 	"regexp"
+	"strings"
 	"testing"
+
+	"github.com/ghodss/yaml"
 )
 
 type CommandTest struct {
-	Name           string   // name of test
-	Command        string   // command to run
-	Flags          string   // optional flags
-	ExpectedOutput []string // expected output of running command
-	ExcludedOutput []string // excluded output of running command
-	ExpectedError  []string // expected error from running command
+	Name           string
+	Command        string
+	Flags          string
+	ExpectedOutput []string
+	ExcludedOutput []string
+	ExpectedError  []string
 	ExcludedError  []string // excluded error from running command
 }
 
@@ -36,13 +40,13 @@ type FileContentTest struct {
 }
 
 type StructureTest struct {
-	Commands           []CommandTest       `json:"commands"`
-	FileExistenceTests []FileExistenceTest `json:"file_existence"`
-	FileContentTests   []FileContentTest   `json:"file_contents"`
+	CommandTests       []CommandTest
+	FileExistenceTests []FileExistenceTest
+	FileContentTests   []FileContentTest
 }
 
 func TestRunCommand(t *testing.T) {
-	for _, tt := range tests.Commands {
+	for _, tt := range tests.CommandTests {
 		t.Logf("COMMAND TEST: %s", tt.Name)
 		var cmd *exec.Cmd
 		if tt.Flags != "" {
@@ -50,34 +54,36 @@ func TestRunCommand(t *testing.T) {
 		} else {
 			cmd = exec.Command(tt.Command)
 		}
+		t.Logf("Executing: %s", cmd.Args)
 		var outbuf, errbuf bytes.Buffer
 
 		cmd.Stdout = &outbuf
 		cmd.Stderr = &errbuf
 
-		err := cmd.Run()
+		if err := cmd.Run(); err != nil {
+			// The test might be designed to run a command that exits with an error.
+			t.Logf("Error running command: %s. Continuing.", err)
+		}
+
 		stdout := outbuf.String()
 		stderr := errbuf.String()
 
-		var errMessage string
-		if err != nil {
-			for _, errStr := range tt.ExpectedError {
-				errMessage = "Expected string " + errStr + " not found in error!"
-				compileAndRunRegex(errStr, stderr, t, errMessage, true)
-			}
-			for _, errStr := range tt.ExcludedError {
-				errMessage = "Excluded string " + errStr + " found in error!"
-				compileAndRunRegex(errStr, stderr, t, errMessage, false)
-			}
+		for _, errStr := range tt.ExpectedError {
+			errMsg := fmt.Sprintf("Expected string '%s' not found in error!", errStr)
+			compileAndRunRegex(errStr, stderr, t, errMsg, true)
+		}
+		for _, errStr := range tt.ExcludedError {
+			errMsg := fmt.Sprintf("Excluded string '%s' found in error!", errStr)
+			compileAndRunRegex(errStr, stderr, t, errMsg, false)
 		}
 
 		for _, outStr := range tt.ExpectedOutput {
-			errMessage = "Expected string " + outStr + " not found in output!"
-			compileAndRunRegex(outStr, stdout, t, errMessage, true)
+			errMsg := fmt.Sprintf("Expected string '%s' not found in output!", outStr)
+			compileAndRunRegex(outStr, stdout, t, errMsg, true)
 		}
 		for _, outStr := range tt.ExcludedError {
-			errMessage = "Excluded string " + outStr + " found in output!"
-			compileAndRunRegex(outStr, stdout, t, errMessage, false)
+			errMsg := fmt.Sprintf("Excluded string '%s' found in output!", outStr)
+			compileAndRunRegex(outStr, stdout, t, errMsg, false)
 		}
 	}
 }
@@ -140,14 +146,19 @@ func init() {
 		"path to the .yaml file containing test definitions.")
 	flag.Parse()
 
-	var err error
-	var testJson []byte
-	testJson, err = ioutil.ReadFile(configFile)
+	testContents, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error reading file: %s. %s", configFile, err)
 	}
-	marshalErr := json.Unmarshal(testJson, &tests)
-	if marshalErr != nil {
-		log.Fatal(err)
+
+	switch {
+	case strings.HasSuffix(configFile, ".json"):
+		if err := json.Unmarshal(testContents, &tests); err != nil {
+			log.Fatal(err)
+		}
+	case strings.HasSuffix(configFile, ".yaml"):
+		if err := yaml.Unmarshal(testContents, &tests); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
