@@ -1,49 +1,15 @@
-package structure_tests
+package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os/exec"
 	"regexp"
-	"strings"
 	"testing"
-
-	"github.com/ghodss/yaml"
 )
-
-type CommandTest struct {
-	Name           string
-	Command        string
-	Flags          string
-	ExpectedOutput []string
-	ExcludedOutput []string
-	ExpectedError  []string
-	ExcludedError  []string // excluded error from running command
-}
-
-type FileExistenceTest struct {
-	Name        string // name of test
-	Path        string // file to check existence of
-	IsDirectory bool   // whether or not the path points to a directory
-	ShouldExist bool   // whether or not the file should exist
-}
-
-type FileContentTest struct {
-	Name             string   // name of test
-	Path             string   // file to check existence of
-	ExpectedContents []string // list of expected contents of file
-	ExcludedContents []string // list of excluded contents of file
-}
-
-type StructureTest struct {
-	CommandTests       []CommandTest
-	FileExistenceTests []FileExistenceTest
-	FileContentTests   []FileContentTest
-}
 
 func TestRunCommand(t *testing.T) {
 	for _, tt := range tests.CommandTests {
@@ -138,27 +104,15 @@ func compileAndRunRegex(regex string, base string, t *testing.T, err string, sho
 	}
 }
 
-var configFile string
 var tests StructureTest
 
 func init() {
-	flag.StringVar(&configFile, "config", "/workspace/structure_test.json",
+	configFile := flag.String("config", "/workspace/structure_test.json",
 		"path to the .yaml file containing test definitions.")
+
 	flag.Parse()
 
-	testContents, err := ioutil.ReadFile(configFile)
-	if err != nil {
-		log.Fatalf("Error reading file: %s. %s", configFile, err)
-	}
-
-	switch {
-	case strings.HasSuffix(configFile, ".json"):
-		if err := json.Unmarshal(testContents, &tests); err != nil {
-			log.Fatal(err)
-		}
-	case strings.HasSuffix(configFile, ".yaml"):
-		if err := yaml.Unmarshal(testContents, &tests); err != nil {
-			log.Fatal(err)
-		}
+	if err := Parse(*configFile, &tests); err != nil {
+		log.Fatalf("Error parsing config file: %s", err)
 	}
 }
