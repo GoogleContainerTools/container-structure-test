@@ -104,15 +104,18 @@ func compileAndRunRegex(regex string, base string, t *testing.T, err string, sho
 	}
 }
 
+var configFiles arrayFlags
 var tests StructureTest
 
 func init() {
-	configFile := flag.String("config", "/workspace/structure_test.json",
-		"path to the .yaml file containing test definitions.")
-
+	flag.Var(&configFiles, "config", "path to the .yaml file containing test definitions.")
 	flag.Parse()
 
-	if err := Parse(*configFile, &tests); err != nil {
+	if len(configFiles) == 0 {
+		configFiles = append(configFiles, "/workspace/structure_test.json")
+	}
+
+	if err := Parse(configFiles, &tests); err != nil {
 		log.Fatalf("Error parsing config file: %s", err)
 	}
 }
