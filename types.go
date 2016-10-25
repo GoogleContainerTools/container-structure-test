@@ -20,27 +20,27 @@ func (a *arrayFlags) Set(value string) error {
 }
 
 type CommandTest struct {
-	Name           string
-	Command        string
-	Flags          string
-	ExpectedOutput []string
-	ExcludedOutput []string
-	ExpectedError  []string
-	ExcludedError  []string // excluded error from running command
+	Name           string   // required
+	Command        string   // required
+	Flags          []string // optional
+	ExpectedOutput []string // optional
+	ExcludedOutput []string // optional
+	ExpectedError  []string // optional
+	ExcludedError  []string // optional
 }
 
 type FileExistenceTest struct {
-	Name        string // name of test
-	Path        string // file to check existence of
-	IsDirectory bool   // whether or not the path points to a directory
-	ShouldExist bool   // whether or not the file should exist
+	Name        string // required
+	Path        string // required
+	IsDirectory bool   // required
+	ShouldExist bool   // required
 }
 
 type FileContentTest struct {
-	Name             string   // name of test
-	Path             string   // file to check existence of
-	ExpectedContents []string // list of expected contents of file
-	ExcludedContents []string // list of excluded contents of file
+	Name             string   // required
+	Path             string   // required
+	ExpectedContents []string // optional
+	ExcludedContents []string // optional
 }
 
 type StructureTest struct {

@@ -24,7 +24,7 @@ Command tests ensure that certain commands run properly on top of the shell of t
 
 - Name (string, **required**): The name of the test
 - Command (string, **required**): The command to run
-- Flags (string[], *optional*): Optional flags to pass to the command
+- Flags (string[], *optional*): Optional list of flags to pass to the command
 - Expected Output (string[], *optional*): List of regexes that should match the stdout from running the command.
 - Excluded Output (string[], *optional*): List of regexes that should **not** match the stdout from running the command.
 - Expected Error (string[], *optional*): List of regexes that should match the stderr from running the command.
@@ -36,13 +36,13 @@ Example:
 	{
 		"name": "apt-get",
 		"command": "apt-get",
-		"flags": "help",
+		"flags": ["help"],
 		"expectedOutput": [".*Usage.*"],
 		"excludedError": [".*FAIL.*"]
 	},{
 		"name": "apt-get upgrade",
 		"command": "apt-get",
-		"flags": "-qqs upgrade",
+		"flags": ["-qqs", "upgrade"],
 		"excludedOutput": [".*Inst.*Security.* | .*Security.*Inst.*"],
 		"excludedError": [".*Inst.*Security.* | .*Security.*Inst.*"]
 	}
