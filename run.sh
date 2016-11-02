@@ -56,4 +56,8 @@ if [ $VERBOSE -eq 1 ]; then
 	CMD_STRING=$CMD_STRING" -test.v"
 fi
 
+if [ -z "$IMAGE_NAME" ]; then
+	usage
+fi
+
 docker run --privileged=true -v /workspace:/workspace --entrypoint="$ENTRYPOINT" "$IMAGE_NAME" -c "$CMD_STRING"
