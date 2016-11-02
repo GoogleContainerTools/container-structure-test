@@ -6,12 +6,8 @@ ENTRYPOINT="./test/structure_test"
 ST_IMAGE="gcr.io/gcp-runtimes/structure_test"
 CONFIG_COUNTER=0
 
-while [ -z "$CONFIG_DIR" ] || [ -d "$CONFIG_DIR" ]; do
-	RAND=$(shuf -i 0-100000 -n 1)
-	CONFIG_DIR="/tmp/$RAND"
-done
-
-mkdir "$CONFIG_DIR"
+CONFIG_DIR=$(pwd)/.cfg
+mkdir -p "$CONFIG_DIR"
 
 command -v docker > /dev/null 2>&1 || { echo "Docker is required to run GCP structure tests, but is not installed on this host."; exit 1; }
 command docker ps > /dev/null 2>&1 || { echo "Cannot connect to the Docker daemon!"; exit 1; }
