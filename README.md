@@ -135,12 +135,14 @@ Structure tests can also be run outside of Cloud Container Build through a shell
 
 This script will retrieve the static structure_test binary from the published Docker image, volume mount it (along with all specified config files) into the container built from the image under test, and run the tests as normal. Supported arguments:
 
+Sample fetch and run:
+
+```shell
+curl https://raw.githubusercontent.com/GoogleCloudPlatform/runtimes-common/master/structure_tests/ext_run.sh > ext_run.sh
+bash ext_run.sh -i gcr.io/gcp-runtimes/check_if_tag_exists -c check_if_image_tag_exists/test_config.json
+```
+
+Flags:
 - [--image, -i]: The image to be tested (e.g. gcr.io/gcp-runtimes/check_if_tag_exists)
 - [--verbose, -v]: Boolean flag to show verbose logging/output from structure tests
 - [--config, -c]: JSON config file defining the actual tests to be run (Note: any number of config files may be specified)
-
-Sample run:
-
-```
-./ext_run.sh -i gcr.io/nick-cloudbuild/check_if_tag_exists -v --config ../check_if_image_tag_exists/test_config.json --config cfg.json
-```
