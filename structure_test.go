@@ -15,10 +15,9 @@ import (
 )
 
 func TestAll(t *testing.T) {
-	var err error
-	var tests StructureTest
 	for _, file := range configFiles {
-		if tests, err = Parse(file); err != nil {
+		tests, err := Parse(file)
+		if err != nil {
 			log.Fatalf("Error parsing config file: %s", err)
 		}
 		log.Printf("Running tests for file %s", file)
@@ -67,8 +66,11 @@ func Parse(fp string) (StructureTest, error) {
 	if st == nil {
 		return nil, errors.New("Unsupported schema version: " + version)
 	}
-	unmarshal(testContents, st)
-	tests, ok := st.(StructureTest) //type assertion
+
+	testHolder := st.New()
+
+	unmarshal(testContents, testHolder)
+	tests, ok := testHolder.(StructureTest) //type assertion
 	if !ok {
 		return nil, errors.New("Error encountered when type casting Structure Test interface!")
 	}

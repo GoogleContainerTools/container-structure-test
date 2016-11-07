@@ -1,10 +1,12 @@
 #!/bin/sh
 
 VERBOSE=0
+PULL=1
 CMD_STRING=""
 ENTRYPOINT="./test/structure_test"
 ST_IMAGE="gcr.io/gcp-runtimes/structure_test"
 CONFIG_COUNTER=0
+USAGE_STRING="Usage: $0 [-i <image>] [-c <config>] [-v] [-e <entrypoint>] [--no-pull]"
 
 CONFIG_DIR=$(pwd)/.cfg
 mkdir -p "$CONFIG_DIR"
@@ -17,9 +19,20 @@ cleanup() {
 }
 
 usage() {
-	echo "Usage: $0 [-i <image>] [-c <config>] [-v] [-e <entrypoint>]"
+	echo "$USAGE_STRING"
 	cleanup
 	exit 1
+}
+
+helper() {
+	echo "$USAGE_STRING"
+	echo
+	echo "	-i, --image          image to run tests on"
+	echo "	-c, --config         path to json/yaml config file"
+	echo "	-v                   display verbose testing output"
+	echo "	-e, --entrypoint     specify custom docker entrypoint for image"
+	echo "	--no-pull            don't pull latest structure test image"
+	exit 0
 }
 
 while test $# -gt 0; do
@@ -36,6 +49,13 @@ while test $# -gt 0; do
 		--verbose|-v)
 			VERBOSE=1
 			shift
+			;;
+		--no-pull)
+			PULL=0
+			shift
+			;;
+		--help|-h)
+			helper
 			;;
 		--config|-c)
 			shift
@@ -70,6 +90,10 @@ fi
 
 if [ $VERBOSE -eq 1 ]; then
 	CMD_STRING=$CMD_STRING" -test.v"
+fi
+
+if [ $PULL -eq 1 ]; then
+	docker pull "$ST_IMAGE"
 fi
 
 docker run -d --entrypoint="/bin/sh" --name st_container "$ST_IMAGE" > /dev/null 2>&1

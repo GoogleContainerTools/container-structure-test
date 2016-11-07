@@ -20,8 +20,8 @@ func (a *arrayFlags) Set(value string) error {
 	return nil
 }
 
-var schemaVersions map[string]interface{} = map[string]interface{}{
-	"1.0.0": new(StructureTestv1),
+var schemaVersions map[string]VersionHolder = map[string]VersionHolder{
+	"1.0.0": new(VersionHolderv1),
 }
 
 type SchemaVersion struct {
@@ -29,3 +29,13 @@ type SchemaVersion struct {
 }
 
 type Unmarshaller func([]byte, interface{}) error
+
+type VersionHolder interface {
+	New() StructureTest
+}
+
+type VersionHolderv1 struct{}
+
+func (v VersionHolderv1) New() StructureTest {
+	return new(StructureTestv1)
+}
