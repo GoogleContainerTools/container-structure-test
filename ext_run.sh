@@ -1,9 +1,11 @@
 #!/bin/sh
 
+set -e
+
 VERBOSE=0
 PULL=1
 CMD_STRING=""
-ENTRYPOINT="./test/structure_test"
+ENTRYPOINT="/test/structure_test"
 ST_IMAGE="gcr.io/gcp-runtimes/structure_test"
 CONFIG_COUNTER=0
 USAGE_STRING="Usage: $0 [-i <image>] [-c <config>] [-v] [-e <entrypoint>] [--no-pull]"
