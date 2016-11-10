@@ -23,8 +23,9 @@ Command tests ensure that certain commands run properly on top of the shell of t
 #### Supported Fields:
 
 - Name (string, **required**): The name of the test
-- Command (string, **required**): The command to run
-- Flags (string[], *optional*): Optional list of flags to pass to the command
+- Setup ([][]string, *optional*): A list of commands (each with optional flags) to run before the actual command under test.
+- Teardown ([][]string, *optional*): A list of commands (each with optional flags) to run after the actual command under test.
+- Command ([]string, **required**): The command to run, along with the flags to pass to it.
 - Expected Output (string[], *optional*): List of regexes that should match the stdout from running the command.
 - Excluded Output (string[], *optional*): List of regexes that should **not** match the stdout from running the command.
 - Expected Error (string[], *optional*): List of regexes that should match the stderr from running the command.
@@ -34,17 +35,16 @@ Example:
 ```json
 "commandTests": [
 	{
-		"name": "apt-get",
-		"command": "apt-get",
-		"flags": ["help"],
-		"expectedOutput": [".*Usage.*"],
-		"excludedError": [".*FAIL.*"]
-	},{
 		"name": "apt-get upgrade",
-		"command": "apt-get",
-		"flags": ["-qqs", "upgrade"],
+		"command": ["apt-get", "-qqs", "upgrade"],
 		"excludedOutput": [".*Inst.*Security.* | .*Security.*Inst.*"],
 		"excludedError": [".*Inst.*Security.* | .*Security.*Inst.*"]
+	},{
+		"name": "Custom Node Version",
+		"setup": [["install_node", "v5.9.0"]],
+		"teardown": [["install_node", "v6.9.1"]],
+		"command": ["node", "-v"],
+  		"expectedOutput": ["v5.9.0\n"]
 	}
 ]
 ```
@@ -52,8 +52,7 @@ Example:
 ```yaml
 commandTests:
 - name:  'apt-get'
-  command: 'apt-get'
-  flags: 'help'
+  command: ['apt-get', 'help']
   expectedError: ['.*Usage.*']
   excludedError: ['*FAIL.*']
 ```

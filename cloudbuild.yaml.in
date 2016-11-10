@@ -3,6 +3,6 @@ steps:
           args: ['test', '-c', 'github.com/GoogleCloudPlatform/runtimes-common/structure_tests', '-o', '/workspace/structure_tests/structure_test']
           env: ['PROJECT_ROOT=github.com/GoogleCloudPlatform/runtimes-common']
         - name: gcr.io/cloud-builders/docker
-          args: ['build', '-t', 'gcr.io/gcp-runtimes/structure_test:${VERSION}', './structure_tests']
+          args: ['build', '-t', '${IMAGE}', './structure_tests']
 images:
-        - 'gcr.io/gcp-runtimes/structure_test:${VERSION}'
+        - '${IMAGE}'

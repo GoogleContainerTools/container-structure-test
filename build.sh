@@ -14,13 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+usage() { echo "Usage: ./build.sh [target_image_path]"; exit 1; }
+
 set -e
 
-export VERSION=$1
+export IMAGE=$1
 
-if [ -z "$1" ]; then
-  echo "Please provide valid version to tag image."
-  exit 1
+if [ -z "$IMAGE" ]; then
+  usage
 fi
 
 envsubst < cloudbuild.yaml.in > cloudbuild.yaml
