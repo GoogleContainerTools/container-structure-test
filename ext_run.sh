@@ -21,7 +21,6 @@ PULL=1
 CMD_STRING=""
 ENTRYPOINT="/test/structure_test"
 ST_IMAGE="gcr.io/gcp-runtimes/structure_test"
-CONFIG_COUNTER=0
 USAGE_STRING="Usage: $0 [-i <image>] [-c <config>] [-v] [-e <entrypoint>] [--no-pull]"
 
 CONFIG_DIR=$(pwd)/.cfg
@@ -83,14 +82,14 @@ while test $# -gt 0; do
 					cleanup
 					exit 1
 				fi
-				# structure tests allow specifying any number of json configs,
+				# structure tests allow specifying any number of configs,
 				# which can live anywhere on the host file system. to simplify
 				# the docker volume mount, we copy all of these configs into
 				# a /tmp directory and mount this single directory into the
 				# test image. this directory is cleaned up after testing.
-				cp "$1" "$CONFIG_DIR"/cfg_$CONFIG_COUNTER.json
-				CMD_STRING=$CMD_STRING" --config /cfg/cfg_$CONFIG_COUNTER.json"
-				CONFIG_COUNTER=$(( CONFIG_COUNTER + 1 ))
+				filename=$(basename "$1")
+				cp "$1" "$CONFIG_DIR"/"$filename"
+				CMD_STRING=$CMD_STRING" --config /cfg/$filename"
 			fi
 			shift
 			;;
@@ -112,6 +111,7 @@ if [ $PULL -eq 1 ]; then
 	docker pull "$ST_IMAGE"
 fi
 
+docker rm st_container > /dev/null 2>&1 || true # remove container if already there
 docker run -d --entrypoint="/bin/sh" --name st_container "$ST_IMAGE" > /dev/null 2>&1
 
 # shellcheck disable=SC2086
