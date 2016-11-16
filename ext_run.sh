@@ -21,10 +21,12 @@ PULL=1
 CMD_STRING=""
 ENTRYPOINT="/test/structure_test"
 ST_IMAGE="gcr.io/gcp-runtimes/structure_test"
-USAGE_STRING="Usage: $0 [-i <image>] [-c <config>] [-v] [-e <entrypoint>] [--no-pull]"
+USAGE_STRING="Usage: $0 [-i <image>] [-c <config>] [-w <workspace>] [-v] [-e <entrypoint>] [--no-pull]"
 
 CONFIG_DIR=$(pwd)/.cfg
 mkdir -p "$CONFIG_DIR"
+
+VOLUME_STR="--volumes-from st_container -v $CONFIG_DIR:/cfg"
 
 command -v docker > /dev/null 2>&1 || { echo "Docker is required to run GCP structure tests, but is not installed on this host."; exit 1; }
 command docker ps > /dev/null 2>&1 || { echo "Cannot connect to the Docker daemon!"; exit 1; }
@@ -42,11 +44,16 @@ usage() {
 helper() {
 	echo "$USAGE_STRING"
 	echo
-	echo "	-i, --image          image to run tests on"
-	echo "	-c, --config         path to json/yaml config file"
-	echo "	-v                   display verbose testing output"
-	echo "	-e, --entrypoint     specify custom docker entrypoint for image"
-	echo "	--no-pull            don't pull latest structure test image"
+	echo "    -i, --image          Image to run tests on"
+	echo "    -c, --config         Path to JSON/YAML config file"
+	echo "    -w, --workspace      Path to directory to be mounted as"
+	echo "                         /workspace in remote container."
+	echo "                         This is most likely the project root for the image, as all"
+	echo "                         resources in the directory will be included in the test run."
+	echo "                         (e.g. -w ../../python-runtime)"
+	echo "    -v                   Display verbose testing output"
+	echo "    -e, --entrypoint     Specify custom docker entrypoint for image"
+	echo "    --no-pull            Don't pull latest structure test image"
 	exit 0
 }
 
@@ -71,6 +78,23 @@ while test $# -gt 0; do
 			;;
 		--help|-h)
 			helper
+			;;
+
+		--workspace|-w)
+			shift
+			if test $# -eq 0; then
+				usage
+			else
+				FULLPATH=$(readlink -f "$1")
+				if [ ! -d "$FULLPATH" ]; then
+					echo "$FULLPATH is not a valid directory."
+					cleanup
+					exit 1
+				fi
+
+				VOLUME_STR=$VOLUME_STR" -v $FULLPATH:/workspace"
+			fi
+			shift
 			;;
 		--config|-c)
 			shift
@@ -115,7 +139,7 @@ docker rm st_container > /dev/null 2>&1 || true # remove container if already th
 docker run -d --entrypoint="/bin/sh" --name st_container "$ST_IMAGE" > /dev/null 2>&1
 
 # shellcheck disable=SC2086
-docker run --rm --entrypoint="$ENTRYPOINT" --volumes-from st_container -v "$CONFIG_DIR":/cfg "$IMAGE_NAME" $CMD_STRING
+docker run --rm --entrypoint="$ENTRYPOINT" $VOLUME_STR "$IMAGE_NAME" $CMD_STRING
 
 docker rm st_container > /dev/null 2>&1
 cleanup
