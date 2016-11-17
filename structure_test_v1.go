@@ -18,17 +18,22 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
+	"syscall"
 	"testing"
 )
 
 type StructureTestv1 struct {
+	GlobalEnvVars      []EnvVar
 	CommandTests       []CommandTestv1
 	FileExistenceTests []FileExistenceTestv1
 	FileContentTests   []FileContentTestv1
 }
 
 func (st StructureTestv1) RunAll(t *testing.T) {
+	originalVars := SetEnvVars(t, st.GlobalEnvVars)
+	defer ResetEnvVars(t, originalVars)
 	st.RunCommandTests(t)
 	st.RunFileExistenceTests(t)
 	st.RunFileContentTests(t)
@@ -38,14 +43,14 @@ func (st StructureTestv1) RunCommandTests(t *testing.T) {
 	for _, tt := range st.CommandTests {
 		validateCommandTestV1(t, tt)
 		for _, setup := range tt.Setup {
-			ProcessCommand(t, setup, false)
+			ProcessCommand(t, tt.EnvVars, setup, false)
 		}
 
-		stdout, stderr := ProcessCommand(t, tt.Command, true)
-		CheckOutput(t, tt, stdout, stderr)
+		stdout, stderr, exitcode := ProcessCommand(t, tt.EnvVars, tt.Command, true)
+		CheckOutput(t, tt, stdout, stderr, exitcode)
 
 		for _, teardown := range tt.Teardown {
-			ProcessCommand(t, teardown, false)
+			ProcessCommand(t, tt.EnvVars, teardown, false)
 		}
 	}
 }
@@ -97,10 +102,20 @@ func (st StructureTestv1) RunFileContentTests(t *testing.T) {
 	}
 }
 
-func ProcessCommand(t *testing.T, fullCommand []string, checkOutput bool) (string, string) {
+// given an array of command parts, construct a full command and execute it against the
+// current environment. a list of environment variables can be passed to be set in the
+// environment before the command is executed. additionally, a boolean flag is passed
+// to specify whether or not we care about the output of the command.
+func ProcessCommand(t *testing.T, envVars []EnvVar, fullCommand []string, checkOutput bool) (string, string, int) {
 	var cmd *exec.Cmd
+	if len(fullCommand) == 0 {
+		t.Logf("empty command provided: skipping...")
+		return "", "", -1
+	}
 	command := fullCommand[0]
 	flags := fullCommand[1:]
+	originalVars := SetEnvVars(t, envVars)
+	defer ResetEnvVars(t, originalVars)
 	if len(flags) > 0 {
 		cmd = exec.Command(command, flags...)
 	} else {
@@ -127,6 +142,7 @@ func ProcessCommand(t *testing.T, fullCommand []string, checkOutput bool) (strin
 	if stderr != "" {
 		t.Logf("stderr: %s", stderr)
 	}
+	var exitCode int
 	if err != nil {
 		if checkOutput {
 			// The test might be designed to run a command that exits with an error.
@@ -134,11 +150,44 @@ func ProcessCommand(t *testing.T, fullCommand []string, checkOutput bool) (strin
 		} else {
 			t.Fatalf("Error running setup/teardown command: %s.", err)
 		}
+		exitCode = err.(*exec.ExitError).Sys().(syscall.WaitStatus).ExitStatus()
+	} else {
+		exitCode = cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus()
 	}
-	return stdout, stderr
+	return stdout, stderr, exitCode
 }
 
-func CheckOutput(t *testing.T, tt CommandTestv1, stdout string, stderr string) {
+// given a list of environment variable key/value pairs, set these in the current environment.
+// also, keep track of the previous values of these vars to reset after test execution.
+func SetEnvVars(t *testing.T, vars []EnvVar) []EnvVar {
+	var originalVars []EnvVar
+	for _, env_var := range vars {
+		originalVars = append(originalVars, EnvVar{env_var.Key, os.Getenv(env_var.Key)})
+		if err := os.Setenv(env_var.Key, os.ExpandEnv(env_var.Value)); err != nil {
+			t.Fatalf("error setting env var: %s", err)
+		}
+	}
+	return originalVars
+}
+
+func ResetEnvVars(t *testing.T, vars []EnvVar) {
+	for _, env_var := range vars {
+		var err error
+		if env_var.Value == "" {
+			// if the previous value was empty string, the variable did not
+			// exist in the environment; unset it
+			err = os.Unsetenv(env_var.Key)
+		} else {
+			// otherwise, set it back to its previous value
+			err = os.Setenv(env_var.Key, env_var.Value)
+		}
+		if err != nil {
+			t.Fatalf("error resetting env var: %s", err)
+		}
+	}
+}
+
+func CheckOutput(t *testing.T, tt CommandTestv1, stdout string, stderr string, exitCode int) {
 	for _, errStr := range tt.ExpectedError {
 		errMsg := fmt.Sprintf("Expected string '%s' not found in error!", errStr)
 		compileAndRunRegex(errStr, stderr, t, errMsg, true)
@@ -154,5 +203,8 @@ func CheckOutput(t *testing.T, tt CommandTestv1, stdout string, stderr string) {
 	for _, outStr := range tt.ExcludedOutput {
 		errMsg := fmt.Sprintf("Excluded string '%s' found in output!", outStr)
 		compileAndRunRegex(outStr, stdout, t, errMsg, false)
+	}
+	if tt.ExitCode != exitCode {
+		t.Errorf("Test %s exited with incorrect error code! Expected: %d, Actual: %d", tt.Name, tt.ExitCode, exitCode)
 	}
 }
