@@ -31,15 +31,18 @@ type StructureTestv1 struct {
 	FileContentTests   []FileContentTestv1
 }
 
-func (st StructureTestv1) RunAll(t *testing.T) {
+func (st StructureTestv1) RunAll(t *testing.T) int {
 	originalVars := SetEnvVars(t, st.GlobalEnvVars)
 	defer ResetEnvVars(t, originalVars)
-	st.RunCommandTests(t)
-	st.RunFileExistenceTests(t)
-	st.RunFileContentTests(t)
+	testsRun := 0
+	testsRun += st.RunCommandTests(t)
+	testsRun += st.RunFileExistenceTests(t)
+	testsRun += st.RunFileContentTests(t)
+	return testsRun
 }
 
-func (st StructureTestv1) RunCommandTests(t *testing.T) {
+func (st StructureTestv1) RunCommandTests(t *testing.T) int {
+	counter := 0
 	for _, tt := range st.CommandTests {
 		validateCommandTestV1(t, tt)
 		for _, setup := range tt.Setup {
@@ -52,10 +55,13 @@ func (st StructureTestv1) RunCommandTests(t *testing.T) {
 		for _, teardown := range tt.Teardown {
 			ProcessCommand(t, tt.EnvVars, teardown, false)
 		}
+		counter++
 	}
+	return counter
 }
 
-func (st StructureTestv1) RunFileExistenceTests(t *testing.T) {
+func (st StructureTestv1) RunFileExistenceTests(t *testing.T) int {
+	counter := 0
 	for _, tt := range st.FileExistenceTests {
 		validateFileExistenceTestV1(t, tt)
 		var err error
@@ -77,10 +83,13 @@ func (st StructureTestv1) RunFileExistenceTests(t *testing.T) {
 				t.Errorf("File %s should not exist but does!", tt.Path)
 			}
 		}
+		counter++
 	}
+	return counter
 }
 
-func (st StructureTestv1) RunFileContentTests(t *testing.T) {
+func (st StructureTestv1) RunFileContentTests(t *testing.T) int {
+	counter := 0
 	for _, tt := range st.FileContentTests {
 		validateFileContentTestV1(t, tt)
 		actualContents, err := ioutil.ReadFile(tt.Path)
@@ -99,7 +108,9 @@ func (st StructureTestv1) RunFileContentTests(t *testing.T) {
 			errMessage = "Excluded string " + s + " found in file contents!"
 			compileAndRunRegex(s, contents, t, errMessage, false)
 		}
+		counter++
 	}
+	return counter
 }
 
 // given an array of command parts, construct a full command and execute it against the

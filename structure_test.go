@@ -28,6 +28,8 @@ import (
 	"github.com/ghodss/yaml"
 )
 
+var totalTests int
+
 func TestAll(t *testing.T) {
 	for _, file := range configFiles {
 		tests, err := Parse(file)
@@ -35,7 +37,12 @@ func TestAll(t *testing.T) {
 			log.Fatalf("Error parsing config file: %s", err)
 		}
 		log.Printf("Running tests for file %s", file)
-		tests.RunAll(t)
+		totalTests += tests.RunAll(t)
+	}
+	if totalTests == 0 {
+		t.Fatalf("No tests run! Check config file format.")
+	} else {
+		t.Logf("Total tests run: %d", totalTests)
 	}
 }
 

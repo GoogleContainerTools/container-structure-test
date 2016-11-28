@@ -20,7 +20,7 @@ import (
 )
 
 type StructureTest interface {
-	RunAll(t *testing.T)
+	RunAll(t *testing.T) int
 }
 
 type arrayFlags []string
