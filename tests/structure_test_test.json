@@ -1,0 +1,23 @@
+{
+	"schemaVersion": "1.0.0",
+	"fileExistenceTests": [
+		{
+			"name": "Mounted test directory",
+			"path": "/test",
+			"isDirectory": true,
+			"shouldExist": true
+		},
+		{
+			"name": "Run script",
+			"path": "/run.sh",
+			"isDirectory": false,
+			"shouldExist": true
+		},
+		{
+			"name": "Test executable",
+			"path": "/test/structure_test",
+			"isDirectory": false,
+			"shouldExist": true
+		}
+	]
+}

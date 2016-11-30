@@ -26,4 +26,4 @@ fi
 
 envsubst < cloudbuild.yaml.in > cloudbuild.yaml
 cd ..
-gcloud alpha container builds create . --config=structure_tests/cloudbuild.yaml
+gcloud beta container builds submit . --config=structure_tests/cloudbuild.yaml
