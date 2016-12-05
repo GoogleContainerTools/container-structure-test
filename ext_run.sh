@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright 2016 Google Inc. All rights reserved.
 
@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
+set -euo pipefail
 
 VERBOSE=0
 PULL=1
-CMD_STRING=""
+declare -a CMD_STRING
+CMD_STRING=()
 ENTRYPOINT="/test/structure_test"
 ST_IMAGE="gcr.io/gcp-runtimes/structure_test"
 USAGE_STRING="Usage: $0 [-i <image>] [-c <config>] [-w <workspace>] [-v] [-e <entrypoint>] [--no-pull]"
@@ -26,7 +27,8 @@ USAGE_STRING="Usage: $0 [-i <image>] [-c <config>] [-w <workspace>] [-v] [-e <en
 CONFIG_DIR=$(pwd)/.cfg
 mkdir -p "$CONFIG_DIR"
 
-VOLUME_STR="--volumes-from st_container -v $CONFIG_DIR:/cfg"
+declare -a VOLUME_STR
+VOLUME_STR=(--volumes-from st_container -v "$CONFIG_DIR:/cfg")
 
 command -v docker > /dev/null 2>&1 || { echo "Docker is required to run GCP structure tests, but is not installed on this host."; exit 1; }
 command docker ps > /dev/null 2>&1 || { echo "Cannot connect to the Docker daemon!"; exit 1; }
@@ -92,7 +94,7 @@ while test $# -gt 0; do
 					exit 1
 				fi
 
-				VOLUME_STR=$VOLUME_STR" -v $FULLPATH:/workspace"
+				VOLUME_STR+=(-v "$FULLPATH:/workspace")
 			fi
 			shift
 			;;
@@ -113,7 +115,7 @@ while test $# -gt 0; do
 				# test image. this directory is cleaned up after testing.
 				filename=$(basename "$1")
 				cp "$1" "$CONFIG_DIR"/"$filename"
-				CMD_STRING=$CMD_STRING" --config /cfg/$filename"
+				CMD_STRING+=(--config "/cfg/$filename")
 			fi
 			shift
 			;;
@@ -128,7 +130,7 @@ if [ -z "$IMAGE_NAME" ]; then
 fi
 
 if [ $VERBOSE -eq 1 ]; then
-	CMD_STRING=$CMD_STRING" -test.v"
+	CMD_STRING+=(-test.v)
 fi
 
 if [ $PULL -eq 1 ]; then
@@ -139,7 +141,7 @@ docker rm st_container > /dev/null 2>&1 || true # remove container if already th
 docker run -d --entrypoint="/bin/sh" --name st_container "$ST_IMAGE" > /dev/null 2>&1
 
 # shellcheck disable=SC2086
-docker run --rm --entrypoint="$ENTRYPOINT" $VOLUME_STR "$IMAGE_NAME" $CMD_STRING
+docker run --rm --entrypoint="$ENTRYPOINT" "${VOLUME_STR[@]}" "$IMAGE_NAME" "${CMD_STRING[@]}"
 
 docker rm st_container > /dev/null 2>&1
 cleanup
