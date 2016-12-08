@@ -129,7 +129,7 @@ fileContentTests:
   excludedContents: ['.*gce_debian_mirror.*']
 ```
 
-### License Tests
+## License Tests
 License tests check a list of copyright files and makes sure all licenses are
 allowed at Google. By default it will look at where Debian lists all copyright
 files, but can also look at an arbitrary list of files.
