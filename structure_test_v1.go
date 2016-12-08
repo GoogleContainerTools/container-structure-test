@@ -29,6 +29,7 @@ type StructureTestv1 struct {
 	CommandTests       []CommandTestv1
 	FileExistenceTests []FileExistenceTestv1
 	FileContentTests   []FileContentTestv1
+	LicenseTests       []LicenseTestv1
 }
 
 func (st StructureTestv1) RunAll(t *testing.T) int {
@@ -38,6 +39,7 @@ func (st StructureTestv1) RunAll(t *testing.T) int {
 	testsRun += st.RunCommandTests(t)
 	testsRun += st.RunFileExistenceTests(t)
 	testsRun += st.RunFileContentTests(t)
+	testsRun += st.RunLicenseTests(t)
 	return testsRun
 }
 
@@ -111,6 +113,14 @@ func (st StructureTestv1) RunFileContentTests(t *testing.T) int {
 		counter++
 	}
 	return counter
+}
+
+func (st StructureTestv1) RunLicenseTests(t *testing.T) int {
+	for _, tt := range st.LicenseTests {
+		checkLicenses(t, tt)
+		return 1
+	}
+	return 0
 }
 
 // given an array of command parts, construct a full command and execute it against the

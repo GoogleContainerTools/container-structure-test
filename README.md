@@ -129,6 +129,34 @@ fileContentTests:
   excludedContents: ['.*gce_debian_mirror.*']
 ```
 
+### License Tests
+License tests check a list of copyright files and makes sure all licenses are
+allowed at Google. By default it will look at where Debian lists all copyright
+files, but can also look at an arbitrary list of files.
+
+#### Supported Fields:
+
+- Debian (bool, **required**): If the image is based on Debian, check where
+  Debian lists all licenses.
+- Files (string[], *optional*): A list of other files to check.
+
+Example:
+```json
+"licenseTests": [
+      {
+            "debian": true,
+            "files": ["/foo/bar", "/baz/bat"]
+      }
+]
+```
+
+Example:
+```yaml
+licenseTests:
+- debian: true
+  files: ["/foo/bar", "/baz/bat"]
+```
+
 ### Running Structure Tests Outside of Container Build
 Structure tests can also be run outside of Cloud Container Build through a shell script, `ext_run.sh`. This allows the structure test framework to be used as normal presubmit tests in build systems like TravisCI. The only requirement to run is that the host machine has a working installation of Docker.
 

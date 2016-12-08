@@ -19,5 +19,11 @@
 			"isDirectory": false,
 			"shouldExist": true
 		}
+	],
+	"licenseTests": [
+		{
+			"debian": false,
+			"files": []
+		}
 	]
 }
