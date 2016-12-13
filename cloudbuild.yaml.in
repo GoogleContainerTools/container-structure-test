@@ -4,5 +4,7 @@ steps:
           env: ['PROJECT_ROOT=github.com/GoogleCloudPlatform/runtimes-common']
         - name: gcr.io/cloud-builders/docker
           args: ['build', '-t', '${IMAGE}', './structure_tests']
+        - name: gcr.io/gcp-runtimes/check_if_tag_exists
+          args: ['--image=${IMAGE}']
 images:
         - '${IMAGE}'
