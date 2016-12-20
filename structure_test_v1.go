@@ -67,10 +67,11 @@ func (st StructureTestv1) RunFileExistenceTests(t *testing.T) int {
 	for _, tt := range st.FileExistenceTests {
 		validateFileExistenceTestV1(t, tt)
 		var err error
+		var info os.FileInfo
 		if tt.IsDirectory {
-			_, err = ioutil.ReadDir(tt.Path)
+			info, err = os.Stat(tt.Path)
 		} else {
-			_, err = ioutil.ReadFile(tt.Path)
+			info, err = os.Stat(tt.Path)
 		}
 		if tt.ShouldExist && err != nil {
 			if tt.IsDirectory {
@@ -83,6 +84,12 @@ func (st StructureTestv1) RunFileExistenceTests(t *testing.T) int {
 				t.Errorf("Directory %s should not exist but does!", tt.Path)
 			} else {
 				t.Errorf("File %s should not exist but does!", tt.Path)
+			}
+		}
+		if tt.Permissions != "" {
+			perms := info.Mode()
+			if perms.String() != tt.Permissions {
+				t.Errorf("%s has incorrect permissions. Expected: %s, Actual: %s", tt.Path, tt.Permissions, perms.String())
 			}
 		}
 		counter++

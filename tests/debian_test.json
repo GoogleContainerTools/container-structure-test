@@ -16,9 +16,15 @@
 	"fileExistenceTests": [
 		{
 			"name": "Root",
-			"path": "/",
+			"path": "/bin",
 			"isDirectory": true,
-			"shouldExist": true
+			"shouldExist": true,
+			"permissions": "drwxr-xr-x"
+		},
+		{	"name": "Sources file",
+			"path": "/etc/apt/sources.list",
+			"shouldExist": true,
+			"permissions": "-rw-r--r--"
 		}
 	],
 	"fileContentTests": [

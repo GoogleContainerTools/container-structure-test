@@ -5,9 +5,9 @@ This code builds an image which serves as a framework to run structure-based tes
 
 To use this test image with any cloudbuild, add the following build step to the **end** your container build config (cloudbuild.yaml or cloudbuild.json):
 
-	name: gcr.io/gcp-runtimes/structure_test
-	args:
-		- <your_target_image>
+              name: gcr.io/gcp-runtimes/structure_test
+              args:
+                  - <your_target_image>
 
 It's **very important that this step appears at the end of your build** (or at least after the image itself it assembled by Docker); without a built image, there will be nothing to test, and your build will fail!
 
@@ -34,18 +34,19 @@ Command tests ensure that certain commands run properly on top of the shell of t
 Example:
 ```json
 "commandTests": [
-	{
-		"name": "apt-get upgrade",
-		"command": ["apt-get", "-qqs", "upgrade"],
-		"excludedOutput": [".*Inst.*Security.* | .*Security.*Inst.*"],
-		"excludedError": [".*Inst.*Security.* | .*Security.*Inst.*"]
-	},{
-		"name": "Custom Node Version",
-		"setup": [["install_node", "v5.9.0"]],
-		"teardown": [["install_node", "v6.9.1"]],
-		"command": ["node", "-v"],
-  		"expectedOutput": ["v5.9.0\n"]
-	}
+        {
+                "name": "apt-get upgrade",
+                "command": ["apt-get", "-qqs", "upgrade"],
+                "excludedOutput": [".*Inst.*Security.* | .*Security.*Inst.*"],
+                "excludedError": [".*Inst.*Security.* | .*Security.*Inst.*"]
+        },
+        {
+                "name": "Custom Node Version",
+                "setup": [["install_node", "v5.9.0"]],
+                "teardown": [["install_node", "v6.9.1"]],
+                "command": ["node", "-v"],
+                "expectedOutput": ["v5.9.0\n"]
+        }
 ]
 ```
 
@@ -67,21 +68,25 @@ File existence tests check to make sure a specific file (or directory) exist wit
 - Path (string, **required**): Path to the file or directory under test
 - IsDirectory (boolean, **required**): Whether or not the specified path is a directory (as opposed to a file)
 - ShouldExist (boolean, **required**): Whether or not the specified file or directory should exist in the file system
+- Permissions (string, *optional*): The expected Unix permission string (e.g.
+  drwxrwxrwx) of the files or directory.
 
 Example:
 ```json
 "fileExistenceTests": [
-	{
-		"name": "Root",
-		"path": "/",
-		"isDirectory": true,
-		"shouldExist": true
-	},{
-		"name": "Fake file",
-		"path": "/foo/bar",
-		"isDirectory": false,
-		"shouldExist": false
-	}
+        {
+                "name": "Root",
+                "path": "/",
+                "isDirectory": true,
+                "shouldExist": true,
+                "permissions": "-rw-r--r--"
+        },
+        {
+                "name": "Fake file",
+                "path": "/foo/bar",
+                "isDirectory": false,
+                "shouldExist": false
+        }
 ]
 ```
 
@@ -92,6 +97,7 @@ fileExistenceTests:
   path: '/'
   isDirectory: true
   shouldExist: true
+  permissions: '-rw-r--r--'
 ```
 
 ## File Content Tests
@@ -107,16 +113,16 @@ File content tests open a file on the file system and check its contents. These 
 Example:
 ```json
 "fileContentTests": [
-	{
-		"name": "Debian Sources",
-		"path": "/etc/apt/sources.list",
-		"expectedContents": [
-			".*httpredir\\.debian\\.org.*"
-		],
-		"excludedContents": [
-			".*gce_debian_mirror.*"
-		]
-	}
+        {
+                "name": "Debian Sources",
+                "path": "/etc/apt/sources.list",
+                "expectedContents": [
+                        ".*httpredir\\.debian\\.org.*"
+                ],
+                "excludedContents": [
+                        ".*gce_debian_mirror.*"
+                ]
+        }
 ]
 ```
 

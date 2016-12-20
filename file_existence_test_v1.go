@@ -23,6 +23,7 @@ type FileExistenceTestv1 struct {
 	Path        string // file to check existence of
 	IsDirectory bool   // whether or not the path points to a directory
 	ShouldExist bool   // whether or not the file should exist
+	Permissions string // expected Unix permission string of the file, e.g. drwxrwxrwx
 }
 
 func validateFileExistenceTestV1(t *testing.T, tt FileExistenceTestv1) {

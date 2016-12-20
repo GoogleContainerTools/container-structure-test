@@ -19,7 +19,13 @@
 			"path": "/foo/bar",
 			"isDirectory": true,
 			"shouldExist": true
+		},
+		{	"name": "Wrong permissions",
+			"path": "/etc/apt/sources.list",
+			"shouldExist": true,
+			"permissions": "-rwxrwxrwx"
 		}
+
 	],
 	"fileContentTests": [
 		{
