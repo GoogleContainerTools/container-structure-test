@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -33,5 +34,8 @@ func validateFileExistenceTestV1(t *testing.T, tt FileExistenceTestv1) {
 	if tt.Path == "" {
 		t.Fatalf("Please provide a valid file path for test %s", tt.Name)
 	}
-	t.Logf("FILE EXISTENCE TEST: %s", tt.Name)
+}
+
+func (ft FileExistenceTestv1) Name() string {
+	return fmt.Sprintf("File Existence Test: %s", ft.Name)
 }

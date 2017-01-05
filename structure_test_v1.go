@@ -46,18 +46,20 @@ func (st StructureTestv1) RunAll(t *testing.T) int {
 func (st StructureTestv1) RunCommandTests(t *testing.T) int {
 	counter := 0
 	for _, tt := range st.CommandTests {
-		validateCommandTestV1(t, tt)
-		for _, setup := range tt.Setup {
-			ProcessCommand(t, tt.EnvVars, setup, false)
-		}
+		t.Run(tt.Name(), func(t *testing.T) {
+			validateCommandTestV1(t, tt)
+			for _, setup := range tt.Setup {
+				ProcessCommand(t, tt.EnvVars, setup, false)
+			}
 
-		stdout, stderr, exitcode := ProcessCommand(t, tt.EnvVars, tt.Command, true)
-		CheckOutput(t, tt, stdout, stderr, exitcode)
+			stdout, stderr, exitcode := ProcessCommand(t, tt.EnvVars, tt.Command, true)
+			CheckOutput(t, tt, stdout, stderr, exitcode)
 
-		for _, teardown := range tt.Teardown {
-			ProcessCommand(t, tt.EnvVars, teardown, false)
-		}
-		counter++
+			for _, teardown := range tt.Teardown {
+				ProcessCommand(t, tt.EnvVars, teardown, false)
+			}
+			counter++
+		})
 	}
 	return counter
 }
@@ -65,34 +67,36 @@ func (st StructureTestv1) RunCommandTests(t *testing.T) int {
 func (st StructureTestv1) RunFileExistenceTests(t *testing.T) int {
 	counter := 0
 	for _, tt := range st.FileExistenceTests {
-		validateFileExistenceTestV1(t, tt)
-		var err error
-		var info os.FileInfo
-		if tt.IsDirectory {
-			info, err = os.Stat(tt.Path)
-		} else {
-			info, err = os.Stat(tt.Path)
-		}
-		if tt.ShouldExist && err != nil {
+		t.Run(tt.Name(), func(t *testing.T) {
+			validateFileExistenceTestV1(t, tt)
+			var err error
+			var info os.FileInfo
 			if tt.IsDirectory {
-				t.Errorf("Directory %s should exist but does not!", tt.Path)
+				info, err = os.Stat(tt.Path)
 			} else {
-				t.Errorf("File %s should exist but does not!", tt.Path)
+				info, err = os.Stat(tt.Path)
 			}
-		} else if !tt.ShouldExist && err == nil {
-			if tt.IsDirectory {
-				t.Errorf("Directory %s should not exist but does!", tt.Path)
-			} else {
-				t.Errorf("File %s should not exist but does!", tt.Path)
+			if tt.ShouldExist && err != nil {
+				if tt.IsDirectory {
+					t.Errorf("Directory %s should exist but does not!", tt.Path)
+				} else {
+					t.Errorf("File %s should exist but does not!", tt.Path)
+				}
+			} else if !tt.ShouldExist && err == nil {
+				if tt.IsDirectory {
+					t.Errorf("Directory %s should not exist but does!", tt.Path)
+				} else {
+					t.Errorf("File %s should not exist but does!", tt.Path)
+				}
 			}
-		}
-		if tt.Permissions != "" {
-			perms := info.Mode()
-			if perms.String() != tt.Permissions {
-				t.Errorf("%s has incorrect permissions. Expected: %s, Actual: %s", tt.Path, tt.Permissions, perms.String())
+			if tt.Permissions != "" {
+				perms := info.Mode()
+				if perms.String() != tt.Permissions {
+					t.Errorf("%s has incorrect permissions. Expected: %s, Actual: %s", tt.Path, tt.Permissions, perms.String())
+				}
 			}
-		}
-		counter++
+			counter++
+		})
 	}
 	return counter
 }
@@ -100,31 +104,35 @@ func (st StructureTestv1) RunFileExistenceTests(t *testing.T) int {
 func (st StructureTestv1) RunFileContentTests(t *testing.T) int {
 	counter := 0
 	for _, tt := range st.FileContentTests {
-		validateFileContentTestV1(t, tt)
-		actualContents, err := ioutil.ReadFile(tt.Path)
-		if err != nil {
-			t.Errorf("Failed to open %s. Error: %s", tt.Path, err)
-		}
+		t.Run(tt.Name(), func(t *testing.T) {
+			validateFileContentTestV1(t, tt)
+			actualContents, err := ioutil.ReadFile(tt.Path)
+			if err != nil {
+				t.Errorf("Failed to open %s. Error: %s", tt.Path, err)
+			}
 
-		contents := string(actualContents[:])
+			contents := string(actualContents[:])
 
-		var errMessage string
-		for _, s := range tt.ExpectedContents {
-			errMessage = "Expected string " + s + " not found in file contents!"
-			compileAndRunRegex(s, contents, t, errMessage, true)
-		}
-		for _, s := range tt.ExcludedContents {
-			errMessage = "Excluded string " + s + " found in file contents!"
-			compileAndRunRegex(s, contents, t, errMessage, false)
-		}
-		counter++
+			var errMessage string
+			for _, s := range tt.ExpectedContents {
+				errMessage = "Expected string " + s + " not found in file contents!"
+				compileAndRunRegex(s, contents, t, errMessage, true)
+			}
+			for _, s := range tt.ExcludedContents {
+				errMessage = "Excluded string " + s + " found in file contents!"
+				compileAndRunRegex(s, contents, t, errMessage, false)
+			}
+			counter++
+		})
 	}
 	return counter
 }
 
 func (st StructureTestv1) RunLicenseTests(t *testing.T) int {
-	for _, tt := range st.LicenseTests {
-		checkLicenses(t, tt)
+	for num, tt := range st.LicenseTests {
+		t.Run(tt.Name(num), func(t *testing.T) {
+			checkLicenses(t, tt)
+		})
 		return 1
 	}
 	return 0

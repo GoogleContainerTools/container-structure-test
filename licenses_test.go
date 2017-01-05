@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -81,4 +82,8 @@ func checkLicenses(t *testing.T, tt LicenseTestv1) {
 	for _, file := range tt.Files {
 		checkFile(t, file)
 	}
+}
+
+func (lt LicenseTestv1) Name(num int) string {
+	return fmt.Sprintf("License Test #%d", num)
 }
