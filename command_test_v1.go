@@ -62,6 +62,6 @@ func validateCommandTestV1(t *testing.T, tt CommandTestv1) {
 	}
 }
 
-func (ct CommandTestv1) Name() string {
+func (ct CommandTestv1) LogName() string {
 	return fmt.Sprintf("Command Test: %s", ct.Name)
 }

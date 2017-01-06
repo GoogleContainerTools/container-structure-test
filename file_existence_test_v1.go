@@ -36,6 +36,6 @@ func validateFileExistenceTestV1(t *testing.T, tt FileExistenceTestv1) {
 	}
 }
 
-func (ft FileExistenceTestv1) Name() string {
+func (ft FileExistenceTestv1) LogName() string {
 	return fmt.Sprintf("File Existence Test: %s", ft.Name)
 }

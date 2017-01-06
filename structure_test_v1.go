@@ -46,7 +46,7 @@ func (st StructureTestv1) RunAll(t *testing.T) int {
 func (st StructureTestv1) RunCommandTests(t *testing.T) int {
 	counter := 0
 	for _, tt := range st.CommandTests {
-		t.Run(tt.Name(), func(t *testing.T) {
+		t.Run(tt.LogName(), func(t *testing.T) {
 			validateCommandTestV1(t, tt)
 			for _, setup := range tt.Setup {
 				ProcessCommand(t, tt.EnvVars, setup, false)
@@ -67,7 +67,7 @@ func (st StructureTestv1) RunCommandTests(t *testing.T) int {
 func (st StructureTestv1) RunFileExistenceTests(t *testing.T) int {
 	counter := 0
 	for _, tt := range st.FileExistenceTests {
-		t.Run(tt.Name(), func(t *testing.T) {
+		t.Run(tt.LogName(), func(t *testing.T) {
 			validateFileExistenceTestV1(t, tt)
 			var err error
 			var info os.FileInfo
@@ -104,7 +104,7 @@ func (st StructureTestv1) RunFileExistenceTests(t *testing.T) int {
 func (st StructureTestv1) RunFileContentTests(t *testing.T) int {
 	counter := 0
 	for _, tt := range st.FileContentTests {
-		t.Run(tt.Name(), func(t *testing.T) {
+		t.Run(tt.LogName(), func(t *testing.T) {
 			validateFileContentTestV1(t, tt)
 			actualContents, err := ioutil.ReadFile(tt.Path)
 			if err != nil {
@@ -130,7 +130,7 @@ func (st StructureTestv1) RunFileContentTests(t *testing.T) int {
 
 func (st StructureTestv1) RunLicenseTests(t *testing.T) int {
 	for num, tt := range st.LicenseTests {
-		t.Run(tt.Name(num), func(t *testing.T) {
+		t.Run(tt.LogName(num), func(t *testing.T) {
 			checkLicenses(t, tt)
 		})
 		return 1

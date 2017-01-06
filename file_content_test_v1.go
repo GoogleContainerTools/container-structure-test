@@ -35,6 +35,6 @@ func validateFileContentTestV1(t *testing.T, tt FileContentTestv1) {
 	}
 }
 
-func (ft FileContentTestv1) Name() string {
+func (ft FileContentTestv1) LogName() string {
 	return fmt.Sprintf("File Content Test: %s", ft.Name)
 }
