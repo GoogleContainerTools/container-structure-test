@@ -26,10 +26,10 @@ Command tests ensure that certain commands run properly on top of the shell of t
 - Setup ([][]string, *optional*): A list of commands (each with optional flags) to run before the actual command under test.
 - Teardown ([][]string, *optional*): A list of commands (each with optional flags) to run after the actual command under test.
 - Command ([]string, **required**): The command to run, along with the flags to pass to it.
-- Expected Output (string[], *optional*): List of regexes that should match the stdout from running the command.
-- Excluded Output (string[], *optional*): List of regexes that should **not** match the stdout from running the command.
-- Expected Error (string[], *optional*): List of regexes that should match the stderr from running the command.
-- Excluded Error (string[], *optional*): List of regexes that should **not** match the stderr from running the command.
+- Expected Output ([]string, *optional*): List of regexes that should match the stdout from running the command.
+- Excluded Output ([]string, *optional*): List of regexes that should **not** match the stdout from running the command.
+- Expected Error ([]string, *optional*): List of regexes that should match the stderr from running the command.
+- Excluded Error ([]string, *optional*): List of regexes that should **not** match the stderr from running the command.
 - Exit Code (int, *optional*): Exit code that the command should exit with.
 
 Example:
