@@ -20,15 +20,16 @@
 #End to end tests to make sure the structure tests do what we expect them
 #to do on a known quantity, the latest debian docker image.
 
-export TEST_TAG
 TEST_TAG="test_tag-$(date +%Y-%M-%d-%H%M%S)"
 export FILE="debian_test.json"
-export IMAGE="gcr.io/google-appengine/debian8"
+export IMAGE="gcr.io/google-appengine/debian8:latest"
+DOCKER_NAMESPACE=${DOCKER_NAMESPACE:-"gcr.io/gcp-runtimes"}
+export STRUCTURE_TEST_IMAGE="${DOCKER_NAMESPACE}/structure-test-test:${TEST_TAG}"
 
 failures=0
 # build newest structure test image
 pushd ..
-./build.sh gcr.io/gcp-runtimes/structure-test-test:"$TEST_TAG"
+./build.sh "${STRUCTURE_TEST_IMAGE}"
 popd
 
 # Run the debian tests, they should always pass on latest
@@ -51,7 +52,7 @@ then
 fi
 
 # Run some structure tests on the structure test image itself
-IMAGE="gcr.io/gcp-runtimes/structure_test"
+IMAGE="${STRUCTURE_TEST_IMAGE}"
 FILE="structure_test_test.json"
 envsubst < cloudbuild.yaml.in > cloudbuild.yaml
 gcloud beta container builds submit . --config=cloudbuild.yaml
@@ -61,8 +62,7 @@ then
   failures=$((failures + 1))
 fi
 
-
-echo "Failures: $failures"
+echo "Failure Count: $failures"
 if [ "$failures" -gt "0" ]
 then
   exit 1

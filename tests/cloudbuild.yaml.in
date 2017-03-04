@@ -1,5 +1,5 @@
 steps:
-        - name: gcr.io/gcp-runtimes/structure-test-test:${TEST_TAG}
+        - name: ${STRUCTURE_TEST_IMAGE}
           args: [
-          '--image', '${IMAGE}:latest',
+          '--image', '${IMAGE}',
           '--config', '/workspace/${FILE}']
