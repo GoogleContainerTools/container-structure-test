@@ -34,7 +34,7 @@ popd
 
 # Run the debian tests, they should always pass on latest
 envsubst < cloudbuild.yaml.in > cloudbuild.yaml
-gcloud beta container builds submit . --config=cloudbuild.yaml
+gcloud container builds submit . --config=cloudbuild.yaml
 if [ "$?" -gt "0" ]
 then
   echo "Success case test failed"
@@ -44,7 +44,7 @@ fi
 # Run some bogus tests, they should fail as expected
 FILE="debian_failure_test.json"
 envsubst < cloudbuild.yaml.in > cloudbuild.yaml
-gcloud beta container builds submit . --config=cloudbuild.yaml
+gcloud container builds submit . --config=cloudbuild.yaml
 if [ "$?" -ne "1" ]
 then
   echo "Failure case test failed"
@@ -55,7 +55,7 @@ fi
 IMAGE="${STRUCTURE_TEST_IMAGE}"
 FILE="structure_test_test.json"
 envsubst < cloudbuild.yaml.in > cloudbuild.yaml
-gcloud beta container builds submit . --config=cloudbuild.yaml
+gcloud container builds submit . --config=cloudbuild.yaml
 if [ "$?" -gt "0" ]
 then
   echo "Structure test failed"
