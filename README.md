@@ -31,6 +31,7 @@ Command tests ensure that certain commands run properly on top of the shell of t
 - Expected Error ([]string, *optional*): List of regexes that should match the stderr from running the command.
 - Excluded Error ([]string, *optional*): List of regexes that should **not** match the stderr from running the command.
 - Exit Code (int, *optional*): Exit code that the command should exit with.
+- Shell Mode (bool, *optional*): Whether or not to run the specified command in a new shell. Useful for testing whether or not a binary exists, and retrieving useful information from the error if not.
 
 Example:
 ```json
@@ -48,6 +49,12 @@ Example:
                 "command": ["node", "-v"],
                 "expectedOutput": ["v5.9.0\n"],
                 "exitCode": 0
+        },
+        {
+                "name": "Non-Existent Binary in Shell Mode",
+                "command": ["which", "asdf"],
+                "exitCode": 127,
+                "shellMode": true
         }
 ]
 ```

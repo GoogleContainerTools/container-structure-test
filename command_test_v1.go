@@ -25,6 +25,7 @@ type CommandTestv1 struct {
 	Teardown       []Command
 	EnvVars        []EnvVar
 	ExitCode       int
+	ShellMode      bool
 	Command        []string
 	ExpectedOutput []string
 	ExcludedOutput []string
