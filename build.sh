@@ -25,4 +25,4 @@ if [ -z "$IMAGE" ]; then
 fi
 
 cd ..
-gcloud container builds submit . --config=structure_tests/cloudbuild.yaml --subtitutions "_IMAGE=${IMAGE}"
+gcloud container builds submit . --config=structure_tests/cloudbuild.yaml --substitutions "_IMAGE=${IMAGE}"
