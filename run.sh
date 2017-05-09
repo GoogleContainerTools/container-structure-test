@@ -24,7 +24,7 @@ usage() {
 export DOCKER_API_VERSION="1.21"
 
 VERBOSE=0
-CMD_STRING="/workspace/structure_test"
+CMD_STRING="/test/structure_test"
 ENTRYPOINT="/bin/sh"
 
 while test $# -gt 0; do
@@ -65,8 +65,6 @@ while test $# -gt 0; do
 			;;
 	esac
 done
-
-cp /test/* /workspace/
 
 if [ $VERBOSE -eq 1 ]; then
 	CMD_STRING=$CMD_STRING" -test.v"
