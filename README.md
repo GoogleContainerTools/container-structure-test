@@ -188,3 +188,29 @@ Flags:
 - [--image, -i]: The image to be tested (e.g. gcr.io/gcp-runtimes/check_if_tag_exists)
 - [--verbose, -v]: Boolean flag to show verbose logging/output from structure tests
 - [--config, -c]: JSON config file defining the actual tests to be run (Note: any number of config files may be specified)
+
+### Running Structure Tests Through Bazel
+Structure tests can also be run through bazel. To do so, include the rule definitions in your BUILD file:
+
+```BUILD
+load("@runtimes_common//structure_tests:tests.bzl", "structure_test")
+```
+
+and create a `structure_test` rule, passing in your image and config file as parameters:
+
+```BUILD
+docker_build(
+    name = "hello",
+    base = "//java:java8",
+    cmd = ["/HelloJava_deploy.jar"],
+    files = [":HelloJava_deploy.jar"],
+)
+
+load("@runtimes_common//structure_tests:tests.bzl", "structure_test")
+
+structure_test(
+    name = "hello_test",
+    config = "testdata/hello.yaml",
+    image = ":hello",
+)
+```
