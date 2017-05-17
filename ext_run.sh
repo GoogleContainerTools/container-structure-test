@@ -22,7 +22,7 @@ declare -a CMD_STRING
 CMD_STRING=()
 ENTRYPOINT="/test/structure_test"
 ST_IMAGE="gcr.io/gcp-runtimes/structure_test"
-USAGE_STRING="Usage: $0 [-i <image>] [-c <config>] [-w <workspace>] [-v] [-e <entrypoint>] [--no-pull]"
+USAGE_STRING="Usage: $0 [-i <image>] [-t <image.tar>] [-c <config>] [-w <workspace>] [-v] [-e <entrypoint>] [--no-pull]"
 
 CONFIG_DIR=$(pwd)/.cfg
 mkdir -p "$CONFIG_DIR"
@@ -47,6 +47,7 @@ helper() {
 	echo "$USAGE_STRING"
 	echo
 	echo "    -i, --image          Image to run tests on"
+	echo "    -t, --image-tar      Image tarball to run tests on"
 	echo "    -c, --config         Path to JSON/YAML config file"
 	echo "    -w, --workspace      Path to directory to be mounted as"
 	echo "                         /workspace in remote container."
@@ -65,6 +66,15 @@ while test $# -gt 0; do
 			shift
 			if test $# -gt 0; then
 				IMAGE_NAME=$1
+			else
+				usage
+			fi
+			shift
+			;;
+		--image-tar|-t)
+			shift
+			if test $# -gt 0; then
+				IMAGE_TAR=$1
 			else
 				usage
 			fi
@@ -135,6 +145,10 @@ fi
 
 if [ $PULL -eq 1 ]; then
 	docker pull "$ST_IMAGE"
+fi
+
+if [ -n "$IMAGE_TAR" ]; then
+	docker load -i "$IMAGE_TAR"
 fi
 
 docker rm st_container > /dev/null 2>&1 || true # remove container if already there
