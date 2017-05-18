@@ -18,6 +18,7 @@ set -euo pipefail
 
 VERBOSE=0
 PULL=1
+IMAGE_TAR=""
 declare -a CMD_STRING
 CMD_STRING=()
 ENTRYPOINT="/test/structure_test"
