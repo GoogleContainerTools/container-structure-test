@@ -30,8 +30,11 @@ mkdir -p "$CONFIG_DIR"
 declare -a VOLUME_STR
 VOLUME_STR=(--volumes-from st_container -v "$CONFIG_DIR:/cfg")
 
+# With pipefail and set -e we just silently exit here instead of printing the error message.
+set +e
 command -v docker > /dev/null 2>&1 || { echo "Docker is required to run GCP structure tests, but is not installed on this host."; exit 1; }
-command docker ps > /dev/null 2>&1 || { echo "Cannot connect to the Docker daemon!"; exit 1; }
+command docker ps > /dev/null 2>&1 || { echo "Cannot connect to the Docker daemon"; exit 1; }
+set -e
 
 cleanup() {
 	rm -rf "$CONFIG_DIR"
