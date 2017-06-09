@@ -126,6 +126,8 @@ while test $# -gt 0; do
 				# test image. this directory is cleaned up after testing.
 				filename=$(basename "$1")
 				cp "$1" "$CONFIG_DIR"/"$filename"
+				# Make the config file world-readable in-case the image has a non-root user specified.
+				chmod +r "$CONFIG_DIR"/"$filename"
 				CMD_STRING+=(--config "/cfg/$filename")
 			fi
 			shift
