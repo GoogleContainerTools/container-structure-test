@@ -1,3 +1,4 @@
+licenses(["notice"])
 package(default_visibility = ["//visibility:public"])
 
 sh_binary(
