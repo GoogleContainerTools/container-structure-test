@@ -29,8 +29,7 @@ CONFIG_DIR=$(pwd)/.cfg
 mkdir -p "$CONFIG_DIR"
 
 declare -a VOLUME_STR
-VOLUME_STR=(--volumes-from st_container -v "$CONFIG_DIR:/cfg")
-
+VOLUME_STR=()
 # With pipefail and set -e we just silently exit here instead of printing the error message.
 set +e
 command -v docker > /dev/null 2>&1 || { echo "Docker is required to run GCP structure tests, but is not installed on this host."; exit 1; }
@@ -157,11 +156,11 @@ if [ -n "$IMAGE_TAR" ]; then
 	docker load -i "$IMAGE_TAR"
 fi
 
-docker rm st_container > /dev/null 2>&1 || true # remove container if already there
-docker run -d --entrypoint="/bin/sh" --name st_container "$ST_IMAGE" > /dev/null 2>&1
+st_container=$(docker run -d --entrypoint="/bin/sh" "$ST_IMAGE" 2>/dev/null)
+VOLUME_STR+=(--volumes-from "$st_container" -v "$CONFIG_DIR:/cfg")
 
 # shellcheck disable=SC2086
 docker run --rm --entrypoint="$ENTRYPOINT" "${VOLUME_STR[@]}" "$IMAGE_NAME" "${CMD_STRING[@]}"
 
-docker rm st_container > /dev/null 2>&1
+docker rm "$st_container" > /dev/null 2>&1
 cleanup
