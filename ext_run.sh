@@ -100,13 +100,12 @@ while test $# -gt 0; do
 			if test $# -eq 0; then
 				usage
 			else
-				FULLPATH=$(readlink -f "$1")
-				if [ ! -d "$FULLPATH" ]; then
-					echo "$FULLPATH is not a valid directory."
-					cleanup
-					exit 1
+				if [ ! -d "$1" ] || [ ! -d "$(readlink -f "$1")" ]; then
+				        echo "$1 is not a valid directory."
+				        cleanup
+				        exit 1
 				fi
-
+				FULLPATH=$(readlink -f "$1")
 				VOLUME_STR+=(-v "$FULLPATH:/workspace")
 			fi
 			shift
