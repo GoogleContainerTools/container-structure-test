@@ -14,6 +14,11 @@
 
 """Rule for running structure tests."""
 
+load(
+    "@io_bazel_rules_docker//docker:docker.bzl",
+    "docker_build",
+)
+
 def _impl(ctx):
     ext_run_location = ctx.executable._structure_test.short_path
     config_location = ctx.file.config.short_path
@@ -70,3 +75,18 @@ structure_test = rule(
     test = True,
     implementation = _impl,
 )
+
+def structure_test_with_files(name, image, config, files):
+  """A macro for including extra files inside an image before testing it."""
+  child_image_name = "%s.child_image" % name
+  docker_build(
+      name = child_image_name,
+      base = image,
+      files = files,
+  )
+
+  structure_test(
+      name = name,
+      image = child_image_name,
+      config = config,
+  )
