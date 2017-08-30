@@ -10,7 +10,7 @@ import (
 )
 
 // Not currently used, but leaving the possibility open
-type LicenseTestv1 struct {
+type LicenseTestv0 struct {
 	Debian bool
 	Files  []string
 }
@@ -41,7 +41,7 @@ func checkFile(t *testing.T, licenseFile string) {
 	}
 }
 
-func checkLicenses(t *testing.T, tt LicenseTestv1) {
+func checkLicenses(t *testing.T, tt LicenseTestv0) {
 	if tt.Debian {
 		root := "/usr/share/doc"
 		packages, err := ioutil.ReadDir(root)
@@ -84,6 +84,6 @@ func checkLicenses(t *testing.T, tt LicenseTestv1) {
 	}
 }
 
-func (lt LicenseTestv1) LogName(num int) string {
+func (lt LicenseTestv0) LogName(num int) string {
 	return fmt.Sprintf("License Test #%d", num)
 }

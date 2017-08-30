@@ -21,15 +21,15 @@ import (
 	"testing"
 )
 
-type StructureTestv1 struct {
+type StructureTestv0 struct {
 	GlobalEnvVars      []EnvVar
-	CommandTests       []CommandTestv1
+	CommandTests       []CommandTestv0
 	FileExistenceTests []FileExistenceTestv0
 	FileContentTests   []FileContentTestv0
 	LicenseTests       []LicenseTestv0
 }
 
-func (st StructureTestv1) RunAll(t *testing.T) int {
+func (st StructureTestv0) RunAll(t *testing.T) int {
 	originalVars := SetEnvVars(t, st.GlobalEnvVars)
 	defer ResetEnvVars(t, originalVars)
 	testsRun := 0
@@ -40,19 +40,17 @@ func (st StructureTestv1) RunAll(t *testing.T) int {
 	return testsRun
 }
 
-func (st StructureTestv1) RunCommandTests(t *testing.T) int {
+func (st StructureTestv0) RunCommandTests(t *testing.T) int {
 	counter := 0
 	for _, tt := range st.CommandTests {
 		t.Run(tt.LogName(), func(t *testing.T) {
-			validateCommandTestv1(t, tt)
+			validateCommandTestv0(t, tt)
 			for _, setup := range tt.Setup {
 				ProcessCommand(t, tt.EnvVars, setup, tt.ShellMode, false)
 			}
 
-			fullCommand := append([]string{tt.Entrypoint}, tt.Args...)
-
-			stdout, stderr, exitcode := ProcessCommand(t, tt.EnvVars, fullCommand, tt.ShellMode, true)
-			CheckOutputv1(t, tt, stdout, stderr, exitcode)
+			stdout, stderr, exitcode := ProcessCommand(t, tt.EnvVars, tt.Command, tt.ShellMode, true)
+			CheckOutputv0(t, tt, stdout, stderr, exitcode)
 
 			for _, teardown := range tt.Teardown {
 				ProcessCommand(t, tt.EnvVars, teardown, tt.ShellMode, false)
@@ -63,7 +61,7 @@ func (st StructureTestv1) RunCommandTests(t *testing.T) int {
 	return counter
 }
 
-func (st StructureTestv1) RunFileExistenceTests(t *testing.T) int {
+func (st StructureTestv0) RunFileExistenceTests(t *testing.T) int {
 	counter := 0
 	for _, tt := range st.FileExistenceTests {
 		t.Run(tt.LogName(), func(t *testing.T) {
@@ -100,7 +98,7 @@ func (st StructureTestv1) RunFileExistenceTests(t *testing.T) int {
 	return counter
 }
 
-func (st StructureTestv1) RunFileContentTests(t *testing.T) int {
+func (st StructureTestv0) RunFileContentTests(t *testing.T) int {
 	counter := 0
 	for _, tt := range st.FileContentTests {
 		t.Run(tt.LogName(), func(t *testing.T) {
@@ -127,7 +125,7 @@ func (st StructureTestv1) RunFileContentTests(t *testing.T) int {
 	return counter
 }
 
-func (st StructureTestv1) RunLicenseTests(t *testing.T) int {
+func (st StructureTestv0) RunLicenseTests(t *testing.T) int {
 	for num, tt := range st.LicenseTests {
 		t.Run(tt.LogName(num), func(t *testing.T) {
 			checkLicenses(t, tt)
@@ -137,7 +135,7 @@ func (st StructureTestv1) RunLicenseTests(t *testing.T) int {
 	return 0
 }
 
-func CheckOutputv1(t *testing.T, tt CommandTestv1, stdout string, stderr string, exitCode int) {
+func CheckOutputv0(t *testing.T, tt CommandTestv0, stdout string, stderr string, exitCode int) {
 	for _, errStr := range tt.ExpectedError {
 		errMsg := fmt.Sprintf("Expected string '%s' not found in error!", errStr)
 		compileAndRunRegex(errStr, stderr, t, errMsg, true)

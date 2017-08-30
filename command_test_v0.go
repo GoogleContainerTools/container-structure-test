@@ -19,27 +19,26 @@ import (
 	"testing"
 )
 
-type CommandTestv1 struct {
+type CommandTestv0 struct {
 	Name           string
 	Setup          []Command
 	Teardown       []Command
 	EnvVars        []EnvVar
 	ExitCode       int
 	ShellMode      bool
-	Entrypoint     string
-	Args           []string
+	Command        []string
 	ExpectedOutput []string
 	ExcludedOutput []string
 	ExpectedError  []string
 	ExcludedError  []string // excluded error from running command
 }
 
-func validateCommandTestv1(t *testing.T, tt CommandTestv1) {
+func validateCommandTestv0(t *testing.T, tt CommandTestv0) {
 	if tt.Name == "" {
 		t.Fatalf("Please provide a valid name for every test!")
 	}
-	if tt.Entrypoint == "" {
-		t.Fatalf("Please provide a valid entrypoint to run for test %s", tt.Name)
+	if tt.Command == nil || len(tt.Command) == 0 {
+		t.Fatalf("Please provide a valid command to run for test %s", tt.Name)
 	}
 	if tt.Setup != nil {
 		for _, c := range tt.Setup {
@@ -56,14 +55,14 @@ func validateCommandTestv1(t *testing.T, tt CommandTestv1) {
 		}
 	}
 	if tt.EnvVars != nil {
-		for _, env_var := range tt.EnvVars {
-			if env_var.Key == "" || env_var.Value == "" {
-				t.Fatalf("Please provide non-empty keys and values for all specified env_vars")
+		for _, envVar := range tt.EnvVars {
+			if envVar.Key == "" || envVar.Value == "" {
+				t.Fatalf("Please provide non-empty keys and values for all specified env vars")
 			}
 		}
 	}
 }
 
-func (ct CommandTestv1) LogName() string {
+func (ct CommandTestv0) LogName() string {
 	return fmt.Sprintf("Command Test: %s", ct.Name)
 }

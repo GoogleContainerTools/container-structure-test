@@ -19,7 +19,7 @@ import (
 	"testing"
 )
 
-type FileExistenceTestv1 struct {
+type FileExistenceTestv0 struct {
 	Name        string // name of test
 	Path        string // file to check existence of
 	IsDirectory bool   // whether or not the path points to a directory
@@ -27,7 +27,7 @@ type FileExistenceTestv1 struct {
 	Permissions string // expected Unix permission string of the file, e.g. drwxrwxrwx
 }
 
-func validateFileExistenceTestV1(t *testing.T, tt FileExistenceTestv1) {
+func validateFileExistenceTestv0(t *testing.T, tt FileExistenceTestv0) {
 	if tt.Name == "" {
 		t.Fatalf("Please provide a valid name for every test!")
 	}
@@ -36,6 +36,6 @@ func validateFileExistenceTestV1(t *testing.T, tt FileExistenceTestv1) {
 	}
 }
 
-func (ft FileExistenceTestv1) LogName() string {
+func (ft FileExistenceTestv0) LogName() string {
 	return fmt.Sprintf("File Existence Test: %s", ft.Name)
 }

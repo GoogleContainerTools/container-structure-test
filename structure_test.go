@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -46,17 +45,6 @@ func TestAll(t *testing.T) {
 	}
 }
 
-func compileAndRunRegex(regex string, base string, t *testing.T, err string, shouldMatch bool) {
-	r, rErr := regexp.Compile(regex)
-	if rErr != nil {
-		t.Errorf("Error compiling regex %s : %s", regex, rErr.Error())
-		return
-	}
-	if shouldMatch != r.MatchString(base) {
-		t.Errorf(err)
-	}
-}
-
 func Parse(fp string) (StructureTest, error) {
 	testContents, err := ioutil.ReadFile(fp)
 	if err != nil {
@@ -72,7 +60,7 @@ func Parse(fp string) (StructureTest, error) {
 	case strings.HasSuffix(fp, ".yaml"):
 		unmarshal = yaml.Unmarshal
 	default:
-		return nil, errors.New("Please provide valid JSON or YAML config file.")
+		return nil, errors.New("Please provide valid JSON or YAML config file")
 	}
 
 	if err := unmarshal(testContents, &versionHolder); err != nil {
@@ -81,7 +69,7 @@ func Parse(fp string) (StructureTest, error) {
 
 	version := versionHolder.SchemaVersion
 	if version == "" {
-		return nil, errors.New("Please provide JSON schema version.")
+		return nil, errors.New("Please provide JSON schema version")
 	}
 	st := schemaVersions[version]
 	if st == nil {
@@ -93,7 +81,7 @@ func Parse(fp string) (StructureTest, error) {
 	unmarshal(testContents, testHolder)
 	tests, ok := testHolder.(StructureTest) //type assertion
 	if !ok {
-		return nil, errors.New("Error encountered when type casting Structure Test interface!")
+		return nil, errors.New("Error encountered when type casting Structure Test interface")
 	}
 	return tests, nil
 }
@@ -101,7 +89,7 @@ func Parse(fp string) (StructureTest, error) {
 var configFiles arrayFlags
 
 func TestMain(m *testing.M) {
-	flag.Var(&configFiles, "config", "path to the .yaml file containing test definitions.")
+	flag.Var(&configFiles, "config", "path to the .yaml file containing test definitions")
 	flag.Parse()
 
 	if len(configFiles) == 0 {

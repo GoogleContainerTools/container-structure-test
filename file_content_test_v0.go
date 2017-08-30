@@ -19,14 +19,14 @@ import (
 	"testing"
 )
 
-type FileContentTestv1 struct {
+type FileContentTestv0 struct {
 	Name             string   // name of test
 	Path             string   // file to check existence of
 	ExpectedContents []string // list of expected contents of file
 	ExcludedContents []string // list of excluded contents of file
 }
 
-func validateFileContentTestV1(t *testing.T, tt FileContentTestv1) {
+func validateFileContentTestv0(t *testing.T, tt FileContentTestv0) {
 	if tt.Name == "" {
 		t.Fatalf("Please provide a valid name for every test!")
 	}
@@ -35,6 +35,6 @@ func validateFileContentTestV1(t *testing.T, tt FileContentTestv1) {
 	}
 }
 
-func (ft FileContentTestv1) LogName() string {
+func (ft FileContentTestv0) LogName() string {
 	return fmt.Sprintf("File Content Test: %s", ft.Name)
 }
