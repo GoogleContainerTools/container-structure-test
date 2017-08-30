@@ -12,18 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package v1
 
 import (
 	"fmt"
 	"testing"
+
+	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/unversioned"
 )
 
-type CommandTestv0 struct {
+type CommandTest struct {
 	Name           string
-	Setup          []Command
-	Teardown       []Command
-	EnvVars        []EnvVar
+	Setup          []unversioned.Command
+	Teardown       []unversioned.Command
+	EnvVars        []unversioned.EnvVar
 	ExitCode       int
 	ShellMode      bool
 	Command        []string
@@ -33,7 +35,7 @@ type CommandTestv0 struct {
 	ExcludedError  []string // excluded error from running command
 }
 
-func validateCommandTestv0(t *testing.T, tt CommandTestv0) {
+func validateCommandTest(t *testing.T, tt CommandTest) {
 	if tt.Name == "" {
 		t.Fatalf("Please provide a valid name for every test!")
 	}
@@ -63,6 +65,6 @@ func validateCommandTestv0(t *testing.T, tt CommandTestv0) {
 	}
 }
 
-func (ct CommandTestv0) LogName() string {
+func (ct CommandTest) LogName() string {
 	return fmt.Sprintf("Command Test: %s", ct.Name)
 }

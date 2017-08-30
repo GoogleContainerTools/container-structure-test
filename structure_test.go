@@ -71,15 +71,13 @@ func Parse(fp string) (StructureTest, error) {
 	if version == "" {
 		return nil, errors.New("Please provide JSON schema version")
 	}
-	st := schemaVersions[version]
+	st := schemaVersions[version]()
 	if st == nil {
 		return nil, errors.New("Unsupported schema version: " + version)
 	}
 
-	testHolder := st.New()
-
-	unmarshal(testContents, testHolder)
-	tests, ok := testHolder.(StructureTest) //type assertion
+	unmarshal(testContents, st)
+	tests, ok := st.(StructureTest) //type assertion
 	if !ok {
 		return nil, errors.New("Error encountered when type casting Structure Test interface")
 	}

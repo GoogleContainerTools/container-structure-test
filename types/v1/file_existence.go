@@ -12,21 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package v1
 
 import (
 	"fmt"
 	"testing"
 )
 
-type FileContentTestv0 struct {
-	Name             string   // name of test
-	Path             string   // file to check existence of
-	ExpectedContents []string // list of expected contents of file
-	ExcludedContents []string // list of excluded contents of file
+type FileExistenceTest struct {
+	Name        string // name of test
+	Path        string // file to check existence of
+	IsDirectory bool   // whether or not the path points to a directory
+	ShouldExist bool   // whether or not the file should exist
+	Permissions string // expected Unix permission string of the file, e.g. drwxrwxrwx
 }
 
-func validateFileContentTestv0(t *testing.T, tt FileContentTestv0) {
+func validateFileExistenceTest(t *testing.T, tt FileExistenceTest) {
 	if tt.Name == "" {
 		t.Fatalf("Please provide a valid name for every test!")
 	}
@@ -35,6 +36,6 @@ func validateFileContentTestv0(t *testing.T, tt FileContentTestv0) {
 	}
 }
 
-func (ft FileContentTestv0) LogName() string {
-	return fmt.Sprintf("File Content Test: %s", ft.Name)
+func (ft FileExistenceTest) LogName() string {
+	return fmt.Sprintf("File Existence Test: %s", ft.Name)
 }

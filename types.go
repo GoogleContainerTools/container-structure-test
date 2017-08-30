@@ -17,6 +17,9 @@ package main
 import (
 	"strings"
 	"testing"
+
+	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/v1"
+	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/v2"
 )
 
 type StructureTest interface {
@@ -34,9 +37,9 @@ func (a *arrayFlags) Set(value string) error {
 	return nil
 }
 
-var schemaVersions map[string]VersionHolder = map[string]VersionHolder{
-	"1.0.0": new(VersionHolderv0),
-	"1.1.0": new(VersionHolderv1),
+var schemaVersions map[string]func() StructureTest = map[string]func() StructureTest{
+	"1.0.0": func() StructureTest { return new(v1.StructureTest) },
+	"2.0.0": func() StructureTest { return new(v2.StructureTest) },
 }
 
 type SchemaVersion struct {
@@ -44,25 +47,3 @@ type SchemaVersion struct {
 }
 
 type Unmarshaller func([]byte, interface{}) error
-
-type VersionHolder interface {
-	New() StructureTest
-}
-
-type VersionHolderv0 struct{}
-type VersionHolderv1 struct{}
-
-func (v VersionHolderv0) New() StructureTest {
-	return new(StructureTestv0)
-}
-
-func (v VersionHolderv1) New() StructureTest {
-	return new(StructureTestv1)
-}
-
-type EnvVar struct {
-	Key   string
-	Value string
-}
-
-type Command []string

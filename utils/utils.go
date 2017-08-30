@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package utils
 
 import (
 	"bytes"
@@ -22,14 +22,16 @@ import (
 	"strings"
 	"syscall"
 	"testing"
+
+	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/unversioned"
 )
 
 // given a list of environment variable key/value pairs, set these in the current environment.
 // also, keep track of the previous values of these vars to reset after test execution.
-func SetEnvVars(t *testing.T, vars []EnvVar) []EnvVar {
-	var originalVars []EnvVar
+func SetEnvVars(t *testing.T, vars []unversioned.EnvVar) []unversioned.EnvVar {
+	var originalVars []unversioned.EnvVar
 	for _, env_var := range vars {
-		originalVars = append(originalVars, EnvVar{env_var.Key, os.Getenv(env_var.Key)})
+		originalVars = append(originalVars, unversioned.EnvVar{env_var.Key, os.Getenv(env_var.Key)})
 		if err := os.Setenv(env_var.Key, os.ExpandEnv(env_var.Value)); err != nil {
 			t.Fatalf("error setting env var: %s", err)
 		}
@@ -37,7 +39,7 @@ func SetEnvVars(t *testing.T, vars []EnvVar) []EnvVar {
 	return originalVars
 }
 
-func ResetEnvVars(t *testing.T, vars []EnvVar) {
+func ResetEnvVars(t *testing.T, vars []unversioned.EnvVar) {
 	for _, env_var := range vars {
 		var err error
 		if env_var.Value == "" {
@@ -54,7 +56,7 @@ func ResetEnvVars(t *testing.T, vars []EnvVar) {
 	}
 }
 
-func compileAndRunRegex(regex string, base string, t *testing.T, err string, shouldMatch bool) {
+func CompileAndRunRegex(regex string, base string, t *testing.T, err string, shouldMatch bool) {
 	r, rErr := regexp.Compile(regex)
 	if rErr != nil {
 		t.Errorf("Error compiling regex %s : %s", regex, rErr.Error())
@@ -69,7 +71,7 @@ func compileAndRunRegex(regex string, base string, t *testing.T, err string, sho
 // current environment. a list of environment variables can be passed to be set in the
 // environment before the command is executed. additionally, a boolean flag is passed
 // to specify whether or not we care about the output of the command.
-func ProcessCommand(t *testing.T, envVars []EnvVar, fullCommand []string,
+func ProcessCommand(t *testing.T, envVars []unversioned.EnvVar, fullCommand []string,
 	shellMode bool, checkOutput bool) (string, string, int) {
 	var cmd *exec.Cmd
 	if len(fullCommand) == 0 {
