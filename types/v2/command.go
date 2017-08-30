@@ -28,7 +28,7 @@ type CommandTest struct {
 	EnvVars        []unversioned.EnvVar
 	ExitCode       int
 	ShellMode      bool
-	Entrypoint     string
+	Command        string
 	Args           []string
 	ExpectedOutput []string
 	ExcludedOutput []string
@@ -40,7 +40,7 @@ func validateCommandTest(t *testing.T, tt CommandTest) {
 	if tt.Name == "" {
 		t.Fatalf("Please provide a valid name for every test!")
 	}
-	if tt.Entrypoint == "" {
+	if tt.Command == "" {
 		t.Fatalf("Please provide a valid entrypoint to run for test %s", tt.Name)
 	}
 	if tt.Setup != nil {

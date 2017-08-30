@@ -52,7 +52,7 @@ func (st StructureTest) RunCommandTests(t *testing.T) int {
 				utils.ProcessCommand(t, tt.EnvVars, setup, tt.ShellMode, false)
 			}
 
-			fullCommand := append([]string{tt.Entrypoint}, tt.Args...)
+			fullCommand := append([]string{tt.Command}, tt.Args...)
 
 			stdout, stderr, exitcode := utils.ProcessCommand(t, tt.EnvVars, fullCommand, tt.ShellMode, true)
 			CheckOutput(t, tt, stdout, stderr, exitcode)
