@@ -15,15 +15,18 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/drivers"
 	"github.com/ghodss/yaml"
 )
 
@@ -31,7 +34,7 @@ var totalTests int
 
 func TestAll(t *testing.T) {
 	for _, file := range configFiles {
-		tests, err := Parse(file)
+		tests, err := Parse(t, file)
 		if err != nil {
 			log.Fatalf("Error parsing config file: %s", err)
 		}
@@ -45,7 +48,7 @@ func TestAll(t *testing.T) {
 	}
 }
 
-func Parse(fp string) (StructureTest, error) {
+func Parse(t *testing.T, fp string) (StructureTest, error) {
 	testContents, err := ioutil.ReadFile(fp)
 	if err != nil {
 		return nil, err
@@ -71,28 +74,53 @@ func Parse(fp string) (StructureTest, error) {
 	if version == "" {
 		return nil, errors.New("Please provide JSON schema version")
 	}
-	st := schemaVersions[version]()
-	if st == nil {
+
+	var st StructureTest
+	if schemaVersion, ok := schemaVersions[version]; ok {
+		st = schemaVersion()
+	} else {
 		return nil, errors.New("Unsupported schema version: " + version)
 	}
 
 	unmarshal(testContents, st)
+
 	tests, ok := st.(StructureTest) //type assertion
 	if !ok {
 		return nil, errors.New("Error encountered when type casting Structure Test interface")
 	}
+	tests.SetDriverImpl(driverImpl, imageName)
 	return tests, nil
 }
 
 var configFiles arrayFlags
+var imageName, driver string
+var driverImpl func(string) drivers.Driver
 
 func TestMain(m *testing.M) {
-	flag.Var(&configFiles, "config", "path to the .yaml file containing test definitions")
+	flag.StringVar(&imageName, "image", "", "path to test image")
+	flag.StringVar(&driver, "driver", "docker", "driver to use when running tests")
+
 	flag.Parse()
+	configFiles = flag.Args()
+	stdout := bufio.NewWriter(os.Stdout)
+
+	if imageName == "" {
+		fmt.Fprintln(stdout, "Please supply name of image to test against")
+		os.Exit(1)
+	}
 
 	if len(configFiles) == 0 {
-		configFiles = append(configFiles, "/workspace/structure_test.json")
+		fmt.Fprintln(stdout, "Please provide at least one test config file")
+		os.Exit(1)
 	}
+
+	var err error
+	driverImpl, err = drivers.InitDriverImpl(driver)
+	if err != nil {
+		fmt.Fprintln(stdout, err.Error())
+		os.Exit(1)
+	}
+	fmt.Fprintf(stdout, "Using driver %s\n", driver)
 
 	if exit := m.Run(); exit != 0 {
 		os.Exit(exit)

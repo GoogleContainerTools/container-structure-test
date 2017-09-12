@@ -22,7 +22,6 @@ import (
 type FileExistenceTest struct {
 	Name        string // name of test
 	Path        string // file to check existence of
-	IsDirectory bool   // whether or not the path points to a directory
 	ShouldExist bool   // whether or not the file should exist
 	Permissions string // expected Unix permission string of the file, e.g. drwxrwxrwx
 }

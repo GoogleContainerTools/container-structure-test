@@ -24,10 +24,8 @@ import (
 type CommandTest struct {
 	Name           string
 	Setup          []unversioned.Command
-	Teardown       []unversioned.Command
 	EnvVars        []unversioned.EnvVar
 	ExitCode       int
-	ShellMode      bool
 	Command        []string
 	ExpectedOutput []string
 	ExcludedOutput []string
@@ -46,13 +44,6 @@ func validateCommandTest(t *testing.T, tt CommandTest) {
 		for _, c := range tt.Setup {
 			if len(c) == 0 {
 				t.Fatalf("Error in setup command configuration encountered; please check formatting and remove all empty setup commands.")
-			}
-		}
-	}
-	if tt.Teardown != nil {
-		for _, c := range tt.Teardown {
-			if len(c) == 0 {
-				t.Fatalf("Error in teardown command configuration encountered; please check formatting and remove all empty teardown commands.")
 			}
 		}
 	}

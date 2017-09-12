@@ -16,11 +16,11 @@ package v2
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/drivers"
 )
 
 // Not currently used, but leaving the possibility open
@@ -39,9 +39,9 @@ var (
 	blacklist = []string{"AGPL", "WTFPL"}
 )
 
-func checkFile(t *testing.T, licenseFile string) {
+func checkFile(t *testing.T, licenseFile string, driver drivers.Driver) {
 	// Read through the copyright file and make sure don't have an unauthorized license
-	license, err := ioutil.ReadFile(licenseFile)
+	license, err := driver.ReadFile(t, licenseFile)
 	if err != nil {
 		t.Errorf("Error reading license file for %s: %s", licenseFile, err.Error())
 		return
@@ -55,10 +55,10 @@ func checkFile(t *testing.T, licenseFile string) {
 	}
 }
 
-func checkLicenses(t *testing.T, tt LicenseTest) {
+func checkLicenses(t *testing.T, tt LicenseTest, driver drivers.Driver) {
 	if tt.Debian {
 		root := "/usr/share/doc"
-		packages, err := ioutil.ReadDir(root)
+		packages, err := driver.ReadDir(t, root)
 		if err != nil {
 			t.Fatalf("%s", err)
 		}
@@ -83,18 +83,18 @@ func checkLicenses(t *testing.T, tt LicenseTest) {
 
 			// If package doesn't have copyright file, log an error.
 			licenseFile := path.Join(root, p.Name(), "copyright")
-			_, err := os.Stat(licenseFile)
+			_, err := driver.StatFile(t, licenseFile)
 			if err != nil {
 				t.Errorf("Error reading license file for %s: %s", p.Name(), err.Error())
 				continue
 			}
 
-			checkFile(t, licenseFile)
+			checkFile(t, licenseFile, driver)
 		}
 	}
 
 	for _, file := range tt.Files {
-		checkFile(t, file)
+		checkFile(t, file, driver)
 	}
 }
 

@@ -12,7 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM gcr.io/cloud-builders/docker
+VERSION := 1.0.0
+BUCKET ?= structure-test
+UPLOAD_LOCATION := gs://${BUCKET}
 
-COPY structure_test /structure_test
-ENTRYPOINT ["/structure_test"]
+all: build release
+
+.PHONY: build
+build: structure-test
+
+.PHONY: release
+release: structure-test
+	gsutil cp structure-test $(UPLOAD_LOCATION)/$(VERSION)/structure-test-amd64
+
+structure-test:
+	go test -c . -o structure-test
+
+.PHONY: clean
+clean:
+	rm structure-test

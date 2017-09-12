@@ -15,27 +15,20 @@
 package main
 
 import (
-	"strings"
 	"testing"
 
+	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/drivers"
 	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/v1"
 	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/v2"
 )
 
 type StructureTest interface {
+	SetDriverImpl(func(string) drivers.Driver, string)
+	NewDriver() drivers.Driver
 	RunAll(t *testing.T) int
 }
 
 type arrayFlags []string
-
-func (a *arrayFlags) String() string {
-	return strings.Join(*a, ", ")
-}
-
-func (a *arrayFlags) Set(value string) error {
-	*a = append(*a, value)
-	return nil
-}
 
 var schemaVersions map[string]func() StructureTest = map[string]func() StructureTest{
 	"1.0.0": func() StructureTest { return new(v1.StructureTest) },
