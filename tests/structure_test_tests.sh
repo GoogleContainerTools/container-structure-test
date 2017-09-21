@@ -20,43 +20,30 @@
 #End to end tests to make sure the structure tests do what we expect them
 #to do on a known quantity, the latest debian docker image.
 
-TEST_TAG="test_tag-$(date +%Y-%M-%d-%H%M%S)"
-export FILE="debian_test.json"
-export IMAGE="gcr.io/google-appengine/debian8:latest"
-DOCKER_NAMESPACE=${DOCKER_NAMESPACE:-"gcr.io/gcp-runtimes"}
-export STRUCTURE_TEST_IMAGE="${DOCKER_NAMESPACE}/structure-test-test:${TEST_TAG}"
-
 failures=0
-# build newest structure test image
-pushd ..
-./build.sh "${STRUCTURE_TEST_IMAGE}"
-popd
+# build newest structure test binary
+go test -c .. -o structure-test
 
 # Run the debian tests, they should always pass on latest
-envsubst < cloudbuild.yaml.in > cloudbuild.yaml
-if ! gcloud container builds submit . --config=cloudbuild.yaml;
+res=$(./structure-test -image gcr.io/google-appengine/debian8 debian_test.yaml)
+code=$?
+
+if [[ ("$res" != "PASS" || "$code" != "0") ]];
 then
   echo "Success case test failed"
-  failures=$((failures + 1))
+  echo "$res"
+  failures=$((failures +1))
 fi
 
 # Run some bogus tests, they should fail as expected
-FILE="debian_failure_test.json"
-envsubst < cloudbuild.yaml.in > cloudbuild.yaml
-if gcloud container builds submit . --config=cloudbuild.yaml;
+res=$(./structure-test -image gcr.io/google-appengine/debian8 debian_failure_test.yaml)
+code=$?
+
+if ! [[ ("$res" =~ FAIL$ && "$code" == "1") ]];
 then
   echo "Failure case test failed"
-  failures=$((failures + 1))
-fi
-
-# Run some structure tests on the structure test image itself
-IMAGE="${STRUCTURE_TEST_IMAGE}"
-FILE="structure_test_test.json"
-envsubst < cloudbuild.yaml.in > cloudbuild.yaml
-if ! gcloud container builds submit . --config=cloudbuild.yaml;
-then
-  echo "Structure test failed"
-  failures=$((failures + 1))
+  echo "$res"
+  failures=$((failures +1))
 fi
 
 echo "Failure Count: $failures"
