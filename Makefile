@@ -12,22 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-VERSION := 1.0.0
+# Bump these on release
+VERSION_MAJOR ?= 0
+VERSION_MINOR ?= 1
+VERSION_BUILD ?= 0
+
+VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
+
+BUILD_DIR ?= ./out
 BUCKET ?= structure-test
 UPLOAD_LOCATION := gs://${BUCKET}
 
-all: build release
+all: clean build
 
 .PHONY: build
 build: structure-test
 
 .PHONY: release
 release: structure-test
-	gsutil cp structure-test $(UPLOAD_LOCATION)/$(VERSION)/structure-test-amd64
+	gsutil cp $(BUILD_DIR)/structure-test $(UPLOAD_LOCATION)/$(VERSION)/structure-test-amd64
 
+.PHONY: structure-test
 structure-test:
-	go test -c . -o structure-test
+	mkdir -p $(BUILD_DIR) && go test -c . -o $(BUILD_DIR)/structure-test
 
 .PHONY: clean
 clean:
-	rm structure-test
+	rm -rf $(BUILD_DIR)

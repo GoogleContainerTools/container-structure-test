@@ -15,7 +15,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -88,39 +87,44 @@ func Parse(t *testing.T, fp string) (StructureTest, error) {
 	if !ok {
 		return nil, errors.New("Error encountered when type casting Structure Test interface")
 	}
-	tests.SetDriverImpl(driverImpl, imageName)
+	tests.SetDriverImpl(driverImpl, imagePath)
 	return tests, nil
 }
 
 var configFiles arrayFlags
-var imageName, driver string
-var driverImpl func(string) drivers.Driver
+
+var imagePath, driver string
+var driverImpl func(string) (drivers.Driver, error)
 
 func TestMain(m *testing.M) {
-	flag.StringVar(&imageName, "image", "", "path to test image")
+	flag.StringVar(&imagePath, "image", "", "path to test image")
 	flag.StringVar(&driver, "driver", "docker", "driver to use when running tests")
 
 	flag.Parse()
 	configFiles = flag.Args()
-	stdout := bufio.NewWriter(os.Stdout)
 
-	if imageName == "" {
-		fmt.Fprintln(stdout, "Please supply name of image to test against")
+	if imagePath == "" {
+		fmt.Println("Please supply path to image or tarball to test against")
 		os.Exit(1)
 	}
 
 	if len(configFiles) == 0 {
-		fmt.Fprintln(stdout, "Please provide at least one test config file")
+		fmt.Println("Please provide at least one test config file")
 		os.Exit(1)
 	}
 
 	var err error
-	driverImpl, err = drivers.InitDriverImpl(driver)
-	if err != nil {
-		fmt.Fprintln(stdout, err.Error())
+
+	driverImpl = drivers.InitDriverImpl(driver)
+	if driverImpl == nil {
+		fmt.Printf("Unsupported driver type: %s", driver)
 		os.Exit(1)
 	}
-	fmt.Fprintf(stdout, "Using driver %s\n", driver)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	fmt.Printf("Using driver %s\n", driver)
 
 	if exit := m.Run(); exit != 0 {
 		os.Exit(exit)

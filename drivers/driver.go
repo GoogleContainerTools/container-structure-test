@@ -15,8 +15,6 @@
 package drivers
 
 import (
-	"errors"
-	"fmt"
 	"os"
 	"testing"
 
@@ -37,14 +35,18 @@ type Driver interface {
 	ReadFile(t *testing.T, path string) ([]byte, error)
 
 	ReadDir(t *testing.T, path string) ([]os.FileInfo, error)
+
+	Destroy()
 }
 
-func InitDriverImpl(driver string) (func(string) Driver, error) {
+func InitDriverImpl(driver string) func(string) (Driver, error) {
 	switch driver {
 	// future drivers will be added here
 	case "docker":
-		return NewDockerDriver, nil
+		return NewDockerDriver
+	case "tar":
+		return NewTarDriver
 	default:
-		return nil, errors.New(fmt.Sprintf("Unsupported driver type: %s", driver))
+		return nil
 	}
 }

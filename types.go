@@ -23,8 +23,8 @@ import (
 )
 
 type StructureTest interface {
-	SetDriverImpl(func(string) drivers.Driver, string)
-	NewDriver() drivers.Driver
+	SetDriverImpl(func(string) (drivers.Driver, error), string)
+	NewDriver() (drivers.Driver, error)
 	RunAll(t *testing.T) int
 }
 
