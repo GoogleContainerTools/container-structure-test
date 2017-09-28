@@ -19,22 +19,38 @@ VERSION_BUILD ?= 0
 
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
 
+GOOS ?= $(shell go env GOOS)
+GOARCH = amd64
+PROJECT := runtimes-common/structure_tests
+RELEASE_BUCKET ?= gcp-container-tools/structure-test
+
+SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH)
+
 BUILD_DIR ?= ./out
 BUCKET ?= structure-test
 UPLOAD_LOCATION := gs://${BUCKET}
 
-all: clean build
+$(BUILD_DIR)/$(PROJECT): $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH)
+	cp $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH) $@
 
-.PHONY: build
-build: structure-test
+$(BUILD_DIR)/$(PROJECT)-%-$(GOARCH): $(GO_FILES) $(BUILD_DIR)
+	GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 go test -c . -o $@
+
+%.sha256: %
+	shasum -a 256 $< &> $@
+
+%.exe: %
+	cp $< $@
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+.PHONY: cross
+cross: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform).sha256)
 
 .PHONY: release
-release: structure-test
-	gsutil cp $(BUILD_DIR)/structure-test $(UPLOAD_LOCATION)/$(VERSION)/structure-test-amd64
-
-.PHONY: structure-test
-structure-test:
-	mkdir -p $(BUILD_DIR) && go test -c . -o $(BUILD_DIR)/structure-test
+release: cross
+	gsutil cp $(BUILD_DIR)/$(PROJECT)-* gs://$(RELEASE_BUCKET)/$(VERSION)/
 
 .PHONY: clean
 clean:
