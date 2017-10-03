@@ -1,3 +1,5 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+
 licenses(["notice"])
 
 package(default_visibility = ["//visibility:public"])
@@ -5,4 +7,32 @@ package(default_visibility = ["//visibility:public"])
 sh_binary(
     name = "ext_run",
     srcs = ["ext_run.sh"],
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = ["types.go"],
+    importpath = "github.com/GoogleCloudPlatform/runtimes-common/structure_tests",
+    deps = [
+        "//structure_tests/drivers:go_default_library",
+        "//structure_tests/types/v1:go_default_library",
+        "//structure_tests/types/v2:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "structure_tests",
+    importpath = "github.com/GoogleCloudPlatform/runtimes-common/structure_tests",
+    library = ":go_default_library",
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["structure_test.go"],
+    importpath = "github.com/GoogleCloudPlatform/runtimes-common/structure_tests",
+    library = ":go_default_library",
+    deps = [
+        "//structure_tests/drivers:go_default_library",
+        "//vendor/github.com/ghodss/yaml:go_default_library",
+    ],
 )

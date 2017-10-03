@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "command.go",
+        "file_content.go",
+        "file_existence.go",
+        "licenses.go",
+        "structure.go",
+    ],
+    importpath = "github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/v1",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//structure_tests/drivers:go_default_library",
+        "//structure_tests/types/unversioned:go_default_library",
+        "//structure_tests/utils:go_default_library",
+    ],
+)
