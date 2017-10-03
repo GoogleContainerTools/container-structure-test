@@ -1,0 +1,39 @@
+schemaVersion: '2.0.0' # Make sure to test the latest schema version
+commandTests:
+- name: 'apt-get'
+  command: 'apt-get'
+  args: ['help']
+  excludedError: ['.*FAIL.*']
+  expectedOutput: ['.*Usage.*']
+- name: 'apt-config'
+  command: 'apt-config'
+  args: ['dump']
+  expectedOutput: ['Acquire::Retries "3"']
+- name: 'path'
+  command: 'sh'
+  args: ['-c', 'echo $PATH']
+  expectedOutput: ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin']
+fileContentTests:
+- name: 'Debian Sources'
+  excludedContents: ['.*gce_debian_mirror.*']
+  expectedContents: ['.*httpredir\.debian\.org.*']
+  path: '/etc/apt/sources.list'
+- name: 'Retry Policy'
+  expectedContents: ['Acquire::Retries 3;']
+  path: '/etc/apt/apt.conf.d/apt-retry'
+fileExistenceTests:
+- name: 'Root'
+  isDirectory: true
+  path: '/'
+  shouldExist: true
+- name: 'Netbase'
+  isDirectory: false
+  path: '/etc/protocols'
+  shouldExist: true
+- name: 'Machine ID'
+  isDirectory: false
+  path: '/etc/machine-id'
+  shouldExist: true
+licenseTests:
+- debian: true
+  files:
