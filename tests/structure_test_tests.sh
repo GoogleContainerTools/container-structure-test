@@ -28,7 +28,7 @@ go test -c github.com/GoogleCloudPlatform/runtimes-common/structure_tests -o str
 res=$(./structure-test -image gcr.io/google-appengine/debian8 debian_test.yaml)
 code=$?
 
-if [[ ("$res" != "PASS" || "$code" != "0") ]];
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
   echo "Success case test failed"
   echo "$res"
