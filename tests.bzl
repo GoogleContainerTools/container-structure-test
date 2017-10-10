@@ -20,24 +20,25 @@ load(
 )
 
 def _impl(ctx):
-    ext_run_location = ctx.executable._structure_test.short_path
+    st_binary = ctx.executable._structure_test.short_path
     config_location = ctx.file.config.short_path
     load_location = ctx.executable.image.short_path
 
     # docker_build rules always generate an image named 'bazel/$package:$name'.
     image_name = "bazel/%s:%s" % (ctx.attr.image.label.package, ctx.attr.image.label.name)
 
-    # Generate a shell script to execute ext_run with the correct flags.
+    # Generate a shell script to execute structure_tests with the correct flags.
     test_contents = """\
 #!/bin/bash
 set -ex
 # Execute the image loader script.
-%s
+{0}
 
 # Run the tests.
-%s \
-  -i %s \
-  -c %s""" % (load_location, ext_run_location, image_name, config_location)
+{1} \
+  -image {2} \
+  $(pwd)/{3}
+""".format(load_location, st_binary, image_name, config_location)
     ctx.file_action(
         output=ctx.outputs.executable,
         content=test_contents
@@ -55,7 +56,7 @@ set -ex
 structure_test = rule(
     attrs = {
         "_structure_test": attr.label(
-            default = Label("//structure_tests:ext_run"),
+            default = Label("//structure_tests:go_default_test"),
             cfg = "target",
             allow_files = True,
             executable = True,
