@@ -161,7 +161,7 @@ func (d *DockerDriver) StatFile(t *testing.T, target string) (os.FileInfo, error
 			break
 		}
 		switch header.Typeflag {
-		case tar.TypeDir, tar.TypeReg:
+		case tar.TypeDir, tar.TypeReg, tar.TypeLink, tar.TypeSymlink:
 			if filepath.Clean(header.Name) == path.Base(target) {
 				return header.FileInfo(), nil
 			}
@@ -187,7 +187,7 @@ func (d *DockerDriver) ReadFile(t *testing.T, target string) ([]byte, error) {
 			if filepath.Clean(header.Name) == path.Base(target) {
 				return nil, fmt.Errorf("Cannot read specified path: %s is a directory, not a file", target)
 			}
-		case tar.TypeReg:
+		case tar.TypeReg, tar.TypeLink, tar.TypeSymlink:
 			if filepath.Clean(header.Name) == path.Base(target) {
 				var b bytes.Buffer
 				stream := bufio.NewWriter(&b)
