@@ -124,11 +124,15 @@ func (st *StructureTest) RunFileContentTests(t *testing.T) int {
 
 			var errMessage string
 			for _, s := range tt.ExpectedContents {
-				errMessage = "Expected string " + s + " not found in file contents!"
+				errMessage = fmt.Sprintf(
+					"Expected string: %s not found in file content string: %s!",
+					s, contents)
 				utils.CompileAndRunRegex(s, contents, t, errMessage, true)
 			}
 			for _, s := range tt.ExcludedContents {
-				errMessage = "Excluded string " + s + " found in file contents!"
+				errMessage = fmt.Sprintf(
+					"Excluded string: %s found in file content string: %s!",
+					s, contents)
 				utils.CompileAndRunRegex(s, contents, t, errMessage, false)
 			}
 			counter++

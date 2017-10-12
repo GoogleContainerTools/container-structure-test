@@ -27,7 +27,7 @@ import (
 	"testing"
 
 	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/unversioned"
-	"github.com/fsouza/go-dockerclient"
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 type DockerDriver struct {
@@ -187,7 +187,9 @@ func (d *DockerDriver) ReadFile(t *testing.T, target string) ([]byte, error) {
 			if filepath.Clean(header.Name) == path.Base(target) {
 				return nil, fmt.Errorf("Cannot read specified path: %s is a directory, not a file", target)
 			}
-		case tar.TypeReg, tar.TypeLink, tar.TypeSymlink:
+		case tar.TypeSymlink:
+			return d.ReadFile(t, header.Linkname)
+		case tar.TypeReg, tar.TypeLink:
 			if filepath.Clean(header.Name) == path.Base(target) {
 				var b bytes.Buffer
 				stream := bufio.NewWriter(&b)
