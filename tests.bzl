@@ -22,7 +22,7 @@ load(
 def _impl(ctx):
 
     if (not (ctx.attr.image_tar or ctx.executable.image) or
-        (ctx.attr.image and ctx.executable.image)):
+        (ctx.attr.image_tar and ctx.executable.image)):
         fail('Please specify one of \'image\' or \'image_tar\'')
     st_binary = ctx.executable._structure_test.short_path
     config_location = ctx.file.config.short_path
