@@ -85,14 +85,8 @@ func retrieveEnv(d *DockerDriver) func(string) string {
 			if err != nil {
 				return ""
 			}
-
 			// convert env to map for processing
-			imageEnv := make(map[string]string)
-			for _, varPair := range image.Config.Env {
-				pair := strings.Split(varPair, "=")
-				imageEnv[pair[0]] = pair[1]
-			}
-			env = imageEnv
+			env = convertEnvToMap(image.Config.Env)
 		}
 		return env[envVar]
 	}
@@ -310,4 +304,33 @@ func (d *DockerDriver) exec(t *testing.T, env []string, command []string) (strin
 	}
 
 	return stdout.String(), stderr.String(), exitCode
+}
+
+func (d *DockerDriver) GetConfig(t *testing.T) (unversioned.Config, error) {
+	img, err := d.cli.InspectImage(d.currentImage)
+	if err != nil {
+		t.Errorf("Error when inspecting image: %s", err.Error())
+		return unversioned.Config{}, err
+	}
+
+	// docker provides these as maps (since they can be mapped in docker run commands)
+	// since this will never be the case when built through a dockerfile, we convert to list of strings
+	volumes := []string{}
+	for v := range img.Config.Volumes {
+		volumes = append(volumes, v)
+	}
+
+	ports := []string{}
+	for p := range img.Config.ExposedPorts {
+		ports = append(ports, p.Port())
+	}
+
+	return unversioned.Config{
+		Env:          convertEnvToMap(img.Config.Env),
+		Entrypoint:   img.Config.Entrypoint,
+		Cmd:          img.Config.Cmd,
+		Volumes:      volumes,
+		Workdir:      img.Config.WorkingDir,
+		ExposedPorts: ports,
+	}, nil
 }

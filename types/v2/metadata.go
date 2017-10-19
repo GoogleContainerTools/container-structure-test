@@ -12,20 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package unversioned
+package v2
 
-type EnvVar struct {
-	Key   string
-	Value string
-}
+import (
+	"fmt"
 
-type Config struct {
-	Env          map[string]string
-	Entrypoint   []string
-	Cmd          []string
-	Volumes      []string
-	Workdir      string
+	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/unversioned"
+)
+
+type MetadataTest struct {
+	Env          []unversioned.EnvVar
 	ExposedPorts []string
+	Entrypoint   *[]string
+	Cmd          *[]string
+	Workdir      string
+	Volumes      []string
 }
 
-type Command []string
+func (mt MetadataTest) LogName() string {
+	return fmt.Sprintf("Metadata Test")
+}

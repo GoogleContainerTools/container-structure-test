@@ -18,6 +18,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	pkgutil "github.com/GoogleCloudPlatform/container-diff/pkg/util"
@@ -78,4 +79,28 @@ func (d *TarDriver) ReadFile(t *testing.T, path string) ([]byte, error) {
 
 func (d *TarDriver) ReadDir(t *testing.T, path string) ([]os.FileInfo, error) {
 	return ioutil.ReadDir(filepath.Join(d.Image.FSPath, path))
+}
+
+func (d *TarDriver) GetConfig(t *testing.T) (unversioned.Config, error) {
+	// docker provides these as maps (since they can be mapped in docker run commands)
+	// since this will never be the case when built through a dockerfile, we convert to list of strings
+	volumes := []string{}
+	for v := range d.Image.Config.Config.Volumes {
+		volumes = append(volumes, v)
+	}
+
+	ports := []string{}
+	for p := range d.Image.Config.Config.ExposedPorts {
+		// docker always appends the protocol to the port, so this is safe
+		ports = append(ports, strings.Split(p, "/")[0])
+	}
+
+	return unversioned.Config{
+		Env:          convertEnvToMap(d.Image.Config.Config.Env),
+		Entrypoint:   d.Image.Config.Config.Entrypoint,
+		Cmd:          d.Image.Config.Config.Cmd,
+		Volumes:      volumes,
+		Workdir:      d.Image.Config.Config.Workdir,
+		ExposedPorts: ports,
+	}, nil
 }

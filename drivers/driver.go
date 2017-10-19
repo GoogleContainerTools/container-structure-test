@@ -16,6 +16,7 @@ package drivers
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/unversioned"
@@ -36,6 +37,8 @@ type Driver interface {
 
 	ReadDir(t *testing.T, path string) ([]os.FileInfo, error)
 
+	GetConfig(t *testing.T) (unversioned.Config, error)
+
 	Destroy()
 }
 
@@ -49,4 +52,14 @@ func InitDriverImpl(driver string) func(string) (Driver, error) {
 	default:
 		return nil
 	}
+}
+
+func convertEnvToMap(env []string) map[string]string {
+	// convert env to map for processing
+	envMap := make(map[string]string)
+	for _, varPair := range env {
+		pair := strings.Split(varPair, "=")
+		envMap[pair[0]] = pair[1]
+	}
+	return envMap
 }

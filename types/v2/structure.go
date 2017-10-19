@@ -31,6 +31,7 @@ type StructureTest struct {
 	CommandTests       []CommandTest
 	FileExistenceTests []FileExistenceTest
 	FileContentTests   []FileContentTest
+	MetadataTest       MetadataTest
 	LicenseTests       []LicenseTest
 }
 
@@ -48,6 +49,7 @@ func (st *StructureTest) RunAll(t *testing.T) int {
 	testsRun += st.RunCommandTests(t)
 	testsRun += st.RunFileExistenceTests(t)
 	testsRun += st.RunFileContentTests(t)
+	testsRun += st.RunMetadataTests(t)
 	testsRun += st.RunLicenseTests(t)
 	return testsRun
 }
@@ -139,6 +141,77 @@ func (st *StructureTest) RunFileContentTests(t *testing.T) int {
 		})
 	}
 	return counter
+}
+
+func (st *StructureTest) RunMetadataTests(t *testing.T) int {
+	t.Run(st.MetadataTest.LogName(), func(t *testing.T) {
+		driver, err := st.NewDriver()
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		defer driver.Destroy()
+		config, err := driver.GetConfig(t)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		for _, pair := range st.MetadataTest.Env {
+			if config.Env[pair.Key] == "" {
+				t.Errorf("variable %s not found in image env", pair.Key)
+			} else if config.Env[pair.Key] != pair.Value {
+				t.Errorf("env var %s value does not match expected value: %s", pair.Key, pair.Value)
+			}
+		}
+
+		if st.MetadataTest.Cmd != nil {
+			if len(*st.MetadataTest.Cmd) != len(config.Cmd) {
+				t.Errorf("Image Cmd %v does not match expected Cmd: %v", *st.MetadataTest.Cmd, config.Cmd)
+			} else {
+				for i := range *st.MetadataTest.Cmd {
+					if (*st.MetadataTest.Cmd)[i] != config.Cmd[i] {
+						t.Errorf("Image config Cmd does not match expected value: %s", *st.MetadataTest.Cmd)
+					}
+				}
+			}
+		}
+
+		if st.MetadataTest.Entrypoint != nil {
+			if len(*st.MetadataTest.Entrypoint) != len(config.Entrypoint) {
+				t.Errorf("Image entrypoint %v does not match expected entrypoint: %v", *st.MetadataTest.Entrypoint, config.Entrypoint)
+			} else {
+				for i := range *st.MetadataTest.Entrypoint {
+					if (*st.MetadataTest.Entrypoint)[i] != config.Entrypoint[i] {
+						t.Errorf("Image config entrypoint does not match expected value: %s", *st.MetadataTest.Entrypoint)
+					}
+				}
+			}
+		}
+
+		if st.MetadataTest.Workdir != "" && st.MetadataTest.Workdir != config.Workdir {
+			t.Errorf("Image Workdir %s does not match config Workdir: %s", st.MetadataTest.Workdir, config.Workdir)
+		}
+
+		for _, port := range st.MetadataTest.ExposedPorts {
+			if !valueInList(port, config.ExposedPorts) {
+				t.Errorf("Port %s not found in config", port)
+			}
+		}
+
+		for _, volume := range st.MetadataTest.Volumes {
+			if !valueInList(volume, config.Volumes) {
+				t.Errorf("Volume %s not found in config", volume)
+			}
+		}
+	})
+	return 1
+}
+
+func valueInList(target string, list []string) bool {
+	for _, value := range list {
+		if target == value {
+			return true
+		}
+	}
+	return false
 }
 
 func (st *StructureTest) RunLicenseTests(t *testing.T) int {
