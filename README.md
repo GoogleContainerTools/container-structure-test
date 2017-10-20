@@ -21,13 +21,14 @@ Tests within this framework are specified through a YAML or JSON config file,
 which is provided to the test driver as the last positional argument of the 
 command. Multiple config files may be specified in a single test run. The 
 config file will be loaded in by the test driver, which will execute the tests 
-in order. Within this config file, three types of tests can be written: 
+in order. Within this config file, four types of tests can be written:
 
 - Command Tests (testing output/error of a specific command issued)
 - File Existence Tests (making sure a file is, or isn't, present in the 
 file system of the image)
 - File Content Tests (making sure files in the file system of the image 
 contain, or do not contain, specific contents)
+- Metadata Test, *singular* (making sure certain container metadata is correct)
 
 ## Command Tests
 Command tests ensure that certain commands run properly in the target image.
@@ -121,6 +122,33 @@ fileContentTests:
   path: '/etc/apt/sources.list'
   expectedContents: ['.*httpredir\\.debian\\.org.*']
   excludedContents: ['.*gce_debian_mirror.*']
+```
+
+## Metadata Test
+The Metadata test ensures the container is configured correctly. All
+of these checks are optional.
+
+#### Supported Fields:
+
+- Env ([]EnvVar): A list of environment variable key/value pairs that should be set
+in the container.
+- Entrypoint ([]string): The entrypoint of the container
+- Cmd ([]string): The CMD specified in the container.
+- Exposed Ports ([]string): The ports exposed in the container.
+- Volumes ([]string): The volumes exposed in the container.
+- Workdir (string): The default working directory of the container.
+
+Example:
+```yaml
+metadataTest:
+  env:
+    - key: foo
+      value: baz
+  exposedPorts: ["8080", "2345"]
+  volumes: ["/test"]
+  entrypoint: []
+  cmd: ["/bin/bash"]
+  workdir: ["/app"]
 ```
 
 ## License Tests
