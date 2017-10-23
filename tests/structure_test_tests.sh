@@ -22,7 +22,7 @@
 
 failures=0
 # build newest structure test binary
-go test -c github.com/GoogleCloudPlatform/runtimes-common/structure_tests -o structure-test
+go test -c github.com/GoogleCloudPlatform/container-structure-test -o structure-test
 
 # Run the debian tests, they should always pass on latest
 res=$(./structure-test -image gcr.io/google-appengine/debian8 debian_test.yaml)

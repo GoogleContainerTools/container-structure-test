@@ -21,7 +21,7 @@ VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
 
 GOOS ?= $(shell go env GOOS)
 GOARCH = amd64
-PROJECT := runtimes-common/structure_tests
+PROJECT := structure-test
 RELEASE_BUCKET ?= gcp-container-tools/structure-test
 
 SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH)

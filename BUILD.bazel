@@ -13,17 +13,17 @@ sh_binary(
 go_library(
     name = "go_default_library",
     srcs = ["types.go"],
-    importpath = "github.com/GoogleCloudPlatform/runtimes-common/structure_tests",
+    importpath = "github.com/GoogleCloudPlatform/container-structure-test",
     deps = [
-        "//structure_tests/drivers:go_default_library",
-        "//structure_tests/types/v1:go_default_library",
-        "//structure_tests/types/v2:go_default_library",
+        "//container-structure-test/drivers:go_default_library",
+        "//container-structure-test/types/v1:go_default_library",
+        "//container-structure-test/types/v2:go_default_library",
     ],
 )
 
 go_binary(
     name = "structure_tests",
-    importpath = "github.com/GoogleCloudPlatform/runtimes-common/structure_tests",
+    importpath = "github.com/GoogleCloudPlatform/container-structure-test",
     library = ":go_default_library",
 )
 
@@ -31,10 +31,10 @@ go_test(
     name = "go_default_test",
     testonly = False,
     srcs = ["structure_test.go"],
-    importpath = "github.com/GoogleCloudPlatform/runtimes-common/structure_tests",
+    importpath = "github.com/GoogleCloudPlatform/container-structure-test",
     library = ":go_default_library",
     deps = [
-        "//structure_tests/drivers:go_default_library",
+        "//container-structure-test/drivers:go_default_library",
         "//vendor/github.com/ghodss/yaml:go_default_library",
     ],
 )

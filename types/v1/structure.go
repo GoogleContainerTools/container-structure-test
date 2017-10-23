@@ -19,9 +19,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/drivers"
-	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/types/unversioned"
-	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/utils"
+	"github.com/GoogleCloudPlatform/container-structure-test/drivers"
+	"github.com/GoogleCloudPlatform/container-structure-test/types/unversioned"
+	"github.com/GoogleCloudPlatform/container-structure-test/utils"
 )
 
 type StructureTest struct {

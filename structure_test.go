@@ -25,7 +25,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/GoogleCloudPlatform/runtimes-common/structure_tests/drivers"
+	"github.com/GoogleCloudPlatform/container-structure-test/drivers"
 	"github.com/ghodss/yaml"
 )
 

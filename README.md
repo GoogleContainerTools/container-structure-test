@@ -217,7 +217,7 @@ Structure tests can also be run through bazel.
 To do so, include the rule definitions in your BUILD file:
 
 ```BUILD
-load("@runtimes_common//structure_tests:tests.bzl", "structure_test")
+load("@container-structure-test//:tests.bzl", "structure_test")
 ```
 
 and create a `structure_test` rule, passing in your image and config 
@@ -231,7 +231,7 @@ docker_build(
     files = [":HelloJava_deploy.jar"],
 )
 
-load("@runtimes_common//structure_tests:tests.bzl", "structure_test")
+load("@container-structure-test//:tests.bzl", "structure_test")
 
 structure_test(
     name = "hello_test",
