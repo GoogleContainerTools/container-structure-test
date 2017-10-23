@@ -91,7 +91,7 @@ func (st *StructureTest) RunFileExistenceTests(t *testing.T) int {
 			var info os.FileInfo
 			info, err = driver.StatFile(t, tt.Path)
 			if tt.ShouldExist && err != nil {
-				t.Errorf("File %s should exist but does not!", tt.Path)
+				t.Errorf("File %s should exist but does not, got error: %s!", tt.Path, err)
 			} else if !tt.ShouldExist && err == nil {
 				t.Errorf("File %s should not exist but does!", tt.Path)
 			}

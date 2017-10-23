@@ -137,7 +137,6 @@ func (d *DockerDriver) retrieveTar(t *testing.T, path string) (*tar.Reader, erro
 		Path:         path,
 	})
 	if err != nil {
-		t.Errorf("Error when downloading file from container: %s", err.Error())
 		return nil, err
 	}
 	stream.Flush()
