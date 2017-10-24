@@ -23,4 +23,4 @@ addons:
 script:
   - ./.gofmt.sh
   - make
-  - bazel build //container-structure-test:go_default_test
+  - bazel build //:go_default_test
