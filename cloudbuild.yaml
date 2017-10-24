@@ -4,12 +4,12 @@ steps:
     args: ['run', '//:structure_test_image']
 # Tag the built image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['tag', 'bazel:structure_test_image', 'gcr.io/gcp-runtimes/structure-test:$COMMIT_SHA']
+    args: ['tag', 'bazel:structure_test_image', 'gcr.io/gcp-runtimes/container-structure-test:$COMMIT_SHA']
 
   - name: 'gcr.io/cloud-builders/bazel'
     args: ['build', '//:go_default_test']
 
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', 'bazel-bin/go_default_test', 'gs://structure-test/$COMMIT_SHA/structure-test']
+    args: ['cp', 'bazel-bin/go_default_test', 'gs://container-structure-test/$COMMIT_SHA/container-structure-test']
 
-images: ['gcr.io/gcp-runtimes/structure-test:$COMMIT_SHA']
+images: ['gcr.io/gcp-runtimes/container-structure-test:$COMMIT_SHA']

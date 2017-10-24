@@ -5,4 +5,4 @@ steps:
 
 # Upload the binary to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', 'bazel-bin/go_default_test', 'gs://structure-test/$TAG_NAME/structure-test']
+    args: ['cp', 'bazel-bin/go_default_test', 'gs://container-structure-test/$TAG_NAME/container-structure-test']
