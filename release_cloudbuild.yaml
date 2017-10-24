@@ -1,0 +1,8 @@
+steps:
+# Build the binary with bazel
+  - name: 'gcr.io/cloud-builders/bazel'
+    args: ['build', '//:go_default_test']
+
+# Upload the binary to GCS
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['cp', 'bazel-bin/go_default_test', 'gs://structure-test/$TAG_NAME/structure-test']
