@@ -1,0 +1,49 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "auth.go",
+        "change.go",
+        "client.go",
+        "client_unix.go",
+        "container.go",
+        "env.go",
+        "event.go",
+        "exec.go",
+        "image.go",
+        "misc.go",
+        "network.go",
+        "node.go",
+        "service.go",
+        "signal.go",
+        "swarm.go",
+        "tar.go",
+        "task.go",
+        "tls.go",
+        "volume.go",
+    ] + select({
+        "@io_bazel_rules_go//go/platform:windows_amd64": [
+            "client_windows.go",
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/docker/docker/api/types/swarm:go_default_library",
+        "//vendor/github.com/docker/docker/opts:go_default_library",
+        "//vendor/github.com/docker/docker/pkg/archive:go_default_library",
+        "//vendor/github.com/docker/docker/pkg/fileutils:go_default_library",
+        "//vendor/github.com/docker/docker/pkg/homedir:go_default_library",
+        "//vendor/github.com/docker/docker/pkg/jsonmessage:go_default_library",
+        "//vendor/github.com/docker/docker/pkg/stdcopy:go_default_library",
+        "//vendor/github.com/docker/go-units:go_default_library",
+        "//vendor/golang.org/x/net/context:go_default_library",
+        "//vendor/golang.org/x/net/context/ctxhttp:go_default_library",
+    ] + select({
+        "@io_bazel_rules_go//go/platform:windows_amd64": [
+            "//vendor/github.com/Microsoft/go-winio:go_default_library",
+        ],
+        "//conditions:default": [],
+    }),
+)

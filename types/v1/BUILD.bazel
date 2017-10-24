@@ -12,8 +12,8 @@ go_library(
     importpath = "github.com/GoogleCloudPlatform/container-structure-test/types/v1",
     visibility = ["//visibility:public"],
     deps = [
-        "//structure_tests/drivers:go_default_library",
-        "//structure_tests/types/unversioned:go_default_library",
-        "//structure_tests/utils:go_default_library",
+        "//drivers:go_default_library",
+        "//types/unversioned:go_default_library",
+        "//utils:go_default_library",
     ],
 )
