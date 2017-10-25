@@ -62,3 +62,12 @@ go_binary(
     name = "container-structure-test",
     library = ":go_default_library",
 )
+
+def structure_test_repositories():
+    native.http_file(
+      name = "structure_test_binary",
+      urls = ["https://storage.googleapis.com/container-structure-test/" +
+             "latest/container-structure-test"],
+      sha256 = "224532368ac4a583a150ac3d583371dd85b7a564640bf2c076dcdda001df93e5",
+      executable = True,
+    )
