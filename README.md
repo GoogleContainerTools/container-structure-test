@@ -5,8 +5,10 @@ The GCP Structure Tests provide a powerful framework to validate the structure
 of a container image. These tests can be used to check the output of commands 
 in an image, as well as verify metadata and contents of the filesystem.
 
-To run the test framework, simply download the binary for your OS here:
-- TODO: add links to binaries
+Tests can be run either through a standalone binary, or through a Docker image as part of a cloudbuild. Download the binary
+[here](https://storage.googleapis.com/container-structure-test/latest/container-structure-test),
+or pull the image at `gcr.io/gcp-runtimes/container-structure-test`.
+**Please note that at this time the binary is only compatible with Linux.**
 
 ## Example Run
 An example run of the test framework:
