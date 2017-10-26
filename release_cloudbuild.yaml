@@ -1,8 +1,15 @@
 steps:
-# Build the binary with bazel
+# Build the image
+  - name: 'gcr.io/cloud-builders/bazel'
+    args: ['run', '//:structure_test_image']
+# Tag the built image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', 'bazel:structure_test_image', 'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME']
+# Build the binary
   - name: 'gcr.io/cloud-builders/bazel'
     args: ['build', '//:go_default_test']
-
 # Upload the binary to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
     args: ['cp', 'bazel-bin/go_default_test', 'gs://container-structure-test/$TAG_NAME/container-structure-test']
+
+images: ['gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME']
