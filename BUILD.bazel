@@ -52,7 +52,7 @@ container_image(
     name = "structure_test_image",
     testonly = False,
     base = "@distroless_base//image",
-    cmd = ["/go_default_test"],
+    entrypoint = ["/go_default_test"],
     files = [":go_default_test"],
 )
 
