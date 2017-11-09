@@ -62,7 +62,7 @@ func (st *StructureTest) RunCommandTests(t *testing.T) int {
 			//each test needs to have its own instance of the driver: create that here
 			driver, err := st.NewDriver()
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Fatalf(err.Error())
 			}
 			defer driver.Destroy()
 			vars := append(st.GlobalEnvVars, tt.EnvVars...)
@@ -85,7 +85,7 @@ func (st *StructureTest) RunFileExistenceTests(t *testing.T) int {
 			validateFileExistenceTest(t, tt)
 			driver, err := st.NewDriver()
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Fatalf(err.Error())
 			}
 			defer driver.Destroy()
 			var info os.FileInfo
@@ -114,7 +114,7 @@ func (st *StructureTest) RunFileContentTests(t *testing.T) int {
 			validateFileContentTest(t, tt)
 			driver, err := st.NewDriver()
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Fatalf(err.Error())
 			}
 			defer driver.Destroy()
 			actualContents, err := driver.ReadFile(t, tt.Path)
@@ -147,12 +147,12 @@ func (st *StructureTest) RunMetadataTests(t *testing.T) int {
 	t.Run(st.MetadataTest.LogName(), func(t *testing.T) {
 		driver, err := st.NewDriver()
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Fatalf(err.Error())
 		}
 		defer driver.Destroy()
 		config, err := driver.GetConfig(t)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Fatalf(err.Error())
 		}
 		for _, pair := range st.MetadataTest.Env {
 			if config.Env[pair.Key] == "" {
@@ -219,7 +219,7 @@ func (st *StructureTest) RunLicenseTests(t *testing.T) int {
 		t.Run(tt.LogName(num), func(t *testing.T) {
 			driver, err := st.NewDriver()
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Fatalf(err.Error())
 			}
 			defer driver.Destroy()
 			checkLicenses(t, tt, driver)
