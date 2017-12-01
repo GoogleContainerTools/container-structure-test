@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/GoogleCloudPlatform/container-structure-test",
-	"GoVersion": "go1.8",
+	"GoVersion": "go1.9",
 	"GodepVersion": "v79",
 	"Packages": [
 		"./..."
@@ -16,11 +16,11 @@
 		},
 		{
 			"ImportPath": "github.com/GoogleCloudPlatform/container-diff/pkg/cache",
-			"Rev": "b726215b8b978e1d85257af5c2fd0a6fb8e116fd"
+			"Rev": "3d6d46814835c2773749cb31c0232f17f692d66d"
 		},
 		{
 			"ImportPath": "github.com/GoogleCloudPlatform/container-diff/pkg/util",
-			"Rev": "b726215b8b978e1d85257af5c2fd0a6fb8e116fd"
+			"Rev": "3d6d46814835c2773749cb31c0232f17f692d66d"
 		},
 		{
 			"ImportPath": "github.com/Microsoft/go-winio",
