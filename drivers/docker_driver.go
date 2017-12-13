@@ -257,6 +257,12 @@ func (d *DockerDriver) runAndCommit(t *testing.T, env []string, command []string
 		t.Errorf("Error committing container: %s", err.Error())
 	}
 
+	if err = d.cli.RemoveContainer(docker.RemoveContainerOptions{
+		ID: container.ID,
+	}); err != nil {
+		t.Logf("Error when removing container %s: %s", container.ID, err.Error())
+	}
+
 	d.currentImage = image.ID
 	return image.ID
 }
@@ -300,6 +306,12 @@ func (d *DockerDriver) exec(t *testing.T, env []string, command []string) (strin
 		Stderr:       true,
 	}); err != nil {
 		t.Errorf("Error retrieving container logs: %s", err.Error())
+	}
+
+	if err = d.cli.RemoveContainer(docker.RemoveContainerOptions{
+		ID: container.ID,
+	}); err != nil {
+		t.Logf("Error when removing container %s: %s", container.ID, err.Error())
 	}
 
 	return stdout.String(), stderr.String(), exitCode
