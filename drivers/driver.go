@@ -47,7 +47,7 @@ type Driver interface {
 	Destroy()
 }
 
-func InitDriverImpl(driver string) func(string) (Driver, error) {
+func InitDriverImpl(driver string) func(string, bool) (Driver, error) {
 	switch driver {
 	// future drivers will be added here
 	case Docker:
