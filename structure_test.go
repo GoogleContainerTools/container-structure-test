@@ -133,7 +133,7 @@ func TestMain(m *testing.M) {
 			Tag:          tag,
 			OutputStream: os.Stdout,
 		}, docker.AuthConfiguration{}); err != nil {
-			fmt.Println("Error pulling remote image %s: %s", imagePath, err.Error())
+			fmt.Printf("Error pulling remote image %s: %s", imagePath, err.Error())
 			os.Exit(1)
 		}
 	}
