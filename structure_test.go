@@ -119,11 +119,15 @@ func TestMain(m *testing.M) {
 	var err error
 
 	if pull {
+		if driver != drivers.Docker {
+			fmt.Println("Image pull not supported when not using Docker driver")
+			os.Exit(1)
+		}
 		var repository, tag string
 		parts := strings.Split(imagePath, ":")
 		repository = parts[0]
 		if len(parts) < 2 {
-			fmt.Println("Please provide specific tag for image.")
+			fmt.Println("Please provide specific tag for image")
 			os.Exit(1)
 		}
 		tag = parts[1]
