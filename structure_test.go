@@ -26,6 +26,7 @@ import (
 	"testing"
 
 	"github.com/GoogleCloudPlatform/container-structure-test/drivers"
+	docker "github.com/fsouza/go-dockerclient"
 	"github.com/ghodss/yaml"
 )
 
@@ -94,11 +95,13 @@ func Parse(t *testing.T, fp string) (StructureTest, error) {
 var configFiles arrayFlags
 
 var imagePath, driver string
+var pull bool
 var driverImpl func(string) (drivers.Driver, error)
 
 func TestMain(m *testing.M) {
 	flag.StringVar(&imagePath, "image", "", "path to test image")
 	flag.StringVar(&driver, "driver", "docker", "driver to use when running tests")
+	flag.BoolVar(&pull, "pull", false, "force a pull of the image before running tests")
 
 	flag.Parse()
 	configFiles = flag.Args()
@@ -114,6 +117,30 @@ func TestMain(m *testing.M) {
 	}
 
 	var err error
+
+	if pull {
+		if driver != drivers.Docker {
+			fmt.Println("Image pull not supported when not using Docker driver")
+			os.Exit(1)
+		}
+		var repository, tag string
+		parts := strings.Split(imagePath, ":")
+		repository = parts[0]
+		if len(parts) < 2 {
+			fmt.Println("Please provide specific tag for image")
+			os.Exit(1)
+		}
+		tag = parts[1]
+		client, err := docker.NewClientFromEnv()
+		if err = client.PullImage(docker.PullImageOptions{
+			Repository:   repository,
+			Tag:          tag,
+			OutputStream: os.Stdout,
+		}, docker.AuthConfiguration{}); err != nil {
+			fmt.Printf("Error pulling remote image %s: %s", imagePath, err.Error())
+			os.Exit(1)
+		}
+	}
 
 	driverImpl = drivers.InitDriverImpl(driver)
 	if driverImpl == nil {

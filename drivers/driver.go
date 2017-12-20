@@ -22,6 +22,11 @@ import (
 	"github.com/GoogleCloudPlatform/container-structure-test/types/unversioned"
 )
 
+const (
+	Docker = "docker"
+	Tar    = "tar"
+)
+
 type Driver interface {
 	Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommand []unversioned.Command)
 
@@ -45,9 +50,9 @@ type Driver interface {
 func InitDriverImpl(driver string) func(string) (Driver, error) {
 	switch driver {
 	// future drivers will be added here
-	case "docker":
+	case Docker:
 		return NewDockerDriver
-	case "tar":
+	case Tar:
 		return NewTarDriver
 	default:
 		return nil

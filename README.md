@@ -18,6 +18,10 @@ To use container structure tests to validate your containers, you need the follo
 - A container image to test against
 - A test .yaml or .json file with user defined structure tests to run inside of the specified container image
 
+Note that the test framework looks for the provided image in the local Docker
+daemon (if it is not provided as a tar). The `-pull` flag can optionally
+be provided to force a pull of a remote image before running the tests.
+
 ## Example Run
 An example run of the test framework:
 ```shell
