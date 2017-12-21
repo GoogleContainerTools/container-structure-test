@@ -31,13 +31,14 @@ import (
 )
 
 type DockerDriver struct {
-	cli           docker.Client
 	originalImage string
 	currentImage  string
+	cli           docker.Client
 	env           map[string]string
+	save          bool
 }
 
-func NewDockerDriver(image string) (Driver, error) {
+func NewDockerDriver(image string, save bool) (Driver, error) {
 	newCli, err := docker.NewClientFromEnv()
 	if err != nil {
 		return nil, err
@@ -47,6 +48,7 @@ func NewDockerDriver(image string) (Driver, error) {
 		currentImage:  image,
 		cli:           *newCli,
 		env:           nil,
+		save:          save,
 	}, nil
 }
 
@@ -257,6 +259,14 @@ func (d *DockerDriver) runAndCommit(t *testing.T, env []string, command []string
 		t.Errorf("Error committing container: %s", err.Error())
 	}
 
+	if !d.save {
+		if err = d.cli.RemoveContainer(docker.RemoveContainerOptions{
+			ID: container.ID,
+		}); err != nil {
+			t.Logf("Error when removing container %s: %s", container.ID, err.Error())
+		}
+	}
+
 	d.currentImage = image.ID
 	return image.ID
 }
@@ -300,6 +310,14 @@ func (d *DockerDriver) exec(t *testing.T, env []string, command []string) (strin
 		Stderr:       true,
 	}); err != nil {
 		t.Errorf("Error retrieving container logs: %s", err.Error())
+	}
+
+	if !d.save {
+		if err = d.cli.RemoveContainer(docker.RemoveContainerOptions{
+			ID: container.ID,
+		}); err != nil {
+			t.Logf("Error when removing container %s: %s", container.ID, err.Error())
+		}
 	}
 
 	return stdout.String(), stderr.String(), exitCode

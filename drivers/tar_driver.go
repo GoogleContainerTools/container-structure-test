@@ -27,9 +27,10 @@ import (
 
 type TarDriver struct {
 	Image pkgutil.Image
+	Save  bool
 }
 
-func NewTarDriver(imageName string) (Driver, error) {
+func NewTarDriver(imageName string, save bool) (Driver, error) {
 	// if the image is in the local daemon, we should be using the docker driver anyway.
 	// only try remote.
 
@@ -55,7 +56,9 @@ func NewTarDriver(imageName string) (Driver, error) {
 }
 
 func (d *TarDriver) Destroy() {
-	pkgutil.CleanupImage(d.Image)
+	if !d.Save {
+		pkgutil.CleanupImage(d.Image)
+	}
 }
 
 func (d *TarDriver) Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommand []unversioned.Command) {

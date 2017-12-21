@@ -88,20 +88,21 @@ func Parse(t *testing.T, fp string) (StructureTest, error) {
 	if !ok {
 		return nil, errors.New("Error encountered when type casting Structure Test interface")
 	}
-	tests.SetDriverImpl(driverImpl, imagePath)
+	tests.SetDriverImpl(driverImpl, imagePath, save)
 	return tests, nil
 }
 
 var configFiles arrayFlags
 
 var imagePath, driver string
-var pull bool
-var driverImpl func(string) (drivers.Driver, error)
+var save, pull bool
+var driverImpl func(string, bool) (drivers.Driver, error)
 
 func TestMain(m *testing.M) {
 	flag.StringVar(&imagePath, "image", "", "path to test image")
 	flag.StringVar(&driver, "driver", "docker", "driver to use when running tests")
 	flag.BoolVar(&pull, "pull", false, "force a pull of the image before running tests")
+	flag.BoolVar(&save, "save", false, "preserve created containers after test run")
 
 	flag.Parse()
 	configFiles = flag.Args()

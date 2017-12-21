@@ -88,6 +88,12 @@ commandTests:
   excludedError: [".*Inst.*Security.* | .*Security.*Inst.*"]
 ```
 
+### Intermediate Artifacts
+Each command test run creates either a container (with the `docker` driver) or
+tar artifact (with the `tar` driver). By default, these are deleted after the
+test run finishes, but the `-save` flag can optionally be passed to keep
+these around. This would normally be used for debugging purposes.
+
 
 ## File Existence Tests
 File existence tests check to make sure a specific file (or directory) exist
