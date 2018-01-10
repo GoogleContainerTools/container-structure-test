@@ -17,7 +17,7 @@ if test -z "$GOARCH" -o -z "$GOOS"; then
 fi
 
 # Check that we are using the new build system if we should
-if [[ "$GOOS" -eq "linux" ]] && [[ "$GOARCH" != "sparc64" ]]; then
+if [[ "$GOOS" = "linux" ]] && [[ "$GOARCH" != "sparc64" ]]; then
 	if [[ "$GOLANG_SYS_BUILD" -ne "docker" ]]; then
 		echo 1>&2 "In the new build system, mkerrors should not be called directly."
 		echo 1>&2 "See README.md"
@@ -27,289 +27,23 @@ fi
 
 CC=${CC:-cc}
 
-if [[ "$GOOS" -eq "solaris" ]]; then
+if [[ "$GOOS" = "solaris" ]]; then
 	# Assumes GNU versions of utilities in PATH.
 	export PATH=/usr/gnu/bin:$PATH
 fi
 
 uname=$(uname)
 
-includes_Darwin='
-#define _DARWIN_C_SOURCE
-#define KERNEL
-#define _DARWIN_USE_64_BIT_INODE
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/ptrace.h>
-#include <sys/socket.h>
-#include <sys/sockio.h>
-#include <sys/sysctl.h>
-#include <sys/mman.h>
-#include <sys/mount.h>
-#include <sys/wait.h>
-#include <net/bpf.h>
-#include <net/if.h>
-#include <net/if_types.h>
-#include <net/route.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
-#include <termios.h>
-'
+includes_Darwin="$(< includes/Darwin.c)"
+includes_DragonFly="$(< includes/DragonFly.c)"
+includes_FreeBSD="$(< includes/FreeBSD.c)"
+includes_NetBSD="$(< includes/NetBSD.c)"
+includes_OpenBSD="$(< includes/OpenBSD.c)"
+includes_SunOS="$(< includes/SunOS.c)"
 
-includes_DragonFly='
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/socket.h>
-#include <sys/sockio.h>
-#include <sys/sysctl.h>
-#include <sys/mman.h>
-#include <sys/wait.h>
-#include <sys/ioctl.h>
-#include <net/bpf.h>
-#include <net/if.h>
-#include <net/if_types.h>
-#include <net/route.h>
-#include <netinet/in.h>
-#include <termios.h>
-#include <netinet/ip.h>
-#include <net/ip_mroute/ip_mroute.h>
-'
+includes="$(< includes/all.c)"
 
-includes_FreeBSD='
-#include <sys/capability.h>
-#include <sys/param.h>
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/socket.h>
-#include <sys/sockio.h>
-#include <sys/sysctl.h>
-#include <sys/mman.h>
-#include <sys/wait.h>
-#include <sys/ioctl.h>
-#include <net/bpf.h>
-#include <net/if.h>
-#include <net/if_types.h>
-#include <net/route.h>
-#include <netinet/in.h>
-#include <termios.h>
-#include <netinet/ip.h>
-#include <netinet/ip_mroute.h>
-#include <sys/extattr.h>
-
-#if __FreeBSD__ >= 10
-#define IFT_CARP	0xf8	// IFT_CARP is deprecated in FreeBSD 10
-#undef SIOCAIFADDR
-#define SIOCAIFADDR	_IOW(105, 26, struct oifaliasreq)	// ifaliasreq contains if_data
-#undef SIOCSIFPHYADDR
-#define SIOCSIFPHYADDR	_IOW(105, 70, struct oifaliasreq)	// ifaliasreq contains if_data
-#endif
-'
-
-includes_Linux='
-#define _LARGEFILE_SOURCE
-#define _LARGEFILE64_SOURCE
-#ifndef __LP64__
-#define _FILE_OFFSET_BITS 64
-#endif
-#define _GNU_SOURCE
-
-// <sys/ioctl.h> is broken on powerpc64, as it fails to include definitions of
-// these structures. We just include them copied from <bits/termios.h>.
-#if defined(__powerpc__)
-struct sgttyb {
-        char    sg_ispeed;
-        char    sg_ospeed;
-        char    sg_erase;
-        char    sg_kill;
-        short   sg_flags;
-};
-
-struct tchars {
-        char    t_intrc;
-        char    t_quitc;
-        char    t_startc;
-        char    t_stopc;
-        char    t_eofc;
-        char    t_brkc;
-};
-
-struct ltchars {
-        char    t_suspc;
-        char    t_dsuspc;
-        char    t_rprntc;
-        char    t_flushc;
-        char    t_werasc;
-        char    t_lnextc;
-};
-#endif
-
-#include <bits/sockaddr.h>
-#include <sys/epoll.h>
-#include <sys/eventfd.h>
-#include <sys/inotify.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <sys/mount.h>
-#include <sys/prctl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <sys/xattr.h>
-#include <linux/if.h>
-#include <linux/if_alg.h>
-#include <linux/if_arp.h>
-#include <linux/if_ether.h>
-#include <linux/if_tun.h>
-#include <linux/if_packet.h>
-#include <linux/if_addr.h>
-#include <linux/falloc.h>
-#include <linux/filter.h>
-#include <linux/fs.h>
-#include <linux/keyctl.h>
-#include <linux/netlink.h>
-#include <linux/perf_event.h>
-#include <linux/random.h>
-#include <linux/reboot.h>
-#include <linux/rtnetlink.h>
-#include <linux/ptrace.h>
-#include <linux/sched.h>
-#include <linux/seccomp.h>
-#include <linux/sockios.h>
-#include <linux/wait.h>
-#include <linux/icmpv6.h>
-#include <linux/serial.h>
-#include <linux/can.h>
-#include <linux/vm_sockets.h>
-#include <net/route.h>
-#include <asm/termbits.h>
-
-#ifndef MSG_FASTOPEN
-#define MSG_FASTOPEN    0x20000000
-#endif
-
-#ifndef PTRACE_GETREGS
-#define PTRACE_GETREGS	0xc
-#endif
-
-#ifndef PTRACE_SETREGS
-#define PTRACE_SETREGS	0xd
-#endif
-
-#ifndef SOL_NETLINK
-#define SOL_NETLINK	270
-#endif
-
-#ifdef SOL_BLUETOOTH
-// SPARC includes this in /usr/include/sparc64-linux-gnu/bits/socket.h
-// but it is already in bluetooth_linux.go
-#undef SOL_BLUETOOTH
-#endif
-
-// Certain constants are missing from the fs/crypto UAPI
-#define FS_KEY_DESC_PREFIX              "fscrypt:"
-#define FS_KEY_DESC_PREFIX_SIZE         8
-#define FS_MAX_KEY_SIZE                 64
-'
-
-includes_NetBSD='
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/event.h>
-#include <sys/mman.h>
-#include <sys/socket.h>
-#include <sys/sockio.h>
-#include <sys/sysctl.h>
-#include <sys/termios.h>
-#include <sys/ttycom.h>
-#include <sys/wait.h>
-#include <net/bpf.h>
-#include <net/if.h>
-#include <net/if_types.h>
-#include <net/route.h>
-#include <netinet/in.h>
-#include <netinet/in_systm.h>
-#include <netinet/ip.h>
-#include <netinet/ip_mroute.h>
-#include <netinet/if_ether.h>
-
-// Needed since <sys/param.h> refers to it...
-#define schedppq 1
-'
-
-includes_OpenBSD='
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/event.h>
-#include <sys/mman.h>
-#include <sys/socket.h>
-#include <sys/sockio.h>
-#include <sys/sysctl.h>
-#include <sys/termios.h>
-#include <sys/ttycom.h>
-#include <sys/wait.h>
-#include <net/bpf.h>
-#include <net/if.h>
-#include <net/if_types.h>
-#include <net/if_var.h>
-#include <net/route.h>
-#include <netinet/in.h>
-#include <netinet/in_systm.h>
-#include <netinet/ip.h>
-#include <netinet/ip_mroute.h>
-#include <netinet/if_ether.h>
-#include <net/if_bridge.h>
-
-// We keep some constants not supported in OpenBSD 5.5 and beyond for
-// the promise of compatibility.
-#define EMUL_ENABLED		0x1
-#define EMUL_NATIVE		0x2
-#define IPV6_FAITH		0x1d
-#define IPV6_OPTIONS		0x1
-#define IPV6_RTHDR_STRICT	0x1
-#define IPV6_SOCKOPT_RESERVED1	0x3
-#define SIOCGIFGENERIC		0xc020693a
-#define SIOCSIFGENERIC		0x80206939
-#define WALTSIG			0x4
-'
-
-includes_SunOS='
-#include <limits.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/sockio.h>
-#include <sys/mman.h>
-#include <sys/wait.h>
-#include <sys/ioctl.h>
-#include <net/bpf.h>
-#include <net/if.h>
-#include <net/if_arp.h>
-#include <net/if_types.h>
-#include <net/route.h>
-#include <netinet/in.h>
-#include <termios.h>
-#include <netinet/ip.h>
-#include <netinet/ip_mroute.h>
-'
-
-
-includes='
-#include <sys/types.h>
-#include <sys/file.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
-#include <netinet/ip6.h>
-#include <netinet/tcp.h>
-#include <errno.h>
-#include <sys/signal.h>
-#include <signal.h>
-#include <sys/resource.h>
-#include <time.h>
-'
-ccflags="$@"
+ccflags="$*"
 
 # Write go tool cgo -godefs input.
 (
