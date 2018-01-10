@@ -25,6 +25,7 @@ import (
 const (
 	Docker = "docker"
 	Tar    = "tar"
+	Host   = "host"
 )
 
 type DriverConfig struct {
@@ -59,6 +60,8 @@ func InitDriverImpl(driver string) func(DriverConfig) (Driver, error) {
 		return NewDockerDriver
 	case Tar:
 		return NewTarDriver
+	case Host:
+		return NewHostDriver
 	default:
 		return nil
 	}
