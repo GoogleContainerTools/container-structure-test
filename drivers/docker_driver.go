@@ -38,7 +38,9 @@ type DockerDriver struct {
 	save          bool
 }
 
-func NewDockerDriver(image string, save bool) (Driver, error) {
+func NewDockerDriver(args []interface{}) (Driver, error) {
+	image := args[0].(string)
+	save := args[1].(bool)
 	newCli, err := docker.NewClientFromEnv()
 	if err != nil {
 		return nil, err
