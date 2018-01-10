@@ -28,6 +28,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/GoogleCloudPlatform/container-structure-test/drivers"
+	"github.com/GoogleCloudPlatform/container-structure-test/utils"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
@@ -100,7 +101,7 @@ func Parse(t *testing.T, fp string) (StructureTest, error) {
 
 var configFiles arrayFlags
 
-var imagePath, driver string
+var imagePath, driver, metadata string
 var save, pull bool
 var driverImpl func(drivers.DriverConfig) (drivers.Driver, error)
 var args *drivers.DriverConfig
@@ -108,19 +109,36 @@ var args *drivers.DriverConfig
 func TestMain(m *testing.M) {
 	flag.StringVar(&imagePath, "image", "", "path to test image")
 	flag.StringVar(&driver, "driver", "docker", "driver to use when running tests")
+	flag.StringVar(&metadata, "metadata", "", "path to image metadata file")
 	flag.BoolVar(&pull, "pull", false, "force a pull of the image before running tests")
 	flag.BoolVar(&save, "save", false, "preserve created containers after test run")
 
 	flag.Parse()
 	configFiles = flag.Args()
 
-	if imagePath == "" {
-		fmt.Println("Please supply path to image or tarball to test against")
-		os.Exit(1)
+	if driver == drivers.Host {
+		if metadata == "" {
+			fmt.Println("Please provide path to image metadata file")
+			os.Exit(1)
+		}
+		if imagePath != "" {
+			fmt.Println("Cannot provide both image path and metadata file")
+			os.Exit(1)
+		}
+	} else {
+		if imagePath == "" {
+			fmt.Println("Please supply path to image or tarball to test against")
+			os.Exit(1)
+		}
+		if metadata != "" {
+			fmt.Println("Cannot provide both image path and metadata file")
+			os.Exit(1)
+		}
 	}
 	args = &drivers.DriverConfig{
-		Image: imagePath,
-		Save:  save,
+		Image:    imagePath,
+		Save:     save,
+		Metadata: metadata,
 	}
 
 	if len(configFiles) == 0 {
@@ -152,6 +170,16 @@ func TestMain(m *testing.M) {
 			fmt.Printf("Error pulling remote image %s: %s", imagePath, err.Error())
 			os.Exit(1)
 		}
+	}
+
+	warnMessage := `WARNING: Using the host driver runs tests directly on the machine 
+that this binary is being run on, and can potentially corrupt your system.
+Be sure you know what you're doing before continuing!
+
+Continue? (y/n)`
+
+	if driver == drivers.Host && !utils.UserConfirmation(warnMessage) {
+		os.Exit(1)
 	}
 
 	driverImpl = drivers.InitDriverImpl(driver)
