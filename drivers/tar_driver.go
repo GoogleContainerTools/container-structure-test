@@ -15,6 +15,7 @@
 package drivers
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -31,12 +32,20 @@ type TarDriver struct {
 }
 
 func NewTarDriver(args []interface{}) (Driver, error) {
+	if len(args) != 2 {
+		return nil, fmt.Errorf("Incorrect args passed to tar driver")
+	}
+	imageName, ok := args[0].(string)
+	if !ok {
+		return nil, fmt.Errorf("Got param of type %T for imageName but wanted string", args[0])
+	}
+	save, ok := args[1].(bool)
+	if !ok {
+		return nil, fmt.Errorf("Got param of type %T for save but wanted bool", args[0])
+	}
+
 	// if the image is in the local daemon, we should be using the docker driver anyway.
 	// only try remote.
-
-	imageName := args[0].(string)
-	save := args[1].(bool)
-
 	var prepper pkgutil.Prepper
 	if pkgutil.IsTar(imageName) {
 		prepper = pkgutil.TarPrepper{

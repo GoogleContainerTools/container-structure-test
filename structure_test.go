@@ -112,6 +112,8 @@ func TestMain(m *testing.M) {
 		fmt.Println("Please supply path to image or tarball to test against")
 		os.Exit(1)
 	}
+	// These args MUST be passed in this order; the docker/tar drivers expect them there,
+	// and will not be instantiated correctly if they are changed
 	args = make([]interface{}, 2)
 	args[0] = imagePath
 	args[1] = save
