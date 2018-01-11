@@ -27,7 +27,7 @@ import (
 
 	"github.com/GoogleCloudPlatform/container-structure-test/drivers"
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/ghodss/yaml"
+	"gopkg.in/yaml.v2"
 )
 
 var totalTests int
@@ -61,7 +61,7 @@ func Parse(t *testing.T, fp string) (StructureTest, error) {
 	case strings.HasSuffix(fp, ".json"):
 		unmarshal = json.Unmarshal
 	case strings.HasSuffix(fp, ".yaml"):
-		unmarshal = yaml.Unmarshal
+		unmarshal = yaml.UnmarshalStrict
 	default:
 		return nil, errors.New("Please provide valid JSON or YAML config file")
 	}
