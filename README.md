@@ -238,28 +238,50 @@ interacting with it. Does *not* support command tests.
 
 ### Running Structure Tests Through Bazel
 Structure tests can also be run through `bazel`.
-To do so, include the rule definitions in your `BUILD` file:
-
+To do so, load the rule and its dependencies in your `WORKSPACE`:
 ```BUILD
-load("@container-structure-test//:tests.bzl", "structure_test")
+git_repository(
+    name = "io_bazel_rules_docker",
+    commit = "8aeab63328a82fdb8e8eb12f677a4e5ce6b183b1",
+    remote = "https://github.com/bazelbuild/rules_docker.git",
+)
+
+load(
+    "@io_bazel_rules_docker//container:container.bzl",
+    "repositories",
+)
+repositories()
+
+
+load(
+    "@io_bazel_rules_docker//contrib:test.bzl",
+    "container_test",
+)
 ```
 
-and create a `structure_test` rule, passing in your image and config
+and then include the rule definition in your `BUILD` file:
+
+```BUILD
+load("@io_bazel_rules_docker//contrib:tests.bzl", "container_test")
+```
+
+Then, create a `container_test` rule, passing in your image and config
 file as parameters:
 
 ```BUILD
-docker_build(
+container_build(
     name = "hello",
     base = "//java:java8",
     cmd = ["/HelloJava_deploy.jar"],
     files = [":HelloJava_deploy.jar"],
 )
 
-load("@container-structure-test//:tests.bzl", "structure_test")
 
-structure_test(
+container_test(
     name = "hello_test",
     config = "testdata/hello.yaml",
     image = ":hello",
 )
 ```
+
+See this small [example repo](https://github.com/nkubala/structure-test-examples) for a full working example.
