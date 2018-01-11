@@ -38,7 +38,7 @@ type DockerDriver struct {
 	save          bool
 }
 
-func NewDockerDriver(args unversioned.DriverConfig) (Driver, error) {
+func NewDockerDriver(args DriverConfig) (Driver, error) {
 	newCli, err := docker.NewClientFromEnv()
 	if err != nil {
 		return nil, err

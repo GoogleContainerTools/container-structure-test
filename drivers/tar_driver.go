@@ -30,7 +30,7 @@ type TarDriver struct {
 	Save  bool
 }
 
-func NewTarDriver(args unversioned.DriverConfig) (Driver, error) {
+func NewTarDriver(args DriverConfig) (Driver, error) {
 	// if the image is in the local daemon, we should be using the docker driver anyway.
 	// only try remote.
 	var prepper pkgutil.Prepper

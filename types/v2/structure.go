@@ -25,8 +25,8 @@ import (
 )
 
 type StructureTest struct {
-	DriverImpl         func(unversioned.DriverConfig) (drivers.Driver, error)
-	DriverArgs         unversioned.DriverConfig
+	DriverImpl         func(drivers.DriverConfig) (drivers.Driver, error)
+	DriverArgs         drivers.DriverConfig
 	GlobalEnvVars      []unversioned.EnvVar
 	CommandTests       []CommandTest
 	FileExistenceTests []FileExistenceTest
@@ -39,7 +39,7 @@ func (st *StructureTest) NewDriver() (drivers.Driver, error) {
 	return st.DriverImpl(st.DriverArgs)
 }
 
-func (st *StructureTest) SetDriverImpl(f func(unversioned.DriverConfig) (drivers.Driver, error), args unversioned.DriverConfig) {
+func (st *StructureTest) SetDriverImpl(f func(drivers.DriverConfig) (drivers.Driver, error), args drivers.DriverConfig) {
 	st.DriverImpl = f
 	st.DriverArgs = args
 }

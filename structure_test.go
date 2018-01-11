@@ -19,7 +19,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/GoogleCloudPlatform/container-structure-test/types/unversioned"
 	"io/ioutil"
 	"log"
 	"os"
@@ -97,8 +96,8 @@ var configFiles arrayFlags
 
 var imagePath, driver string
 var save, pull bool
-var driverImpl func(unversioned.DriverConfig) (drivers.Driver, error)
-var args *unversioned.DriverConfig
+var driverImpl func(drivers.DriverConfig) (drivers.Driver, error)
+var args *drivers.DriverConfig
 
 func TestMain(m *testing.M) {
 	flag.StringVar(&imagePath, "image", "", "path to test image")
@@ -113,7 +112,7 @@ func TestMain(m *testing.M) {
 		fmt.Println("Please supply path to image or tarball to test against")
 		os.Exit(1)
 	}
-	args = &unversioned.DriverConfig{
+	args = &drivers.DriverConfig{
 		Image: imagePath,
 		Save:  save,
 	}

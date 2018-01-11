@@ -27,6 +27,11 @@ const (
 	Tar    = "tar"
 )
 
+type DriverConfig struct {
+	Image string // used by Docker/Tar drivers
+	Save  bool   // used by Docker/Tar drivers
+}
+
 type Driver interface {
 	Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommand []unversioned.Command)
 
@@ -47,7 +52,7 @@ type Driver interface {
 	Destroy()
 }
 
-func InitDriverImpl(driver string) func(unversioned.DriverConfig) (Driver, error) {
+func InitDriverImpl(driver string) func(DriverConfig) (Driver, error) {
 	switch driver {
 	// future drivers will be added here
 	case Docker:
