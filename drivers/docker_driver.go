@@ -38,29 +38,17 @@ type DockerDriver struct {
 	save          bool
 }
 
-func NewDockerDriver(args []interface{}) (Driver, error) {
-	if len(args) != 2 {
-		return nil, fmt.Errorf("Incorrect args passed to docker driver")
-	}
-	image, ok := args[0].(string)
-	if !ok {
-		return nil, fmt.Errorf("Got param of type %T for image but wanted string", args[0])
-	}
-	save, ok := args[1].(bool)
-	if !ok {
-		return nil, fmt.Errorf("Got param of type %T for save but wanted bool", args[0])
-	}
-
+func NewDockerDriver(args unversioned.DriverConfig) (Driver, error) {
 	newCli, err := docker.NewClientFromEnv()
 	if err != nil {
 		return nil, err
 	}
 	return &DockerDriver{
-		originalImage: image,
-		currentImage:  image,
+		originalImage: args.Image,
+		currentImage:  args.Image,
 		cli:           *newCli,
 		env:           nil,
-		save:          save,
+		save:          args.Save,
 	}, nil
 }
 

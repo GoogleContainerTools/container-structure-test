@@ -19,6 +19,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/GoogleCloudPlatform/container-structure-test/types/unversioned"
 	"io/ioutil"
 	"log"
 	"os"
@@ -88,7 +89,7 @@ func Parse(t *testing.T, fp string) (StructureTest, error) {
 	if !ok {
 		return nil, errors.New("Error encountered when type casting Structure Test interface")
 	}
-	tests.SetDriverImpl(driverImpl, args)
+	tests.SetDriverImpl(driverImpl, *args)
 	return tests, nil
 }
 
@@ -96,8 +97,8 @@ var configFiles arrayFlags
 
 var imagePath, driver string
 var save, pull bool
-var driverImpl func([]interface{}) (drivers.Driver, error)
-var args []interface{}
+var driverImpl func(unversioned.DriverConfig) (drivers.Driver, error)
+var args *unversioned.DriverConfig
 
 func TestMain(m *testing.M) {
 	flag.StringVar(&imagePath, "image", "", "path to test image")
@@ -112,11 +113,10 @@ func TestMain(m *testing.M) {
 		fmt.Println("Please supply path to image or tarball to test against")
 		os.Exit(1)
 	}
-	// These args MUST be passed in this order; the docker/tar drivers expect them there,
-	// and will not be instantiated correctly if they are changed
-	args = make([]interface{}, 2)
-	args[0] = imagePath
-	args[1] = save
+	args = &unversioned.DriverConfig{
+		Image: imagePath,
+		Save:  save,
+	}
 
 	if len(configFiles) == 0 {
 		fmt.Println("Please provide at least one test config file")

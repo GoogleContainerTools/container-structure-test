@@ -18,12 +18,13 @@ import (
 	"testing"
 
 	"github.com/GoogleCloudPlatform/container-structure-test/drivers"
+	"github.com/GoogleCloudPlatform/container-structure-test/types/unversioned"
 	"github.com/GoogleCloudPlatform/container-structure-test/types/v1"
 	"github.com/GoogleCloudPlatform/container-structure-test/types/v2"
 )
 
 type StructureTest interface {
-	SetDriverImpl(func([]interface{}) (drivers.Driver, error), []interface{})
+	SetDriverImpl(func(unversioned.DriverConfig) (drivers.Driver, error), unversioned.DriverConfig)
 	NewDriver() (drivers.Driver, error)
 	RunAll(t *testing.T) int
 }
