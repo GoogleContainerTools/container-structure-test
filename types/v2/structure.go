@@ -25,9 +25,8 @@ import (
 )
 
 type StructureTest struct {
-	DriverImpl         func(string, bool) (drivers.Driver, error)
-	Image              string
-	Save               bool
+	DriverImpl         func(drivers.DriverConfig) (drivers.Driver, error)
+	DriverArgs         drivers.DriverConfig
 	GlobalEnvVars      []unversioned.EnvVar
 	CommandTests       []CommandTest
 	FileExistenceTests []FileExistenceTest
@@ -37,13 +36,12 @@ type StructureTest struct {
 }
 
 func (st *StructureTest) NewDriver() (drivers.Driver, error) {
-	return st.DriverImpl(st.Image, st.Save)
+	return st.DriverImpl(st.DriverArgs)
 }
 
-func (st *StructureTest) SetDriverImpl(f func(string, bool) (drivers.Driver, error), image string, save bool) {
+func (st *StructureTest) SetDriverImpl(f func(drivers.DriverConfig) (drivers.Driver, error), args drivers.DriverConfig) {
 	st.DriverImpl = f
-	st.Image = image
-	st.Save = save
+	st.DriverArgs = args
 }
 
 func (st *StructureTest) RunAll(t *testing.T) int {
