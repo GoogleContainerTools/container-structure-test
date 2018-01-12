@@ -88,7 +88,7 @@ func Parse(t *testing.T, fp string) (StructureTest, error) {
 	if !ok {
 		return nil, errors.New("Error encountered when type casting Structure Test interface")
 	}
-	tests.SetDriverImpl(driverImpl, imagePath, save)
+	tests.SetDriverImpl(driverImpl, *args)
 	return tests, nil
 }
 
@@ -96,7 +96,8 @@ var configFiles arrayFlags
 
 var imagePath, driver string
 var save, pull bool
-var driverImpl func(string, bool) (drivers.Driver, error)
+var driverImpl func(drivers.DriverConfig) (drivers.Driver, error)
+var args *drivers.DriverConfig
 
 func TestMain(m *testing.M) {
 	flag.StringVar(&imagePath, "image", "", "path to test image")
@@ -110,6 +111,10 @@ func TestMain(m *testing.M) {
 	if imagePath == "" {
 		fmt.Println("Please supply path to image or tarball to test against")
 		os.Exit(1)
+	}
+	args = &drivers.DriverConfig{
+		Image: imagePath,
+		Save:  save,
 	}
 
 	if len(configFiles) == 0 {
