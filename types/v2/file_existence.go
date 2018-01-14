@@ -20,10 +20,10 @@ import (
 )
 
 type FileExistenceTest struct {
-	Name        string // name of test
-	Path        string // file to check existence of
-	ShouldExist bool   // whether or not the file should exist
-	Permissions string // expected Unix permission string of the file, e.g. drwxrwxrwx
+	Name        string `yaml:"name"`        // name of test
+	Path        string `yaml:"path"`        // file to check existence of
+	ShouldExist bool   `yaml:"shouldExist"` // whether or not the file should exist
+	Permissions string `yaml:"permissions"` // expected Unix permission string of the file, e.g. drwxrwxrwx
 }
 
 func validateFileExistenceTest(t *testing.T, tt FileExistenceTest) {

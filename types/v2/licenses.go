@@ -25,8 +25,8 @@ import (
 
 // Not currently used, but leaving the possibility open
 type LicenseTest struct {
-	Debian bool
-	Files  []string
+	Debian bool     `yaml:"debian"`
+	Files  []string `yaml:"files"`
 }
 
 var (
