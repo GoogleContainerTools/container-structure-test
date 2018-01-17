@@ -42,9 +42,3 @@ type FlattenedMetadata struct {
 }
 
 type Command []string
-
-type DriverConfig struct {
-	Image    string
-	Save     bool
-	Metadata string
-}

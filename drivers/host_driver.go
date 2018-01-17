@@ -29,7 +29,7 @@ type HostDriver struct {
 	ConfigPath string // path to image metadata config on host fs
 }
 
-func NewHostDriver(args unversioned.DriverConfig) (Driver, error) {
+func NewHostDriver(args DriverConfig) (Driver, error) {
 	return &HostDriver{
 		// Root: root,
 		ConfigPath: args.Metadata,
