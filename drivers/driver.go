@@ -35,7 +35,10 @@ type DriverConfig struct {
 }
 
 type Driver interface {
-	Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommand []unversioned.Command)
+	Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommands [][]string)
+
+	// Teardown is optional and is only used in the host driver
+	Teardown(t *testing.T, envVars []unversioned.EnvVar, fullCommands [][]string)
 
 	// given an array of command parts, construct a full command and execute it against the
 	// current environment. a list of environment variables can be passed to be set in the

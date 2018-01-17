@@ -40,5 +40,3 @@ type FlattenedConfig struct {
 type FlattenedMetadata struct {
 	Config FlattenedConfig `json:"config"`
 }
-
-type Command []string

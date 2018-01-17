@@ -30,6 +30,7 @@ import (
 
 type HostDriver struct {
 	ConfigPath string // path to image metadata config on host fs
+	GlobalVars []unversioned.EnvVar
 }
 
 func NewHostDriver(args DriverConfig) (Driver, error) {
@@ -42,11 +43,64 @@ func (d *HostDriver) Destroy() {
 	// since we're running on the host, don't do anything
 }
 
-func (d *HostDriver) Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommand []unversioned.Command) {
-	// TODO(nkubala): implement
+func (d *HostDriver) Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommands [][]string) {
+	// since we're running on the host, we'll provide an optional teardown field for`
+	// each test that will allow users to undo the setup they did.
+	// keep track of the original env vars so we can reset later.
+	d.GlobalVars = SetEnvVars(t, envVars)
+	for _, cmd := range fullCommands {
+		d.ProcessCommand(t, nil, cmd)
+	}
+}
+
+func (d *HostDriver) Teardown(t *testing.T, envVars []unversioned.EnvVar, fullCommands [][]string) {
+	// since we're running on the host, we'll provide an optional teardown field for each test that
+	// will allow users to undo the setup they did.
+	ResetEnvVars(t, d.GlobalVars)
+	for _, cmd := range fullCommands {
+		d.ProcessCommand(t, nil, cmd)
+	}
+}
+
+// given a list of environment variable key/value pairs, set these in the current environment.
+// also, keep track of the previous values of these vars to reset after test execution.
+func SetEnvVars(t *testing.T, vars []unversioned.EnvVar) []unversioned.EnvVar {
+	if vars == nil {
+		return nil
+	}
+	var originalVars []unversioned.EnvVar
+	for _, env_var := range vars {
+		originalVars = append(originalVars, unversioned.EnvVar{env_var.Key, os.Getenv(env_var.Key)})
+		if err := os.Setenv(env_var.Key, os.ExpandEnv(env_var.Value)); err != nil {
+			t.Fatalf("error setting env var: %s", err)
+		}
+	}
+	return originalVars
+}
+
+func ResetEnvVars(t *testing.T, vars []unversioned.EnvVar) {
+	if vars == nil {
+		return
+	}
+	for _, env_var := range vars {
+		var err error
+		if env_var.Value == "" {
+			// if the previous value was empty string, the variable did not
+			// exist in the environment; unset it
+			err = os.Unsetenv(env_var.Key)
+		} else {
+			// otherwise, set it back to its previous value
+			err = os.Setenv(env_var.Key, env_var.Value)
+		}
+		if err != nil {
+			t.Fatalf("error resetting env var: %s", err)
+		}
+	}
 }
 
 func (d *HostDriver) ProcessCommand(t *testing.T, envVars []unversioned.EnvVar, fullCommand []string) (string, string, int) {
+	originalVars := SetEnvVars(t, envVars)
+	defer ResetEnvVars(t, originalVars)
 	cmd := exec.Command(fullCommand[0], fullCommand[1:]...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -67,6 +121,7 @@ func (d *HostDriver) ProcessCommand(t *testing.T, envVars []unversioned.EnvVar, 
 			t.Errorf("Error when retrieving exit code: %v", err)
 		}
 	}
+	t.Logf("command output: %s", stdout.String())
 	return stdout.String(), stderr.String(), exitCode
 }
 
