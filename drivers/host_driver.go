@@ -18,20 +18,22 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"strings"
+	"syscall"
 	"testing"
+
+	"bytes"
 
 	"github.com/GoogleCloudPlatform/container-structure-test/types/unversioned"
 )
 
 type HostDriver struct {
-	// Root       string // defaults to /
 	ConfigPath string // path to image metadata config on host fs
 }
 
 func NewHostDriver(args DriverConfig) (Driver, error) {
 	return &HostDriver{
-		// Root: root,
 		ConfigPath: args.Metadata,
 	}, nil
 }
@@ -45,8 +47,27 @@ func (d *HostDriver) Setup(t *testing.T, envVars []unversioned.EnvVar, fullComma
 }
 
 func (d *HostDriver) ProcessCommand(t *testing.T, envVars []unversioned.EnvVar, fullCommand []string) (string, string, int) {
-	// TODO(nkubala): implement
-	return "", "", 0
+	cmd := exec.Command(fullCommand[0], fullCommand[1:]...)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	exitCode := 0
+
+	if err := cmd.Start(); err != nil {
+		t.Errorf("error starting command: %v", err)
+	}
+
+	if err := cmd.Wait(); err != nil {
+		if exiterr, ok := err.(*exec.ExitError); ok {
+			if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
+				exitCode = status.ExitStatus()
+			}
+		} else {
+			t.Errorf("Error when retrieving exit code: %v", err)
+		}
+	}
+	return stdout.String(), stderr.String(), exitCode
 }
 
 func (d *HostDriver) StatFile(t *testing.T, path string) (os.FileInfo, error) {
