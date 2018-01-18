@@ -32,8 +32,12 @@ func CompileAndRunRegex(regex string, base string, t *testing.T, err string, sho
 }
 
 // adapted from https://gist.github.com/albrow/5882501
-func UserConfirmation(message string) bool {
+func UserConfirmation(message string, force bool) bool {
 	fmt.Println(message)
+	if force {
+		fmt.Println("Forcing test run!")
+		return true
+	}
 
 	var input string
 	_, err := fmt.Scanln(&input)
@@ -54,5 +58,5 @@ func UserConfirmation(message string) bool {
 		}
 	}
 	fmt.Println("Please type yes or no to continue or exit")
-	return UserConfirmation(message)
+	return UserConfirmation(message, force)
 }

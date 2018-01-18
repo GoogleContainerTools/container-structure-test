@@ -102,7 +102,7 @@ func Parse(t *testing.T, fp string) (StructureTest, error) {
 var configFiles arrayFlags
 
 var imagePath, driver, metadata string
-var save, pull bool
+var save, pull, force bool
 var driverImpl func(drivers.DriverConfig) (drivers.Driver, error)
 var args *drivers.DriverConfig
 
@@ -112,6 +112,7 @@ func TestMain(m *testing.M) {
 	flag.StringVar(&metadata, "metadata", "", "path to image metadata file")
 	flag.BoolVar(&pull, "pull", false, "force a pull of the image before running tests")
 	flag.BoolVar(&save, "save", false, "preserve created containers after test run")
+	flag.BoolVar(&force, "force", false, "force run of host driver (without command line input)")
 
 	flag.Parse()
 	configFiles = flag.Args()
@@ -178,7 +179,7 @@ Be sure you know what you're doing before continuing!
 
 Continue? (y/n)`
 
-	if driver == drivers.Host && !utils.UserConfirmation(warnMessage) {
+	if driver == drivers.Host && !utils.UserConfirmation(warnMessage, force) {
 		os.Exit(1)
 	}
 
