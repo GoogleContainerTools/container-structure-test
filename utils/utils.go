@@ -20,6 +20,9 @@ import (
 	"testing"
 )
 
+var yesResponses = []string{"y", "Y", "yes", "Yes", "YES"}
+var noResponses = []string{"n", "N", "no", "No", "NO"}
+
 func CompileAndRunRegex(regex string, base string, t *testing.T, err string, shouldMatch bool) {
 	r, rErr := regexp.Compile(regex)
 	if rErr != nil {
@@ -45,8 +48,6 @@ func UserConfirmation(message string, force bool) bool {
 		// should maybe log something here
 		return false
 	}
-	yesResponses := []string{"y", "Y", "yes", "Yes", "YES"}
-	noResponses := []string{"n", "N", "no", "No", "NO"}
 	for _, response := range yesResponses {
 		if input == response {
 			return true

@@ -65,9 +65,6 @@ func (d *HostDriver) Teardown(t *testing.T, envVars []unversioned.EnvVar, fullCo
 // given a list of environment variable key/value pairs, set these in the current environment.
 // also, keep track of the previous values of these vars to reset after test execution.
 func SetEnvVars(t *testing.T, vars []unversioned.EnvVar) []unversioned.EnvVar {
-	if vars == nil {
-		return nil
-	}
 	var originalVars []unversioned.EnvVar
 	for _, env_var := range vars {
 		originalVars = append(originalVars, unversioned.EnvVar{env_var.Key, os.Getenv(env_var.Key)})
@@ -79,9 +76,6 @@ func SetEnvVars(t *testing.T, vars []unversioned.EnvVar) []unversioned.EnvVar {
 }
 
 func ResetEnvVars(t *testing.T, vars []unversioned.EnvVar) {
-	if vars == nil {
-		return
-	}
 	for _, env_var := range vars {
 		var err error
 		if env_var.Value == "" {
@@ -109,7 +103,7 @@ func (d *HostDriver) ProcessCommand(t *testing.T, envVars []unversioned.EnvVar, 
 	exitCode := 0
 
 	if err := cmd.Start(); err != nil {
-		t.Errorf("error starting command: %v", err)
+		t.Fatalf("error starting command: %v", err)
 	}
 
 	if err := cmd.Wait(); err != nil {
