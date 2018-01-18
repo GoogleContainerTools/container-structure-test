@@ -5,6 +5,9 @@ steps:
 # Tag the built image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['tag', 'bazel:structure_test_image', 'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME']
+# Tag the new image as latest
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', 'bazel:structure_test_image', 'gcr.io/gcp-runtimes/container-structure-test:latest']
 # Build the binary
   - name: 'gcr.io/cloud-builders/bazel'
     args: ['build', '//:go_default_test']
@@ -12,4 +15,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     args: ['cp', 'bazel-bin/go_default_test', 'gs://container-structure-test/$TAG_NAME/container-structure-test']
 
-images: ['gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME']
+images: [
+  'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME',
+  'gcr.io/gcp-runtimes/container-structure-test:latest'
+]
