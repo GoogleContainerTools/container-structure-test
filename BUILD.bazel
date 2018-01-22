@@ -45,6 +45,7 @@ go_test(
     importpath = "github.com/GoogleCloudPlatform/container-structure-test",
     deps = [
         "//drivers:go_default_library",
+        "//utils:go_default_library",
         "//vendor/github.com/fsouza/go-dockerclient:go_default_library",
         "//vendor/gopkg.in/yaml.v2:go_default_library",
     ],
