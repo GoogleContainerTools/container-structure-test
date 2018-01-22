@@ -53,10 +53,12 @@ func NewDockerDriver(args DriverConfig) (Driver, error) {
 }
 
 func (d *DockerDriver) Destroy(t *testing.T) {
-	// since intermediate images are chained, removing the current
-	// image removes all previous ones as well.
-	if err := d.cli.RemoveImage(d.currentImage); err != nil {
-		t.Logf("error removing image: %s", err)
+	// since intermediate images are chained, removing the most current
+	// image (that isn't the original) removes all previous ones as well.
+	if d.currentImage != d.originalImage {
+		if err := d.cli.RemoveImage(d.currentImage); err != nil {
+			t.Logf("error removing image: %s", err)
+		}
 	}
 }
 
