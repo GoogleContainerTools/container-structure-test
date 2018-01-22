@@ -61,7 +61,7 @@ func (st *StructureTest) RunCommandTests(t *testing.T) int {
 			if err != nil {
 				t.Errorf(err.Error())
 			}
-			defer driver.Destroy()
+			defer driver.Destroy(t)
 			vars := append(st.GlobalEnvVars, tt.EnvVars...)
 			driver.Setup(t, vars, tt.Setup)
 
@@ -83,7 +83,7 @@ func (st *StructureTest) RunFileExistenceTests(t *testing.T) int {
 			if err != nil {
 				t.Errorf(err.Error())
 			}
-			defer driver.Destroy()
+			defer driver.Destroy(t)
 			var info os.FileInfo
 			info, err = driver.StatFile(t, tt.Path)
 			if tt.ShouldExist && err != nil {
@@ -112,7 +112,7 @@ func (st StructureTest) RunFileContentTests(t *testing.T) int {
 			if err != nil {
 				t.Errorf(err.Error())
 			}
-			defer driver.Destroy()
+			defer driver.Destroy(t)
 			actualContents, err := driver.ReadFile(t, tt.Path)
 			if err != nil {
 				t.Errorf("Failed to open %s. Error: %s", tt.Path, err)
@@ -142,7 +142,7 @@ func (st *StructureTest) RunLicenseTests(t *testing.T) int {
 			if err != nil {
 				t.Errorf(err.Error())
 			}
-			defer driver.Destroy()
+			defer driver.Destroy(t)
 			checkLicenses(t, tt, driver)
 		})
 		return 1

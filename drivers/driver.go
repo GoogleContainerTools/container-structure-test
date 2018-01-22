@@ -49,7 +49,7 @@ type Driver interface {
 
 	GetConfig(t *testing.T) (unversioned.Config, error)
 
-	Destroy()
+	Destroy(t *testing.T)
 }
 
 func InitDriverImpl(driver string) func(DriverConfig) (Driver, error) {

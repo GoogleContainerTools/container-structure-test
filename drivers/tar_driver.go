@@ -56,7 +56,7 @@ func NewTarDriver(args DriverConfig) (Driver, error) {
 	}, nil
 }
 
-func (d *TarDriver) Destroy() {
+func (d *TarDriver) Destroy(t *testing.T) {
 	if !d.Save {
 		pkgutil.CleanupImage(d.Image)
 	}
