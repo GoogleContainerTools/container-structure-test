@@ -6,6 +6,7 @@ go_library(
         "docker_driver.go",
         "driver.go",
         "tar_driver.go",
+        "host_driver.go"
     ],
     importpath = "github.com/GoogleCloudPlatform/container-structure-test/drivers",
     visibility = ["//visibility:public"],

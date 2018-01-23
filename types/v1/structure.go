@@ -68,6 +68,7 @@ func (st *StructureTest) RunCommandTests(t *testing.T) int {
 			stdout, stderr, exitcode := driver.ProcessCommand(t, tt.EnvVars, tt.Command)
 
 			CheckOutput(t, tt, stdout, stderr, exitcode)
+			driver.Teardown(t, vars, tt.Teardown)
 			counter++
 		})
 	}

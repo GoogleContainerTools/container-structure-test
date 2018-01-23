@@ -25,15 +25,20 @@ import (
 const (
 	Docker = "docker"
 	Tar    = "tar"
+	Host   = "host"
 )
 
 type DriverConfig struct {
-	Image string // used by Docker/Tar drivers
-	Save  bool   // used by Docker/Tar drivers
+	Image    string // used by Docker/Tar drivers
+	Save     bool   // used by Docker/Tar drivers
+	Metadata string // used by Host driver
 }
 
 type Driver interface {
-	Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommand []unversioned.Command)
+	Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommands [][]string)
+
+	// Teardown is optional and is only used in the host driver
+	Teardown(t *testing.T, envVars []unversioned.EnvVar, fullCommands [][]string)
 
 	// given an array of command parts, construct a full command and execute it against the
 	// current environment. a list of environment variables can be passed to be set in the
@@ -59,6 +64,8 @@ func InitDriverImpl(driver string) func(DriverConfig) (Driver, error) {
 		return NewDockerDriver
 	case Tar:
 		return NewTarDriver
+	case Host:
+		return NewHostDriver
 	default:
 		return nil
 	}

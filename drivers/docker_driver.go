@@ -56,11 +56,16 @@ func (d *DockerDriver) Destroy() {
 	// noop
 }
 
-func (d *DockerDriver) Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommands []unversioned.Command) {
+func (d *DockerDriver) Setup(t *testing.T, envVars []unversioned.EnvVar, fullCommands [][]string) {
 	env := d.processEnvVars(t, envVars)
 	for _, cmd := range fullCommands {
 		d.currentImage = d.runAndCommit(t, env, cmd)
 	}
+}
+
+func (d *DockerDriver) Teardown(t *testing.T, envVars []unversioned.EnvVar, fullCommands [][]string) {
+	// since we create a new driver for each test, skip teardown commands
+	t.Logf("Docker driver does not support teardown commands, since each test gets a new driver. Skipping commands")
 }
 
 func (d *DockerDriver) ProcessCommand(t *testing.T, envVars []unversioned.EnvVar, fullCommand []string) (string, string, int) {
