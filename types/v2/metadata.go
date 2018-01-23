@@ -21,12 +21,12 @@ import (
 )
 
 type MetadataTest struct {
-	Env          []unversioned.EnvVar
-	ExposedPorts []string
-	Entrypoint   *[]string
-	Cmd          *[]string
-	Workdir      string
-	Volumes      []string
+	Env          []unversioned.EnvVar `yaml:"env"`
+	ExposedPorts []string             `yaml:"exposedPorts"`
+	Entrypoint   *[]string            `yaml:"entrypoint"`
+	Cmd          *[]string            `yaml:"cmd"`
+	Workdir      string               `yaml:"workdir"`
+	Volumes      []string             `yaml:"volumes"`
 }
 
 func (mt MetadataTest) LogName() string {

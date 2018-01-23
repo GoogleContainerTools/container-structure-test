@@ -20,10 +20,10 @@ import (
 )
 
 type FileContentTest struct {
-	Name             string   // name of test
-	Path             string   // file to check existence of
-	ExpectedContents []string // list of expected contents of file
-	ExcludedContents []string // list of excluded contents of file
+	Name             string   `yaml:"name"`             // name of test
+	Path             string   `yaml:"path"`             // file to check existence of
+	ExpectedContents []string `yaml:"expectedContents"` // list of expected contents of file
+	ExcludedContents []string `yaml:"excludedContents"` // list of excluded contents of file
 }
 
 func validateFileContentTest(t *testing.T, tt FileContentTest) {

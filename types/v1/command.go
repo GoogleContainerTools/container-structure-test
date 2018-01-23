@@ -22,15 +22,15 @@ import (
 )
 
 type CommandTest struct {
-	Name           string
-	Setup          []unversioned.Command
-	EnvVars        []unversioned.EnvVar
-	ExitCode       int
-	Command        []string
-	ExpectedOutput []string
-	ExcludedOutput []string
-	ExpectedError  []string
-	ExcludedError  []string // excluded error from running command
+	Name           string                `yaml:"name"`
+	Setup          []unversioned.Command `yaml:"setup"`
+	EnvVars        []unversioned.EnvVar  `yaml:"envVars"`
+	ExitCode       int                   `yaml:"exitCode"`
+	Command        []string              `yaml:"command"`
+	ExpectedOutput []string              `yaml:"expectedOutput"`
+	ExcludedOutput []string              `yaml:"excludedOutput"`
+	ExpectedError  []string              `yaml:"expectedError"`
+	ExcludedError  []string              `yaml:"excludedError" ` // excluded error from running command
 }
 
 func validateCommandTest(t *testing.T, tt CommandTest) {

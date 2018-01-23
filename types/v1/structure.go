@@ -27,11 +27,11 @@ import (
 type StructureTest struct {
 	DriverImpl         func(drivers.DriverConfig) (drivers.Driver, error)
 	DriverArgs         drivers.DriverConfig
-	GlobalEnvVars      []unversioned.EnvVar
-	CommandTests       []CommandTest
-	FileExistenceTests []FileExistenceTest
-	FileContentTests   []FileContentTest
-	LicenseTests       []LicenseTest
+	GlobalEnvVars      []unversioned.EnvVar `yaml:"globalEnvVars"`
+	CommandTests       []CommandTest        `yaml:"commandTests"`
+	FileExistenceTests []FileExistenceTest  `yaml:"fileExistenceTests"`
+	FileContentTests   []FileContentTest    `yaml:"fileContentTest"`
+	LicenseTests       []LicenseTest        `yaml:"licenseTests"`
 }
 
 func (st *StructureTest) NewDriver() (drivers.Driver, error) {

@@ -25,9 +25,10 @@ import (
 	"strings"
 	"testing"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/GoogleCloudPlatform/container-structure-test/drivers"
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/ghodss/yaml"
 )
 
 var totalTests int
@@ -54,14 +55,19 @@ func Parse(t *testing.T, fp string) (StructureTest, error) {
 		return nil, err
 	}
 
+	// We first have to unmarshal to determine the schema version, then we unmarshal again
+	// to do the full parse.
 	var unmarshal Unmarshaller
+	var strictUnmarshal Unmarshaller
 	var versionHolder SchemaVersion
 
 	switch {
 	case strings.HasSuffix(fp, ".json"):
 		unmarshal = json.Unmarshal
+		strictUnmarshal = json.Unmarshal
 	case strings.HasSuffix(fp, ".yaml"):
 		unmarshal = yaml.Unmarshal
+		strictUnmarshal = yaml.UnmarshalStrict
 	default:
 		return nil, errors.New("Please provide valid JSON or YAML config file")
 	}
@@ -82,7 +88,7 @@ func Parse(t *testing.T, fp string) (StructureTest, error) {
 		return nil, errors.New("Unsupported schema version: " + version)
 	}
 
-	unmarshal(testContents, st)
+	strictUnmarshal(testContents, st)
 
 	tests, ok := st.(StructureTest) //type assertion
 	if !ok {

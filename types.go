@@ -36,7 +36,7 @@ var schemaVersions map[string]func() StructureTest = map[string]func() Structure
 }
 
 type SchemaVersion struct {
-	SchemaVersion string
+	SchemaVersion string `yaml:"schemaVersion"`
 }
 
 type Unmarshaller func([]byte, interface{}) error
