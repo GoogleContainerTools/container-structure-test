@@ -30,7 +30,7 @@ type StructureTest struct {
 	GlobalEnvVars      []unversioned.EnvVar `yaml:"globalEnvVars"`
 	CommandTests       []CommandTest        `yaml:"commandTests"`
 	FileExistenceTests []FileExistenceTest  `yaml:"fileExistenceTests"`
-	FileContentTests   []FileContentTest    `yaml:"fileContentTest"`
+	FileContentTests   []FileContentTest    `yaml:"fileContentTests"`
 	LicenseTests       []LicenseTest        `yaml:"licenseTests"`
 }
 
