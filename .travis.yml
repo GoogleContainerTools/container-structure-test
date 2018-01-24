@@ -24,3 +24,4 @@ script:
   - ./.gofmt.sh
   - make
   - bazel build //:go_default_test
+  - ./tests/structure_test_tests.sh
