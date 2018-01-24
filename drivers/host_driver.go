@@ -39,7 +39,7 @@ func NewHostDriver(args DriverConfig) (Driver, error) {
 	}, nil
 }
 
-func (d *HostDriver) Destroy() {
+func (d *HostDriver) Destroy(t *testing.T) {
 	// since we're running on the host, don't do anything
 }
 
