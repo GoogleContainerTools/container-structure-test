@@ -24,8 +24,12 @@ failures=0
 # build newest structure test binary
 go test -c github.com/GoogleCloudPlatform/container-structure-test -o structure-test
 
+test_dir=$(dirname $0)
 # Run the debian tests, they should always pass on latest
-res=$(./structure-test -image gcr.io/google-appengine/debian8 debian_test.yaml)
+test_image="gcr.io/google-appengine/debian8"
+docker pull "$test_image"
+
+res=$(./structure-test -image "$test_image" "$test_dir"/debian_test.yaml)
 code=$?
 
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
@@ -36,7 +40,7 @@ then
 fi
 
 # Run some bogus tests, they should fail as expected
-res=$(./structure-test -image gcr.io/google-appengine/debian8 debian_failure_test.yaml)
+res=$(./structure-test -image "$test_image" "$test_dir"/debian_failure_test.yaml)
 code=$?
 
 if ! [[ ("$res" =~ FAIL$ && "$code" == "1") ]];
