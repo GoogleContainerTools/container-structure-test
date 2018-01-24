@@ -144,9 +144,12 @@ func (d *DockerDriver) retrieveTar(t *testing.T, path string) (*tar.Reader, erro
 		Path:         path,
 	})
 	if err != nil {
+		// attempt to clean up container before returning
+		d.removeContainer(t, container.ID)
 		return nil, err
 	}
 	stream.Flush()
+	d.removeContainer(t, container.ID)
 	return tar.NewReader(bytes.NewReader(b.Bytes())), nil
 }
 
@@ -318,11 +321,7 @@ func (d *DockerDriver) exec(t *testing.T, env []string, command []string) (strin
 	}
 
 	if !d.save {
-		if err = d.cli.RemoveContainer(docker.RemoveContainerOptions{
-			ID: container.ID,
-		}); err != nil {
-			t.Logf("Error when removing container %s: %s", container.ID, err.Error())
-		}
+		d.removeContainer(t, container.ID)
 	}
 
 	return stdout.String(), stderr.String(), exitCode
@@ -355,4 +354,12 @@ func (d *DockerDriver) GetConfig(t *testing.T) (unversioned.Config, error) {
 		Workdir:      img.Config.WorkingDir,
 		ExposedPorts: ports,
 	}, nil
+}
+
+func (d *DockerDriver) removeContainer(t *testing.T, containerID string) {
+	if err := d.cli.RemoveContainer(docker.RemoveContainerOptions{
+		ID: containerID,
+	}); err != nil {
+		t.Logf("Error when removing container %s: %s", containerID, err.Error())
+	}
 }
