@@ -135,6 +135,7 @@ func (d *DockerDriver) retrieveTar(t *testing.T, path string) (*tar.Reader, erro
 		t.Errorf("Error creating container: %s", err.Error())
 		return nil, err
 	}
+	defer d.removeContainer(t, container.ID)
 
 	var b bytes.Buffer
 	stream := bufio.NewWriter(&b)
@@ -144,12 +145,9 @@ func (d *DockerDriver) retrieveTar(t *testing.T, path string) (*tar.Reader, erro
 		Path:         path,
 	})
 	if err != nil {
-		// attempt to clean up container before returning
-		d.removeContainer(t, container.ID)
 		return nil, err
 	}
 	stream.Flush()
-	d.removeContainer(t, container.ID)
 	return tar.NewReader(bytes.NewReader(b.Bytes())), nil
 }
 
@@ -296,6 +294,7 @@ func (d *DockerDriver) exec(t *testing.T, env []string, command []string) (strin
 		t.Errorf("Error creating container: %s", err.Error())
 		return "", "", -1
 	}
+	defer d.removeContainer(t, container.ID)
 
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
@@ -318,10 +317,6 @@ func (d *DockerDriver) exec(t *testing.T, env []string, command []string) (strin
 		Stderr:       true,
 	}); err != nil {
 		t.Errorf("Error retrieving container logs: %s", err.Error())
-	}
-
-	if !d.save {
-		d.removeContainer(t, container.ID)
 	}
 
 	return stdout.String(), stderr.String(), exitCode
@@ -357,6 +352,9 @@ func (d *DockerDriver) GetConfig(t *testing.T) (unversioned.Config, error) {
 }
 
 func (d *DockerDriver) removeContainer(t *testing.T, containerID string) {
+	if d.save {
+		return
+	}
 	if err := d.cli.RemoveContainer(docker.RemoveContainerOptions{
 		ID: containerID,
 	}); err != nil {
