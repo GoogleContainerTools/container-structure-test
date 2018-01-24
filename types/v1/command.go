@@ -22,15 +22,16 @@ import (
 )
 
 type CommandTest struct {
-	Name           string                `yaml:"name"`
-	Setup          []unversioned.Command `yaml:"setup"`
-	EnvVars        []unversioned.EnvVar  `yaml:"envVars"`
-	ExitCode       int                   `yaml:"exitCode"`
-	Command        []string              `yaml:"command"`
-	ExpectedOutput []string              `yaml:"expectedOutput"`
-	ExcludedOutput []string              `yaml:"excludedOutput"`
-	ExpectedError  []string              `yaml:"expectedError"`
-	ExcludedError  []string              `yaml:"excludedError" ` // excluded error from running command
+	Name           string               `yaml:"name"`
+	Setup          [][]string           `yaml:"setup"`
+	Teardown       [][]string           `yaml:"teardown"`
+	EnvVars        []unversioned.EnvVar `yaml:"envVars"`
+	ExitCode       int                  `yaml:"exitCode"`
+	Command        []string             `yaml:"command"`
+	ExpectedOutput []string             `yaml:"expectedOutput"`
+	ExcludedOutput []string             `yaml:"excludedOutput"`
+	ExpectedError  []string             `yaml:"expectedError"`
+	ExcludedError  []string             `yaml:"excludedError" ` // excluded error from running command
 }
 
 func validateCommandTest(t *testing.T, tt CommandTest) {
@@ -44,6 +45,13 @@ func validateCommandTest(t *testing.T, tt CommandTest) {
 		for _, c := range tt.Setup {
 			if len(c) == 0 {
 				t.Fatalf("Error in setup command configuration encountered; please check formatting and remove all empty setup commands.")
+			}
+		}
+	}
+	if tt.Teardown != nil {
+		for _, c := range tt.Teardown {
+			if len(c) == 0 {
+				t.Fatalf("Error in teardown command configuration encountered; please check formatting and remove all empty teardown commands.")
 			}
 		}
 	}

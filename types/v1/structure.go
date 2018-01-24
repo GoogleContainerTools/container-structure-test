@@ -30,7 +30,7 @@ type StructureTest struct {
 	GlobalEnvVars      []unversioned.EnvVar `yaml:"globalEnvVars"`
 	CommandTests       []CommandTest        `yaml:"commandTests"`
 	FileExistenceTests []FileExistenceTest  `yaml:"fileExistenceTests"`
-	FileContentTests   []FileContentTest    `yaml:"fileContentTest"`
+	FileContentTests   []FileContentTest    `yaml:"fileContentTests"`
 	LicenseTests       []LicenseTest        `yaml:"licenseTests"`
 }
 
@@ -68,6 +68,7 @@ func (st *StructureTest) RunCommandTests(t *testing.T) int {
 			stdout, stderr, exitcode := driver.ProcessCommand(t, tt.EnvVars, tt.Command)
 
 			CheckOutput(t, tt, stdout, stderr, exitcode)
+			driver.Teardown(t, vars, tt.Teardown)
 			counter++
 		})
 	}

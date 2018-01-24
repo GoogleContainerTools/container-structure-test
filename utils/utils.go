@@ -15,9 +15,13 @@
 package utils
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 )
+
+var yesResponses = []string{"y", "Y", "yes", "Yes", "YES"}
+var noResponses = []string{"n", "N", "no", "No", "NO"}
 
 func CompileAndRunRegex(regex string, base string, t *testing.T, err string, shouldMatch bool) {
 	r, rErr := regexp.Compile(regex)
@@ -28,4 +32,32 @@ func CompileAndRunRegex(regex string, base string, t *testing.T, err string, sho
 	if shouldMatch != r.MatchString(base) {
 		t.Errorf(err)
 	}
+}
+
+// adapted from https://gist.github.com/albrow/5882501
+func UserConfirmation(message string, force bool) bool {
+	fmt.Println(message)
+	if force {
+		fmt.Println("Forcing test run!")
+		return true
+	}
+
+	var input string
+	_, err := fmt.Scanln(&input)
+	if err != nil {
+		// should maybe log something here
+		return false
+	}
+	for _, response := range yesResponses {
+		if input == response {
+			return true
+		}
+	}
+	for _, response := range noResponses {
+		if input == response {
+			return false
+		}
+	}
+	fmt.Println("Please type yes or no to continue or exit")
+	return UserConfirmation(message, force)
 }
