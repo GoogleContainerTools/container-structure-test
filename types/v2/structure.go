@@ -150,24 +150,24 @@ func (st *StructureTest) RunMetadataTests(t *testing.T) int {
 			t.Fatalf(err.Error())
 		}
 		defer driver.Destroy(t)
-		config, err := driver.GetConfig(t)
+		imageConfig, err := driver.GetConfig(t)
 		if err != nil {
 			t.Fatalf(err.Error())
 		}
 		for _, pair := range st.MetadataTest.Env {
-			if config.Env[pair.Key] == "" {
+			if imageConfig.Env[pair.Key] == "" {
 				t.Errorf("variable %s not found in image env", pair.Key)
-			} else if config.Env[pair.Key] != pair.Value {
+			} else if imageConfig.Env[pair.Key] != pair.Value {
 				t.Errorf("env var %s value does not match expected value: %s", pair.Key, pair.Value)
 			}
 		}
 
 		if st.MetadataTest.Cmd != nil {
-			if len(*st.MetadataTest.Cmd) != len(config.Cmd) {
-				t.Errorf("Image Cmd %v does not match expected Cmd: %v", *st.MetadataTest.Cmd, config.Cmd)
+			if len(*st.MetadataTest.Cmd) != len(imageConfig.Cmd) {
+				t.Errorf("Image Cmd %v does not match expected Cmd: %v", imageConfig.Cmd, *st.MetadataTest.Cmd)
 			} else {
 				for i := range *st.MetadataTest.Cmd {
-					if (*st.MetadataTest.Cmd)[i] != config.Cmd[i] {
+					if (*st.MetadataTest.Cmd)[i] != imageConfig.Cmd[i] {
 						t.Errorf("Image config Cmd does not match expected value: %s", *st.MetadataTest.Cmd)
 					}
 				}
@@ -175,29 +175,29 @@ func (st *StructureTest) RunMetadataTests(t *testing.T) int {
 		}
 
 		if st.MetadataTest.Entrypoint != nil {
-			if len(*st.MetadataTest.Entrypoint) != len(config.Entrypoint) {
-				t.Errorf("Image entrypoint %v does not match expected entrypoint: %v", *st.MetadataTest.Entrypoint, config.Entrypoint)
+			if len(*st.MetadataTest.Entrypoint) != len(imageConfig.Entrypoint) {
+				t.Errorf("Image entrypoint %v does not match expected entrypoint: %v", imageConfig.Entrypoint, *st.MetadataTest.Entrypoint)
 			} else {
 				for i := range *st.MetadataTest.Entrypoint {
-					if (*st.MetadataTest.Entrypoint)[i] != config.Entrypoint[i] {
+					if (*st.MetadataTest.Entrypoint)[i] != imageConfig.Entrypoint[i] {
 						t.Errorf("Image config entrypoint does not match expected value: %s", *st.MetadataTest.Entrypoint)
 					}
 				}
 			}
 		}
 
-		if st.MetadataTest.Workdir != "" && st.MetadataTest.Workdir != config.Workdir {
-			t.Errorf("Image Workdir %s does not match config Workdir: %s", st.MetadataTest.Workdir, config.Workdir)
+		if st.MetadataTest.Workdir != "" && st.MetadataTest.Workdir != imageConfig.Workdir {
+			t.Errorf("Image workdir %s does not match config workdir: %s", imageConfig.Workdir, st.MetadataTest.Workdir)
 		}
 
 		for _, port := range st.MetadataTest.ExposedPorts {
-			if !valueInList(port, config.ExposedPorts) {
+			if !valueInList(port, imageConfig.ExposedPorts) {
 				t.Errorf("Port %s not found in config", port)
 			}
 		}
 
 		for _, volume := range st.MetadataTest.Volumes {
-			if !valueInList(volume, config.Volumes) {
+			if !valueInList(volume, imageConfig.Volumes) {
 				t.Errorf("Volume %s not found in config", volume)
 			}
 		}
