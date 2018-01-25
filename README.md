@@ -88,6 +88,21 @@ commandTests:
   excludedError: [".*Inst.*Security.* | .*Security.*Inst.*"]
 ```
 
+### Image Entrypoint
+
+To avoid unexpected behavior and output when running commands in the
+containers, **all entrypoints are overwritten by default.** If your
+entrypoint is necessary for the structure of your container, use the
+`setup` field to call any scripts or commands manually before running
+the tests.
+
+```yaml
+commandTests:
+  ...
+  setup: [["my_image_entrypoint.sh"]]
+  ...
+```
+
 ### Intermediate Artifacts
 Each command test run creates either a container (with the `docker` driver) or
 tar artifact (with the `tar` driver). By default, these are deleted after the
@@ -284,4 +299,4 @@ container_test(
 )
 ```
 
-See this small [example repo](https://github.com/nkubala/structure-test-examples) for a full working example.
+See this [example repo](https://github.com/nkubala/structure-test-examples) for a full working example.
