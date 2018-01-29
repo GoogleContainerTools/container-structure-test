@@ -10,6 +10,6 @@ steps:
     args: ['build', '//:go_default_test']
 # Upload the binary to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', 'bazel-bin/go_default_test', 'gs://container-structure-test/builds/$COMMIT_SHA/container-structure-test']
+    args: ['cp', 'bazel-bin/linux_amd64_stripped/go_default_test', 'gs://container-structure-test/builds/$COMMIT_SHA/container-structure-test']
 
 images: ['gcr.io/gcp-runtimes/container-structure-test:$COMMIT_SHA']
