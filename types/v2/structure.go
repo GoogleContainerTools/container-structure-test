@@ -91,14 +91,14 @@ func (st *StructureTest) RunFileExistenceTests(t *testing.T) int {
 			var info os.FileInfo
 			info, err = driver.StatFile(t, tt.Path)
 			if tt.ShouldExist && err != nil {
-				t.Errorf("File %s should exist but does not, got error: %s!", tt.Path, err)
+				t.Fatalf("File %s should exist but does not, got error: %s!", tt.Path, err)
 			} else if !tt.ShouldExist && err == nil {
-				t.Errorf("File %s should not exist but does!", tt.Path)
+				t.Fatalf("File %s should not exist but does!", tt.Path)
 			}
 			if tt.Permissions != "" {
 				perms := info.Mode()
 				if perms.String() != tt.Permissions {
-					t.Errorf("%s has incorrect permissions. Expected: %s, Actual: %s", tt.Path, tt.Permissions, perms.String())
+					t.Fatalf("%s has incorrect permissions. Expected: %s, Actual: %s", tt.Path, tt.Permissions, perms.String())
 				}
 			}
 			counter++
@@ -119,7 +119,7 @@ func (st *StructureTest) RunFileContentTests(t *testing.T) int {
 			defer driver.Destroy(t)
 			actualContents, err := driver.ReadFile(t, tt.Path)
 			if err != nil {
-				t.Errorf("Failed to open %s. Error: %s", tt.Path, err)
+				t.Fatalf("Failed to open %s. Error: %s", tt.Path, err)
 			}
 
 			contents := string(actualContents[:])
