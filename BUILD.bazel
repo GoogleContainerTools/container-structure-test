@@ -39,6 +39,7 @@ go_binary(
 
 go_test(
     name = "go_default_test",
+    pure="on",
     testonly = True,
     srcs = ["structure_test.go"],
     embed = [":go_default_library"],
