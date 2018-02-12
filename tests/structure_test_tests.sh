@@ -24,7 +24,7 @@ failures=0
 # build newest structure test binary
 go test -c github.com/GoogleCloudPlatform/container-structure-test -o structure-test
 
-test_dir=$(dirname $0)
+test_dir=$(dirname "$0")
 # Run the debian tests, they should always pass on latest
 test_image="gcr.io/google-appengine/debian8"
 docker pull "$test_image"
@@ -49,6 +49,22 @@ then
   echo "$res"
   failures=$((failures +1))
 fi
+
+# Test the image.
+abs_test_dir=$(readlink -f "$test_dir")
+bazel run //:structure_test_image -- --norun
+res=$(docker run -v /var/run/docker.sock:/var/run/docker.sock \
+                 -v "$abs_test_dir":/tests \
+                 bazel:structure_test_image -image "$test_image" /tests/debian_test.yaml)
+code=$?
+
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+then
+  echo "Image success case test failed"
+  echo "$res"
+  failures=$((failures +1))
+fi
+
 
 echo "Failure Count: $failures"
 if [ "$failures" -gt "0" ]
