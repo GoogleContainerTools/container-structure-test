@@ -100,11 +100,14 @@ type ConfigSchema struct {
 }
 
 func getImage(p Prepper) (Image, error) {
+	var source string
 	// see if the image name has tag provided, if not add latest as tag
 	if !HasTag(p.GetSource()) {
-		p.SetSource(p.GetSource() + LatestTag)
+		source = p.GetSource() + LatestTag
+	} else {
+		source = p.GetSource()
 	}
-	output.PrintToStdErr("Retrieving image %s from source %s\n", p.GetSource(), p.Name())
+	output.PrintToStdErr("Retrieving image %s from source %s\n", source, p.Name())
 	imgPath, err := p.GetFileSystem()
 	if err != nil {
 		return Image{}, err

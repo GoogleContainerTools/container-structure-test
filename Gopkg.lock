@@ -12,11 +12,8 @@
 
 [[projects]]
   name = "github.com/GoogleCloudPlatform/container-diff"
-  packages = [
-    "cmd/util/output",
-    "pkg/util"
-  ]
-  revision = "9ba9d88a7caac4d74d4ca39700b5c62331005785"
+  packages = ["cmd/util/output","pkg/util"]
+  revision = "d2b317ec63b9e9db4ad6a4065399d74c9b7ebd78"
 
 [[projects]]
   name = "github.com/Microsoft/go-winio"
@@ -32,22 +29,7 @@
 
 [[projects]]
   name = "github.com/containers/image"
-  packages = [
-    "docker",
-    "docker/daemon",
-    "docker/policyconfiguration",
-    "docker/reference",
-    "docker/tarfile",
-    "image",
-    "internal/tmpdir",
-    "manifest",
-    "pkg/compression",
-    "pkg/docker/config",
-    "pkg/strslice",
-    "pkg/tlsclientconfig",
-    "transports",
-    "types"
-  ]
+  packages = ["docker","docker/daemon","docker/policyconfiguration","docker/reference","docker/tarfile","image","internal/tmpdir","manifest","pkg/compression","pkg/docker/config","pkg/strslice","pkg/tlsclientconfig","transports","types"]
   revision = "495da41bd26c50be62fa07ae903ea2ee54c00283"
 
 [[projects]]
@@ -200,8 +182,8 @@
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
-  version = "v1.0.5"
+  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
+  version = "v1.0.4"
 
 [[projects]]
   name = "github.com/spf13/cobra"
@@ -245,6 +227,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "204c01cd5f22633661ed23946429c841b3d3f2849540f24e8b2b4b1beb5503f1"
+  inputs-digest = "4f99009c978e25f71eddd55b8f65a0153e4d76cc6b7f0ce65930398cb0823d04"
   solver-name = "gps-cdcl"
   solver-version = 1
