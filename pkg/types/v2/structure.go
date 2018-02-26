@@ -22,14 +22,16 @@ import (
 )
 
 type StructureTest struct {
-	DriverImpl         func(drivers.DriverConfig) (drivers.Driver, error)
-	DriverArgs         drivers.DriverConfig
-	GlobalEnvVars      []types.EnvVar      `yaml:"globalEnvVars"`
-	CommandTests       []CommandTest       `yaml:"commandTests"`
-	FileExistenceTests []FileExistenceTest `yaml:"fileExistenceTests"`
-	FileContentTests   []FileContentTest   `yaml:"fileContentTests"`
-	MetadataTest       MetadataTest        `yaml:"metadataTest"`
-	LicenseTests       []LicenseTest       `yaml:"licenseTests"`
+	DriverImpl func(drivers.DriverConfig) (drivers.Driver, error)
+	DriverArgs drivers.DriverConfig
+	// Used to pass mount/privilege arguments to the container runtime
+	ContainerRunOpts   drivers.ContainerRunOpts `yaml:"containerRunOpts"`
+	GlobalEnvVars      []types.EnvVar           `yaml:"globalEnvVars"`
+	CommandTests       []CommandTest            `yaml:"commandTests"`
+	FileExistenceTests []FileExistenceTest      `yaml:"fileExistenceTests"`
+	FileContentTests   []FileContentTest        `yaml:"fileContentTests"`
+	MetadataTest       MetadataTest             `yaml:"metadataTest"`
+	LicenseTests       []LicenseTest            `yaml:"licenseTests"`
 }
 
 func (st *StructureTest) NewDriver() (drivers.Driver, error) {

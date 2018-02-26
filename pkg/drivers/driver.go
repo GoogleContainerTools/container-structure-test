@@ -28,9 +28,10 @@ const (
 )
 
 type DriverConfig struct {
-	Image    string // used by Docker/Tar drivers
-	Save     bool   // used by Docker/Tar drivers
-	Metadata string // used by Host driver
+	Image            string           // used by Docker/Tar drivers
+	Save             bool             // used by Docker/Tar drivers
+	Metadata         string           // used by Host driver
+	ContainerRunOpts ContainerRunOpts // used by the Docker driver
 }
 
 type Driver interface {
@@ -56,7 +57,9 @@ type Driver interface {
 	Destroy()
 }
 
-func InitDriverImpl(driver string) func(DriverConfig) (Driver, error) {
+type NewDriverFunc func(DriverConfig) (Driver, error)
+
+func InitDriverImpl(driver string) NewDriverFunc {
 	switch driver {
 	// future drivers will be added here
 	case Docker:

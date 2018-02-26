@@ -3,3 +3,5 @@ structure-test
 structure_tests.test
 out/
 **/bazel-*
+.idea
+container-structure-test

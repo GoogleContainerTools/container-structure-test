@@ -36,4 +36,9 @@ type SchemaVersion struct {
 	SchemaVersion string `yaml:"schemaVersion"`
 }
 
+type DriverOptions struct {
+	Driver           string                   `yaml:"driver"`
+	ContainerRunOpts drivers.ContainerRunOpts `yaml:"containerRunOpts"`
+}
+
 type Unmarshaller func([]byte, interface{}) error

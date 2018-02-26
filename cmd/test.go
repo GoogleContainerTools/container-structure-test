@@ -109,6 +109,7 @@ func Parse(fp string) (types.StructureTest, error) {
 	var unmarshal types.Unmarshaller
 	var strictUnmarshal types.Unmarshaller
 	var versionHolder types.SchemaVersion
+	var driverOptionsHolder types.DriverOptions
 
 	switch {
 	case strings.HasSuffix(fp, ".json"):
@@ -124,11 +125,20 @@ func Parse(fp string) (types.StructureTest, error) {
 	if err := unmarshal(testContents, &versionHolder); err != nil {
 		return nil, err
 	}
+	if err := unmarshal(testContents, &driverOptionsHolder); err != nil {
+		return nil, err
+	}
 
 	version := versionHolder.SchemaVersion
 	if version == "" {
 		return nil, errors.New("Please provide JSON schema version")
 	}
+
+	// We create the drivers.NewDriverFunc for the specified driver
+	driverImplFunc := NewDriverImplFunc(driverOptionsHolder.Driver)
+
+	// args is a global variable, need to pass in the containerRunOpts
+	args.ContainerRunOpts = driverOptionsHolder.ContainerRunOpts
 
 	var st types.StructureTest
 	if schemaVersion, ok := types.SchemaVersions[version]; ok {
@@ -140,8 +150,22 @@ func Parse(fp string) (types.StructureTest, error) {
 	strictUnmarshal(testContents, st)
 
 	tests, _ := st.(types.StructureTest) //type assertion
-	tests.SetDriverImpl(driverImpl, *args)
+	tests.SetDriverImpl(driverImplFunc, *args)
 	return tests, nil
+}
+
+func NewDriverImplFunc(driver string) drivers.NewDriverFunc {
+	// let's default to docker in the case of no driver
+	if driver == "" {
+		driver = "docker"
+
+	}
+	driverImpl = drivers.InitDriverImpl(driver)
+	if driverImpl == nil {
+		logrus.Fatalf("Unsupported driver type: %s", driver)
+	}
+	logrus.Infof("Using driver %s\n", driver)
+	return driverImpl
 }
 
 func Run() []*unversioned.FullResult {
@@ -150,8 +174,6 @@ func Run() []*unversioned.FullResult {
 		Save:     save,
 		Metadata: metadata,
 	}
-
-	var err error
 
 	if pull {
 		if driver != drivers.Docker {
@@ -178,21 +200,12 @@ func Run() []*unversioned.FullResult {
 		os.Exit(1)
 	}
 
-	driverImpl = drivers.InitDriverImpl(driver)
-	if driverImpl == nil {
-		logrus.Fatalf("Unsupported driver type: %s", driver)
-	}
-	if err != nil {
-		logrus.Fatal(err.Error())
-	}
-	logrus.Infof("Using driver %s\n", driver)
 	return RunTests()
 }
 
 func init() {
 	RootCmd.AddCommand(TestCmd)
 	TestCmd.Flags().StringVar(&imagePath, "image", "", "path to test image")
-	TestCmd.Flags().StringVar(&driver, "driver", "docker", "driver to use when running tests")
 	TestCmd.Flags().StringVar(&metadata, "metadata", "", "path to image metadata file")
 	TestCmd.Flags().BoolVar(&pull, "pull", false, "force a pull of the image before running tests")
 	TestCmd.Flags().BoolVar(&save, "save", false, "preserve created containers after test run")

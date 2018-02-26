@@ -19,13 +19,14 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/utils"
@@ -33,11 +34,12 @@ import (
 )
 
 type DockerDriver struct {
-	originalImage string
-	currentImage  string
-	cli           docker.Client
-	env           map[string]string
-	save          bool
+	originalImage    string
+	currentImage     string
+	cli              docker.Client
+	env              map[string]string
+	save             bool
+	containerRunOpts ContainerRunOpts
 }
 
 func NewDockerDriver(args DriverConfig) (Driver, error) {
@@ -45,12 +47,14 @@ func NewDockerDriver(args DriverConfig) (Driver, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &DockerDriver{
-		originalImage: args.Image,
-		currentImage:  args.Image,
-		cli:           *newCli,
-		env:           nil,
-		save:          args.Save,
+		originalImage:    args.Image,
+		currentImage:     args.Image,
+		cli:              *newCli,
+		env:              nil,
+		save:             args.Save,
+		containerRunOpts: args.ContainerRunOpts,
 	}, nil
 }
 
@@ -251,6 +255,11 @@ func (d *DockerDriver) ReadDir(target string) ([]os.FileInfo, error) {
 // 3) commits the container with its changes to a new image,
 // and sets that image as the new "current image"
 func (d *DockerDriver) runAndCommit(env []string, command []string) (string, error) {
+	hostConfig := &docker.HostConfig{
+		Binds:      d.containerRunOpts.BindMounts,
+		CapAdd:     d.containerRunOpts.Capabilities,
+		Privileged: d.containerRunOpts.Privileged,
+	}
 	container, err := d.cli.CreateContainer(docker.CreateContainerOptions{
 		Config: &docker.Config{
 			Image:        d.currentImage,
@@ -260,14 +269,15 @@ func (d *DockerDriver) runAndCommit(env []string, command []string) (string, err
 			AttachStdout: true,
 			AttachStderr: true,
 		},
-		HostConfig:       nil,
+		HostConfig:       hostConfig,
 		NetworkingConfig: nil,
 	})
 	if err != nil {
 		return "", errors.Wrap(err, "Error creating container")
 	}
 
-	if err = d.cli.StartContainer(container.ID, nil); err != nil {
+	err = d.cli.StartContainer(container.ID, hostConfig)
+	if err != nil {
 		return "", errors.Wrap(err, "Error creating container")
 	}
 
@@ -296,6 +306,12 @@ func (d *DockerDriver) runAndCommit(env []string, command []string) (string, err
 }
 
 func (d *DockerDriver) exec(env []string, command []string) (string, string, int, error) {
+	hostConfig := &docker.HostConfig{
+		Binds:      d.containerRunOpts.BindMounts,
+		CapAdd:     d.containerRunOpts.Capabilities,
+		Privileged: d.containerRunOpts.Privileged,
+	}
+
 	// first, start container from the current image
 	container, err := d.cli.CreateContainer(docker.CreateContainerOptions{
 		Config: &docker.Config{
@@ -306,7 +322,7 @@ func (d *DockerDriver) exec(env []string, command []string) (string, string, int
 			AttachStdout: true,
 			AttachStderr: true,
 		},
-		HostConfig:       nil,
+		HostConfig:       hostConfig,
 		NetworkingConfig: nil,
 	})
 	if err != nil {
@@ -317,7 +333,7 @@ func (d *DockerDriver) exec(env []string, command []string) (string, string, int
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
 
-	if err = d.cli.StartContainer(container.ID, nil); err != nil {
+	if err = d.cli.StartContainer(container.ID, hostConfig); err != nil {
 		return "", "", -1, errors.Wrap(err, "Error creating container")
 	}
 

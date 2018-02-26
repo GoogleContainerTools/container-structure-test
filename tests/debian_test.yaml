@@ -1,4 +1,14 @@
 schemaVersion: '2.0.0' # Make sure to test the latest schema version
+
+driver: "docker"
+
+containerRunOpts:
+  bindMounts:
+    - "/tmp/test:/tmp/test"
+  privileged: true
+  capabilities:
+    - "sys_admin"
+
 commandTests:
 - name: 'apt-get'
   command: 'apt-get'
@@ -13,6 +23,18 @@ commandTests:
   command: 'sh'
   args: ['-c', 'echo $PATH']
   expectedOutput: ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin']
+- name: "Test Capabilities ContainerRunOptions"
+  command: "capsh"
+  args: ["--print"]
+  expectedOutput:
+    - ".*cap_sys_admin.*"
+- name: "Test bindMounts containerRunOptions"
+  command: "test"
+  args:
+    - "-d"
+    - "/tmp/test"
+  exitCode: 0
+
 fileContentTests:
 - name: 'Debian Sources'
   excludedContents: ['.*gce_debian_mirror.*']
@@ -21,6 +43,7 @@ fileContentTests:
 - name: 'Retry Policy'
   expectedContents: ['Acquire::Retries 3;']
   path: '/etc/apt/apt.conf.d/apt-retry'
+
 fileExistenceTests:
 - name: 'Root'
   isDirectory: true
@@ -34,6 +57,7 @@ fileExistenceTests:
   isDirectory: false
   path: '/etc/machine-id'
   shouldExist: true
+
 licenseTests:
 - debian: true
   files:
