@@ -221,10 +221,26 @@ globalEnvVars:
     value: "/env/bin:$PATH"
 ```
 
-## Running File Tests On Cloudbuild
+## Running File Tests On [Google Cloud Container
+Builder](https://cloud.google.com/container-builder/docs)
 
-TODO
+This tool is released as a builder image, tagged as
+`gcr.io/gcp-runtimes/container-structure-test`, so you can specify tests in your
+`cloudbuild.yaml`:
 
+```yaml
+
+steps:
+# Build an image.
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/image', '.']
+# Test the image.
+- name: 'gcr.io/gcp-runtimes/container-structure-test'
+  args: ['-image', 'gcr.io/$PROJECT_ID/image', 'test_config.yaml']
+
+# Push the image.
+images: ['gcr.io/$PROJECT_ID/image']
+```
 
 ## Running File Tests Without Docker
 
