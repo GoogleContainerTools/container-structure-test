@@ -221,8 +221,7 @@ globalEnvVars:
     value: "/env/bin:$PATH"
 ```
 
-## Running File Tests On [Google Cloud Container
-Builder](https://cloud.google.com/container-builder/docs)
+## Running File Tests On [Google Cloud Container Builder](https://cloud.google.com/container-builder/docs)
 
 This tool is released as a builder image, tagged as
 `gcr.io/gcp-runtimes/container-structure-test`, so you can specify tests in your
