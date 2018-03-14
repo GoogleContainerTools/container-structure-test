@@ -31,21 +31,29 @@ type TarDriver struct {
 }
 
 func NewTarDriver(args DriverConfig) (Driver, error) {
-	// if the image is in the local daemon, we should be using the docker driver anyway.
-	// only try remote.
 	var prepper pkgutil.Prepper
+	var image pkgutil.Image
+	var err error
 	imageName := args.Image
 	if pkgutil.IsTar(imageName) {
-		prepper = pkgutil.TarPrepper{
+		prepper = &pkgutil.TarPrepper{
 			Source: imageName,
 		}
 	} else {
-		prepper = pkgutil.CloudPrepper{
+		// see if image exists locally first.
+		prepper = &pkgutil.DaemonPrepper{
 			Source: imageName,
+		}
+		image, err = prepper.GetImage()
+		if err != nil {
+			// didn't find locally, try to pull from remote.
+			prepper = &pkgutil.CloudPrepper{
+				Source: imageName,
+			}
+			image, err = prepper.GetImage()
 		}
 	}
 
-	image, err := prepper.GetImage()
 	if err != nil {
 		// didn't find image anywhere; exit
 		return nil, err
