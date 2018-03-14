@@ -16,7 +16,7 @@
     "cmd/util/output",
     "pkg/util"
   ]
-  revision = "d2b317ec63b9e9db4ad6a4065399d74c9b7ebd78"
+  revision = "2cc177d61b9011582ef2c9105737d987cf0e933b"
 
 [[projects]]
   name = "github.com/Microsoft/go-winio"
@@ -245,6 +245,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b960156035e417f320da5604f8883a6e452d54bcacf73e536d8c9687ea977977"
+  inputs-digest = "94ba1734f26932045024b65db85f17aec5fcab7cbfc81fbcb9b9181ecac04db0"
   solver-name = "gps-cdcl"
   solver-version = 1
