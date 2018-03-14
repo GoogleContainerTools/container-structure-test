@@ -12,6 +12,7 @@ go_library(
         "json_formatter.go",
         "logger.go",
         "logrus.go",
+        "terminal_check_notappengine.go",
         "text_formatter.go",
         "writer.go",
     ] + select({
@@ -77,4 +78,17 @@ go_test(
     embed = [":go_default_library"],
     importpath = "github.com/sirupsen/logrus",
     deps = ["//vendor/github.com/stretchr/testify/assert:go_default_library"],
+)
+
+go_test(
+    name = "go_default_xtest",
+    srcs = [
+        "example_basic_test.go",
+        "example_hook_test.go",
+    ],
+    importpath = "github.com/sirupsen/logrus_test",
+    deps = [
+        ":go_default_library",
+        "//vendor/gopkg.in/gemnasium/logrus-airbrake-hook.v2:go_default_library",
+    ],
 )

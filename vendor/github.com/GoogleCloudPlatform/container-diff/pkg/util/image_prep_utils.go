@@ -20,13 +20,13 @@ import (
 	"archive/tar"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"strings"
 
-	"github.com/GoogleCloudPlatform/container-diff/pkg/cache"
+	"github.com/GoogleCloudPlatform/container-diff/cmd/util/output"
+	"github.com/containers/image/docker"
+	"github.com/containers/image/manifest"
 	"github.com/containers/image/pkg/compression"
 	"github.com/containers/image/types"
 	"github.com/sirupsen/logrus"
@@ -40,10 +40,43 @@ type Prepper interface {
 	GetSource() string
 }
 
+type ImageType int
+
+const (
+	ImageTypeTar ImageType = iota
+	ImageTypeDaemon
+	ImageTypeCloud
+)
+
 type Image struct {
 	Source string
 	FSPath string
 	Config ConfigSchema
+	Type   ImageType
+}
+
+func (i *Image) IsTar() bool {
+	return i.Type == ImageTypeTar
+}
+
+func (i *Image) IsDaemon() bool {
+	return i.Type == ImageTypeDaemon
+}
+
+func (i *Image) IsCloud() bool {
+	return i.Type == ImageTypeCloud
+}
+
+func (i *Image) GetRemoteDigest() (string, error) {
+	ref, err := docker.ParseReference("//" + i.Source)
+	if err != nil {
+		return "", err
+	}
+	return getDigestFromReference(ref, i.Source)
+}
+
+func (i *Image) GetName() string {
+	return strings.Split(i.Source, ":")[0]
 }
 
 type ImageHistoryItem struct {
@@ -57,6 +90,7 @@ type ConfigObject struct {
 	Cmd          []string            `json:"Cmd"`
 	Volumes      map[string]struct{} `json:"Volumes"`
 	Workdir      string              `json:"WorkingDir"`
+	Labels       map[string]string   `json:"Labels"`
 }
 
 type ConfigSchema struct {
@@ -65,7 +99,14 @@ type ConfigSchema struct {
 }
 
 func getImage(p Prepper) (Image, error) {
-	fmt.Fprintf(os.Stderr, "Retrieving image %s from source %s\n", p.GetSource(), p.Name())
+	var source string
+	// see if the image name has tag provided, if not add latest as tag
+	if !HasTag(p.GetSource()) {
+		source = p.GetSource() + LatestTag
+	} else {
+		source = p.GetSource()
+	}
+	output.PrintToStdErr("Retrieving image %s from source %s\n", source, p.Name())
 	imgPath, err := p.GetFileSystem()
 	if err != nil {
 		return Image{}, err
@@ -76,9 +117,9 @@ func getImage(p Prepper) (Image, error) {
 		logrus.Error("Error retrieving History: ", err)
 	}
 
-	logrus.Infof("Finished prepping image %s", p.GetSource())
+	logrus.Infof("Finished prepping image %s", source)
 	return Image{
-		Source: p.GetSource(),
+		Source: source,
 		FSPath: imgPath,
 		Config: config,
 	}, nil
@@ -93,78 +134,58 @@ func getImageFromTar(tarPath string) (string, error) {
 	return tempPath, unpackDockerSave(tarPath, tempPath)
 }
 
-func getFileSystemFromReference(ref types.ImageReference, imageName string, cache cache.Cache) (string, error) {
-	sanitizedName := strings.Replace(imageName, ":", "", -1)
-	sanitizedName = strings.Replace(sanitizedName, "/", "", -1)
-
-	path, err := ioutil.TempDir("", sanitizedName)
-	if err != nil {
-		return "", err
-	}
-
+func GetFileSystemFromReference(ref types.ImageReference, imgSrc types.ImageSource, path string, whitelist []string) error {
 	img, err := ref.NewImage(nil)
 	if err != nil {
-		logrus.Error(err)
-		return "", err
+		return err
 	}
 	defer img.Close()
-
-	imgSrc, err := ref.NewImageSource(nil, nil)
-	if err != nil {
-		logrus.Error(err)
-		return "", err
-	}
-
-	var bi io.ReadCloser
 	for _, b := range img.LayerInfos() {
-		layerId := b.Digest.String()
-		if cache == nil {
-			bi, _, err = imgSrc.GetBlob(b)
-			if err != nil {
-				logrus.Errorf("Failed to pull image layer: %s", err)
-				return "", err
-			}
-		} else if cache.HasLayer(layerId) {
-			logrus.Infof("cache hit for layer %s", layerId)
-			bi, err = cache.GetLayer(layerId)
-		} else {
-			logrus.Infof("cache miss for layer %s", layerId)
-			bi, _, err = imgSrc.GetBlob(b)
-			if err != nil {
-				logrus.Errorf("Failed to pull image layer: %s", err)
-				return "", err
-			}
-			bi, err = cache.SetLayer(layerId, bi)
-			if err != nil {
-				logrus.Errorf("error when caching layer %s: %s", layerId, err)
-				cache.Invalidate(layerId)
-			}
-		}
+		bi, _, err := imgSrc.GetBlob(b)
 		if err != nil {
-			logrus.Errorf("Failed to retrieve image layer: %s", err)
-			return "", err
+			return err
 		}
-		// try and detect layer compression
+		defer bi.Close()
 		f, reader, err := compression.DetectCompression(bi)
 		if err != nil {
-			logrus.Errorf("Failed to detect image compression: %s", err)
-			return "", err
+			return err
 		}
+		// Decompress if necessary.
 		if f != nil {
-			// decompress if necessary
 			reader, err = f(reader)
 			if err != nil {
-				logrus.Errorf("Failed to decompress image: %s", err)
-				return "", err
+				return err
 			}
 		}
 		tr := tar.NewReader(reader)
-		err = unpackTar(tr, path)
-		if err != nil {
-			logrus.Errorf("Failed to untar layer with error: %s", err)
+		if err := unpackTar(tr, path, whitelist); err != nil {
+			return err
 		}
 	}
-	return path, nil
+	return nil
+}
+
+func getDigestFromReference(ref types.ImageReference, source string) (string, error) {
+	img, err := ref.NewImage(nil)
+	if err != nil {
+		logrus.Errorf("Error referencing image %s from registry: %s", source, err)
+		return "", errors.New("Could not obtain image digest")
+	}
+	defer img.Close()
+
+	rawManifest, _, err := img.Manifest()
+	if err != nil {
+		logrus.Errorf("Error referencing image %s from registry: %s", source, err)
+		return "", errors.New("Could not obtain image digest")
+	}
+
+	digest, err := manifest.Digest(rawManifest)
+	if err != nil {
+		logrus.Errorf("Error referencing image %s from registry: %s", source, err)
+		return "", errors.New("Could not obtain image digest")
+	}
+
+	return digest.String(), nil
 }
 
 func getConfigFromReference(ref types.ImageReference, source string) (ConfigSchema, error) {

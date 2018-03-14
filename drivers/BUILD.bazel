@@ -5,8 +5,8 @@ go_library(
     srcs = [
         "docker_driver.go",
         "driver.go",
+        "host_driver.go",
         "tar_driver.go",
-        "host_driver.go"
     ],
     importpath = "github.com/GoogleCloudPlatform/container-structure-test/drivers",
     visibility = ["//visibility:public"],
