@@ -19,20 +19,17 @@ package util
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-
-	"github.com/GoogleCloudPlatform/container-diff/pkg/cache"
 	"github.com/containers/image/docker/tarfile"
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 type TarPrepper struct {
 	Source string
 	Client *client.Client
-	Cache  cache.Cache
 }
 
 func (p TarPrepper) Name() string {
@@ -44,7 +41,9 @@ func (p TarPrepper) GetSource() string {
 }
 
 func (p TarPrepper) GetImage() (Image, error) {
-	return getImage(p)
+	image, err := getImage(p)
+	image.Type = ImageTypeTar
+	return image, err
 }
 
 func (p TarPrepper) GetFileSystem() (string, error) {
@@ -62,7 +61,7 @@ func (p TarPrepper) GetConfig() (ConfigSchema, error) {
 		return ConfigSchema{}, err
 	}
 	defer f.Close()
-	if err := UnTar(f, tempDir); err != nil {
+	if err := UnTar(f, tempDir, nil); err != nil {
 		return ConfigSchema{}, err
 	}
 

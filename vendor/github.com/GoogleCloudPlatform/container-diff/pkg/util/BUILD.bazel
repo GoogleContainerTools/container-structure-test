@@ -15,14 +15,16 @@ go_library(
     importpath = "github.com/GoogleCloudPlatform/container-diff/pkg/util",
     visibility = ["//visibility:public"],
     deps = [
-        "//vendor/github.com/GoogleCloudPlatform/container-diff/pkg/cache:go_default_library",
+        "//vendor/github.com/GoogleCloudPlatform/container-diff/cmd/util/output:go_default_library",
         "//vendor/github.com/containers/image/docker:go_default_library",
         "//vendor/github.com/containers/image/docker/daemon:go_default_library",
         "//vendor/github.com/containers/image/docker/tarfile:go_default_library",
+        "//vendor/github.com/containers/image/manifest:go_default_library",
         "//vendor/github.com/containers/image/pkg/compression:go_default_library",
         "//vendor/github.com/containers/image/types:go_default_library",
         "//vendor/github.com/docker/docker/client:go_default_library",
         "//vendor/github.com/docker/docker/pkg/system:go_default_library",
+        "//vendor/github.com/pkg/errors:go_default_library",
         "//vendor/github.com/sirupsen/logrus:go_default_library",
     ],
 )

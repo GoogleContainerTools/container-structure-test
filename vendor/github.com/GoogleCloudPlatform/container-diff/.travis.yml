@@ -1,6 +1,6 @@
 language: go
 os: linux
-go: 1.8.3
+go: 1.9.x
 
 sudo: required
 
@@ -19,4 +19,4 @@ addons:
 
 
 script:
- - make test integration
+ - travis_wait make test integration

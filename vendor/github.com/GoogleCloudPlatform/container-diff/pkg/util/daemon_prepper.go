@@ -18,8 +18,9 @@ package util
 
 import (
 	"context"
+	"io/ioutil"
+	"strings"
 
-	"github.com/GoogleCloudPlatform/container-diff/pkg/cache"
 	"github.com/containers/image/docker/daemon"
 
 	"github.com/docker/docker/client"
@@ -29,7 +30,6 @@ import (
 type DaemonPrepper struct {
 	Source string
 	Client *client.Client
-	Cache  cache.Cache
 }
 
 func (p DaemonPrepper) Name() string {
@@ -41,7 +41,9 @@ func (p DaemonPrepper) GetSource() string {
 }
 
 func (p DaemonPrepper) GetImage() (Image, error) {
-	return getImage(p)
+	image, err := getImage(p)
+	image.Type = ImageTypeDaemon
+	return image, err
 }
 
 func (p DaemonPrepper) GetFileSystem() (string, error) {
@@ -49,7 +51,20 @@ func (p DaemonPrepper) GetFileSystem() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return getFileSystemFromReference(ref, p.Source, p.Cache)
+
+	src, err := ref.NewImageSource(nil)
+	if err != nil {
+		return "", err
+	}
+
+	sanitizedName := strings.Replace(p.Source, ":", "", -1)
+	sanitizedName = strings.Replace(sanitizedName, "/", "", -1)
+
+	path, err := ioutil.TempDir("", sanitizedName)
+	if err != nil {
+		return "", err
+	}
+	return path, GetFileSystemFromReference(ref, src, path, nil)
 }
 
 func (p DaemonPrepper) GetConfig() (ConfigSchema, error) {

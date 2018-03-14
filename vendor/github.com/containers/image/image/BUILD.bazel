@@ -17,7 +17,6 @@ go_library(
     deps = [
         "//vendor/github.com/containers/image/docker/reference:go_default_library",
         "//vendor/github.com/containers/image/manifest:go_default_library",
-        "//vendor/github.com/containers/image/pkg/strslice:go_default_library",
         "//vendor/github.com/containers/image/types:go_default_library",
         "//vendor/github.com/opencontainers/go-digest:go_default_library",
         "//vendor/github.com/opencontainers/image-spec/specs-go/v1:go_default_library",
@@ -29,6 +28,7 @@ go_library(
 go_test(
     name = "go_default_test",
     srcs = [
+        "docker_list_test.go",
         "docker_schema1_test.go",
         "docker_schema2_test.go",
         "oci_test.go",

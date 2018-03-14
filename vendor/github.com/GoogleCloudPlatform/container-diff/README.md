@@ -9,8 +9,10 @@ container-diff is a tool for analyzing and comparing container images. container
 - Docker Image History
 - Image file system
 - Apt packages
+- RPM packages
 - pip packages
 - npm packages
+
 These analyses can be performed on a single image, or a diff can be performed on two images to compare. The tool can help users better understand what is changing inside their images, and give them a better look at what their images contain.
 
 ## Installation
@@ -43,6 +45,7 @@ To use `container-diff analyze` to perform analysis on a single image, you need 
 container-diff analyze <img>     [Run default analyzers]
 container-diff analyze <img> --type=history  [History]
 container-diff analyze <img> --type=file  [File System]
+container-diff analyze <img> --type=rpm  [RPM]
 container-diff analyze <img> --type=pip  [Pip]
 container-diff analyze <img> --type=apt  [Apt]
 container-diff analyze <img> --type=node  [Node]
@@ -57,6 +60,7 @@ To use container-diff to perform a diff analysis on two images, you need two Doc
 container-diff diff <img1> <img2>     [Run default differs]
 container-diff diff <img1> <img2> --type=history  [History]
 container-diff diff <img1> <img2> --type=file  [File System]
+container-diff diff <img1> <img2> --type=rpm  [RPM]
 container-diff diff <img1> <img2> --type=pip  [Pip]
 container-diff diff <img1> <img2> --type=apt  [Apt]
 container-diff diff <img1> <img2> --type=node  [Node]
@@ -108,6 +112,10 @@ To order files and packages by size (in descending order) when performing file s
 container-diff analyze remote://gcr.io/gcp-runtimes/multi-modified --type=pip --order
 ```
 
+To suppress output to stderr, add a `-q` or `--quiet` flag.
+```shell
+container-diff analyze file1.tar --type=file --quiet
+```
 
 ## Analysis Result Format
 
@@ -234,6 +242,42 @@ type MultiVersionInfo struct {
 	Info1	[]PackageInfo
 	Info2	[]PackageInfo
 }
+```
+
+## User Customized Output
+Users can customize the format of the output of diffs with the`--format` flag. The flag takes a Go template string, which specifies the format the diff should be output in. This template string uses the structs described above, depending on the differ used, to format output.  The default template strings container-diff uses can be found [here](https://github.com/GoogleCloudPlatform/container-diff/blob/master/util/template_utils.go).
+
+An example using the pip package analyzer is shown below, in which only package names are printed (some are repeated because of version differences).
+
+```shell
+$ container-diff analyze gcr.io/google-appengine/python:latest --type=pip --format='
+-----{{.AnalyzeType}}-----
+Packages found in {{.Image}}:{{if not .Analysis}} None{{else}}
+{{range .Analysis}}{{"\n"}}{{.Name}}{{end}}
+{{end}}
+'
+Retrieving image gcr.io/google-appengine/python:latest from source Cloud Registry
+Retrieving analyses
+
+-----Pip-----
+Packages found in gcr.io/google-appengine/python:latest:
+
+chardet
+colorama
+html5lib
+mercurial
+pip
+pip
+pip
+requests
+setuptools
+setuptools
+setuptools
+six
+urllib3
+virtualenv
+wheel
+wheel
 ```
 
 ## Known issues
@@ -419,7 +463,7 @@ If using existing package tools, you should create the appropriate structs (e.g.
 ```go
 type Result interface {
 	OutputStruct() interface{}
-	OutputText(resultType string) error
+	OutputText(resultType string, format string) error
 }
 ```
 

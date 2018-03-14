@@ -4,13 +4,19 @@
 [[projects]]
   branch = "master"
   name = "github.com/Azure/go-ansiterm"
-  packages = [".","winterm"]
+  packages = [
+    ".",
+    "winterm"
+  ]
   revision = "d6e3b3328b783f23731bc4d058875b0371ff8109"
 
 [[projects]]
   name = "github.com/GoogleCloudPlatform/container-diff"
-  packages = ["pkg/cache","pkg/util"]
-  revision = "3d6d46814835c2773749cb31c0232f17f692d66d"
+  packages = [
+    "cmd/util/output",
+    "pkg/util"
+  ]
+  revision = "d2b317ec63b9e9db4ad6a4065399d74c9b7ebd78"
 
 [[projects]]
   name = "github.com/Microsoft/go-winio"
@@ -26,33 +32,96 @@
 
 [[projects]]
   name = "github.com/containers/image"
-  packages = ["docker","docker/daemon","docker/policyconfiguration","docker/reference","docker/tarfile","image","manifest","pkg/compression","pkg/strslice","transports","types"]
-  revision = "abb4cd79e3427bb2b02a5930814ef2ad19983c24"
-
-[[projects]]
-  name = "github.com/containers/storage"
-  packages = ["pkg/homedir"]
-  revision = "f8cff0727cf0802f0752ca58d2c05ec5270a47d5"
+  packages = [
+    "docker",
+    "docker/daemon",
+    "docker/policyconfiguration",
+    "docker/reference",
+    "docker/tarfile",
+    "image",
+    "internal/tmpdir",
+    "manifest",
+    "pkg/compression",
+    "pkg/docker/config",
+    "pkg/strslice",
+    "pkg/tlsclientconfig",
+    "transports",
+    "types"
+  ]
+  revision = "495da41bd26c50be62fa07ae903ea2ee54c00283"
 
 [[projects]]
   name = "github.com/docker/distribution"
-  packages = [".","digestset","reference","registry/api/errcode","registry/api/v2","registry/client","registry/client/auth/challenge","registry/client/transport","registry/storage/cache","registry/storage/cache/memory"]
+  packages = [
+    ".",
+    "digestset",
+    "reference",
+    "registry/api/errcode",
+    "registry/api/v2",
+    "registry/client",
+    "registry/client/auth/challenge",
+    "registry/client/transport",
+    "registry/storage/cache",
+    "registry/storage/cache/memory"
+  ]
   revision = "30578ca32960a4d368bf6db67b0a33c2a1f3dc6f"
 
 [[projects]]
   name = "github.com/docker/docker"
-  packages = ["api","api/types","api/types/blkiodev","api/types/container","api/types/events","api/types/filters","api/types/image","api/types/mount","api/types/network","api/types/registry","api/types/strslice","api/types/swarm","api/types/swarm/runtime","api/types/time","api/types/versions","api/types/volume","client","opts","pkg/archive","pkg/fileutils","pkg/homedir","pkg/idtools","pkg/ioutils","pkg/jsonlog","pkg/jsonmessage","pkg/longpath","pkg/mount","pkg/pools","pkg/promise","pkg/stdcopy","pkg/system","pkg/term","pkg/term/windows","pkg/tlsconfig"]
+  packages = [
+    "api",
+    "api/types",
+    "api/types/blkiodev",
+    "api/types/container",
+    "api/types/events",
+    "api/types/filters",
+    "api/types/image",
+    "api/types/mount",
+    "api/types/network",
+    "api/types/registry",
+    "api/types/strslice",
+    "api/types/swarm",
+    "api/types/swarm/runtime",
+    "api/types/time",
+    "api/types/versions",
+    "api/types/volume",
+    "client",
+    "opts",
+    "pkg/archive",
+    "pkg/fileutils",
+    "pkg/homedir",
+    "pkg/idtools",
+    "pkg/ioutils",
+    "pkg/jsonlog",
+    "pkg/jsonmessage",
+    "pkg/longpath",
+    "pkg/mount",
+    "pkg/pools",
+    "pkg/promise",
+    "pkg/stdcopy",
+    "pkg/system",
+    "pkg/term",
+    "pkg/term/windows",
+    "pkg/tlsconfig"
+  ]
   revision = "184cea5ff710abde25547749e5608b24a255ba09"
 
 [[projects]]
   name = "github.com/docker/docker-credential-helpers"
-  packages = ["client","credentials"]
+  packages = [
+    "client",
+    "credentials"
+  ]
   revision = "d68f9aeca33f5fd3f08eeae5e9d175edf4e731d1"
   version = "v0.6.0"
 
 [[projects]]
   name = "github.com/docker/go-connections"
-  packages = ["nat","sockets","tlsconfig"]
+  packages = [
+    "nat",
+    "sockets",
+    "tlsconfig"
+  ]
   revision = "3ede32e2033de7505e6500d6c868c2b9ed9f169d"
   version = "v0.3.0"
 
@@ -96,6 +165,12 @@
   revision = "ac112f7d75a0714af1bd86ab17749b31f7809640"
 
 [[projects]]
+  name = "github.com/inconshreveable/mousetrap"
+  packages = ["."]
+  revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+  version = "v1.0"
+
+[[projects]]
   name = "github.com/opencontainers/go-digest"
   packages = ["."]
   revision = "279bed98673dd5bef374d3b6e4b09e2af76183bf"
@@ -103,12 +178,18 @@
 
 [[projects]]
   name = "github.com/opencontainers/image-spec"
-  packages = ["specs-go","specs-go/v1"]
+  packages = [
+    "specs-go",
+    "specs-go/v1"
+  ]
   revision = "d9ffa2f05d4dbe917edfdffcafaf427287a26d1c"
 
 [[projects]]
   name = "github.com/opencontainers/runc"
-  packages = ["libcontainer/system","libcontainer/user"]
+  packages = [
+    "libcontainer/system",
+    "libcontainer/user"
+  ]
   revision = "c5ec25487693612aed95673800863e134785f946"
 
 [[projects]]
@@ -119,7 +200,20 @@
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "181d419aa9e2223811b824e8f0b4af96f9ba9302"
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
+
+[[projects]]
+  name = "github.com/spf13/cobra"
+  packages = ["."]
+  revision = "7b2c5ac9fc04fc5efafb60700713d4fa609b777b"
+  version = "v0.0.1"
+
+[[projects]]
+  name = "github.com/spf13/pflag"
+  packages = ["."]
+  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
+  version = "v1.0.0"
 
 [[projects]]
   name = "golang.org/x/crypto"
@@ -128,12 +222,19 @@
 
 [[projects]]
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp","proxy"]
+  packages = [
+    "context",
+    "context/ctxhttp",
+    "proxy"
+  ]
   revision = "ddf80d0970594e2e4cccf5a98861cad3d9eaa4cd"
 
 [[projects]]
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
+  packages = [
+    "unix",
+    "windows"
+  ]
   revision = "9f7170bcd8e9f4d3691c06401119c46a769a1e03"
 
 [[projects]]
@@ -144,6 +245,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c4a18efa579ba83aca113d4cfcd0585f404de20c0ba50e29c03e162c9ae8ff63"
+  inputs-digest = "b960156035e417f320da5604f8883a6e452d54bcacf73e536d8c9687ea977977"
   solver-name = "gps-cdcl"
   solver-version = 1
