@@ -10,10 +10,10 @@ steps:
     args: ['tag', 'bazel:structure_test_image', 'gcr.io/gcp-runtimes/container-structure-test:latest']
 # Build the binary
   - name: 'gcr.io/cloud-builders/bazel'
-    args: ['build', '//:go_default_test']
+    args: ['build', '//:structure_test']
 # Upload the linux binary to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', 'bazel-bin/linux_amd64_pure_stripped/go_default_test', 'gs://container-structure-test/$TAG_NAME/container-structure-test']
+    args: ['cp', 'bazel-bin/linux_amd64_pure_stripped/structure_test', 'gs://container-structure-test/$TAG_NAME/container-structure-test']
 
 images: [
   'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME',
