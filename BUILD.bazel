@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_prefix", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_prefix")
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 
 licenses(["notice"])
@@ -19,44 +19,26 @@ sh_binary(
     srcs = ["ext_run.sh"],
 )
 
-go_library(
-    name = "go_default_library",
-    srcs = ["types.go"],
-    importpath = "github.com/GoogleCloudPlatform/container-structure-test",
-    deps = [
-        "//drivers:go_default_library",
-        "//types/v1:go_default_library",
-        "//types/v2:go_default_library",
-    ],
-)
-
 go_binary(
-    name = "structure_tests",
-    embed = [":go_default_library"],
-    importpath = "github.com/GoogleCloudPlatform/container-structure-test",
-)
-
-go_test(
-    name = "go_default_test",
-    testonly = True,
-    srcs = ["structure_test.go"],
-    embed = [":go_default_library"],
+    name = "structure_test",
+    srcs = ["main.go"],
     importpath = "github.com/GoogleCloudPlatform/container-structure-test",
     pure = "on",
     deps = [
-        "//drivers:go_default_library",
-        "//utils:go_default_library",
+        "//cmd:go_default_library",
+        "//pkg/drivers:go_default_library",
+        "//pkg/utils:go_default_library",
         "//vendor/github.com/fsouza/go-dockerclient:go_default_library",
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
         "//vendor/gopkg.in/yaml.v2:go_default_library",
     ],
 )
 
 container_image(
     name = "structure_test_image",
-    testonly = True,
     base = "@distroless_base//image",
-    entrypoint = ["/go_default_test"],
-    files = [":go_default_test"],
+    entrypoint = ["/structure_test"],
+    files = [":structure_test"],
 )
 
 go_prefix("github.com/GoogleCloudPlatform/container-structure-test")
@@ -65,4 +47,14 @@ go_binary(
     name = "container-structure-test",
     embed = [":go_default_library"],
     importpath = "github.com/GoogleCloudPlatform/container-structure-test",
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "github.com/GoogleCloudPlatform/container-structure-test",
+    deps = [
+        "//cmd:go_default_library",
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+    ],
 )

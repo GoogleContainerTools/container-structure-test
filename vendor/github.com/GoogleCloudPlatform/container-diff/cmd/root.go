@@ -134,6 +134,11 @@ func getPrepperForImage(image string) (pkgutil.Prepper, error) {
 		}, nil
 	}
 
+	// see if the image name has tag provided, if not add latest as tag
+	if !pkgutil.HasTag(image) {
+		image = image + pkgutil.LatestTag
+	}
+
 	if strings.HasPrefix(image, DaemonPrefix) {
 		// remove the DaemonPrefix
 		image = strings.Replace(image, DaemonPrefix, "", -1)
@@ -166,11 +171,12 @@ func getPrepperForImage(image string) (pkgutil.Prepper, error) {
 		}
 	}
 
-	return &pkgutil.CloudPrepper{
+	return pkgutil.CloudPrepper{
 		Source:      strings.Replace(image, RemotePrefix, "", -1),
 		Client:      cli,
 		ImageSource: src,
 	}, nil
+
 }
 
 func cacheDir() (string, error) {

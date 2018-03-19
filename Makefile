@@ -13,16 +13,18 @@
 # limitations under the License.
 
 # Bump these on release
-VERSION_MAJOR ?= 0
-VERSION_MINOR ?= 3
+VERSION_MAJOR ?= 1
+VERSION_MINOR ?= 0
 VERSION_BUILD ?= 0
 
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
 
 GOOS ?= $(shell go env GOOS)
 GOARCH = amd64
-PROJECT := structure-test
+PROJECT := container-structure-test
 RELEASE_BUCKET ?= gcp-container-tools/structure-test
+
+LD_FLAGS := -X github.com/GoogleCloudPlatform/container-structure-test/pkg/version.version=$(VERSION)
 
 SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH)
 
@@ -34,7 +36,7 @@ $(BUILD_DIR)/$(PROJECT): $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH)
 	cp $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH) $@
 
 $(BUILD_DIR)/$(PROJECT)-%-$(GOARCH): $(GO_FILES) $(BUILD_DIR)
-	GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 go test -c . -o $@
+	GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 go build -ldflags="$(LD_FLAGS)" -o $@ .
 
 %.sha256: %
 	shasum -a 256 $< &> $@
