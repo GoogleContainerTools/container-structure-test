@@ -117,6 +117,9 @@ func Parse(fp string) (types.StructureTest, error) {
 	case strings.HasSuffix(fp, ".yaml"):
 		unmarshal = yaml.Unmarshal
 		strictUnmarshal = yaml.UnmarshalStrict
+	case strings.HasSuffix(fp, ".yml"):
+		unmarshal = yaml.Unmarshal
+		strictUnmarshal = yaml.UnmarshalStrict
 	default:
 		return nil, errors.New("Please provide valid JSON or YAML config file")
 	}
