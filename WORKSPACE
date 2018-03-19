@@ -16,6 +16,15 @@ git_repository(
     remote = "https://github.com/bazelbuild/rules_docker.git",
 )
 
+new_http_archive(
+    name = "docker_credential_gcr",
+    build_file_content = """package(default_visibility = ["//visibility:public"])
+exports_files(["docker-credential-gcr"])""",
+    sha256 = "3f02de988d69dc9c8d242b02cc10d4beb6bab151e31d63cb6af09dd604f75fce",
+    type = "tar.gz",
+    url = "https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.4.3/docker-credential-gcr_linux_amd64-1.4.3.tar.gz",
+)
+
 load(
     "@io_bazel_rules_docker//docker:docker.bzl",
     "docker_repositories",
