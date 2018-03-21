@@ -1,5 +1,6 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_prefix")
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 licenses(["notice"])
 
@@ -12,6 +13,20 @@ gazelle(
     build_tags = ["go1.7"],
     external = "vendored",
     prefix = "github.com/GoogleCloudPlatform/container-structure-test",
+)
+
+pkg_tar(
+    name = "cred_helper",
+    srcs = ["@docker_credential_gcr//:docker-credential-gcr"],
+    mode = "0555",
+    package_dir = "/usr/local/bin",
+)
+
+pkg_tar(
+    name = "default_creds",
+    srcs = [":config.json"],
+    mode = "0600",
+    package_dir = "/root/.docker",
 )
 
 sh_binary(
@@ -32,13 +47,21 @@ go_binary(
         "//vendor/github.com/sirupsen/logrus:go_default_library",
         "//vendor/gopkg.in/yaml.v2:go_default_library",
     ],
+    data = [
+        ":cred_helper.tar",
+        ":default_creds.tar",
+    ]
 )
 
 container_image(
     name = "structure_test_image",
     base = "@distroless_base//image",
     entrypoint = ["/structure_test"],
-    files = [":structure_test"],
+    files = [
+        ":structure_test",
+        ":cred_helper.tar",
+        ":default_creds.tar",
+    ],
 )
 
 go_prefix("github.com/GoogleCloudPlatform/container-structure-test")
