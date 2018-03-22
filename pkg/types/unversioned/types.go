@@ -45,11 +45,6 @@ type FlattenedMetadata struct {
 	Config FlattenedConfig `json:"config"`
 }
 
-type FullResult struct {
-	FileName string
-	Results  []*TestResult
-}
-
 type TestResult struct {
 	Name   string
 	Pass   bool
