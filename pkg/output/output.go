@@ -28,16 +28,12 @@ type OutWriter struct {
 	Quiet   bool
 }
 
-func (o *OutWriter) OutputResult(result *types.TestResult) (int, int) {
+func (o *OutWriter) OutputResult(result *types.TestResult) {
 	// TODO(nkubala): use template
-	pass := 0
-	fail := 0
 	o.Printf("=== RUN: %s", result.Name)
 	if result.Pass {
-		pass++
 		o.green("--- PASS")
 	} else {
-		fail++
 		o.red("--- FAIL")
 	}
 	if o.Verbose {
@@ -51,7 +47,6 @@ func (o *OutWriter) OutputResult(result *types.TestResult) (int, int) {
 	for _, s := range result.Errors {
 		o.orange(fmt.Sprintf("Error: %s\n", s))
 	}
-	return pass, fail
 }
 
 func (o *OutWriter) Banner(filename string) {

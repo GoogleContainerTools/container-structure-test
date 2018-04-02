@@ -93,13 +93,7 @@ func RunTests(out *output.OutWriter) bool {
 		if err != nil {
 			logrus.Fatalf("Error parsing config file: %s", err)
 		}
-		results := tests.RunAll(out)
-		for _, result := range results {
-			if !result.Pass {
-				pass = false
-			}
-		}
-		pass = pass && out.FinalResults(results)
+		pass = pass && out.FinalResults(tests.RunAll(out))
 	}
 	return pass
 }
