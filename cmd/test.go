@@ -25,7 +25,6 @@ import (
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/output"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/utils"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/sirupsen/logrus"
@@ -52,12 +51,15 @@ var TestCmd = &cobra.Command{
 		return validateArgs()
 	},
 	Run: func(cmd *cobra.Command, _ []string) {
-		testResults := Run()
 		out := &output.OutWriter{
 			Verbose: verbose,
 			Quiet:   quiet,
 		}
-		os.Exit(out.OutputResults(testResults))
+		if pass := Run(out); pass {
+			os.Exit(0)
+		} else {
+			os.Exit(1)
+		}
 	},
 }
 
@@ -83,19 +85,17 @@ func validateArgs() error {
 	return nil
 }
 
-func RunTests() []*unversioned.FullResult {
-	fullResults := []*unversioned.FullResult{}
+func RunTests(out *output.OutWriter) bool {
+	pass := true
 	for _, file := range configFiles {
+		out.Banner(file)
 		tests, err := Parse(file)
 		if err != nil {
 			logrus.Fatalf("Error parsing config file: %s", err)
 		}
-		fullResults = append(fullResults, &unversioned.FullResult{
-			FileName: file,
-			Results:  tests.RunAll(),
-		})
+		pass = pass && out.FinalResults(tests.RunAll(out))
 	}
-	return fullResults
+	return pass
 }
 
 func Parse(fp string) (types.StructureTest, error) {
@@ -147,7 +147,7 @@ func Parse(fp string) (types.StructureTest, error) {
 	return tests, nil
 }
 
-func Run() []*unversioned.FullResult {
+func Run(out *output.OutWriter) bool {
 	args = &drivers.DriverConfig{
 		Image:    imagePath,
 		Save:     save,
@@ -178,7 +178,7 @@ func Run() []*unversioned.FullResult {
 	}
 
 	if driver == drivers.Host && !utils.UserConfirmation(warnMessage, force) {
-		os.Exit(1)
+		return false
 	}
 
 	driverImpl = drivers.InitDriverImpl(driver)
@@ -189,7 +189,7 @@ func Run() []*unversioned.FullResult {
 		logrus.Fatal(err.Error())
 	}
 	logrus.Infof("Using driver %s\n", driver)
-	return RunTests()
+	return RunTests(out)
 }
 
 func init() {

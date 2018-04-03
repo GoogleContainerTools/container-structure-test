@@ -18,6 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
+	"github.com/GoogleCloudPlatform/container-structure-test/pkg/output"
 	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
 )
 
@@ -41,16 +42,16 @@ func (st *StructureTest) SetDriverImpl(f func(drivers.DriverConfig) (drivers.Dri
 	st.DriverArgs = args
 }
 
-func (st *StructureTest) RunAll() []*types.TestResult {
+func (st *StructureTest) RunAll(o *output.OutWriter) []*types.TestResult {
 	results := make([]*types.TestResult, 0)
-	results = append(results, st.RunCommandTests()...)
-	results = append(results, st.RunFileExistenceTests()...)
-	results = append(results, st.RunFileContentTests()...)
-	results = append(results, st.RunLicenseTests()...)
+	results = append(results, st.RunCommandTests(o)...)
+	results = append(results, st.RunFileExistenceTests(o)...)
+	results = append(results, st.RunFileContentTests(o)...)
+	results = append(results, st.RunLicenseTests(o)...)
 	return results
 }
 
-func (st *StructureTest) RunCommandTests() []*types.TestResult {
+func (st *StructureTest) RunCommandTests(o *output.OutWriter) []*types.TestResult {
 	results := make([]*types.TestResult, 0)
 	for _, test := range st.CommandTests {
 		if err := test.Validate(); err != nil {
@@ -73,12 +74,14 @@ func (st *StructureTest) RunCommandTests() []*types.TestResult {
 				logrus.Error(err.Error())
 			}
 		}()
-		results = append(results, test.Run(driver))
+		result := test.Run(driver)
+		results = append(results, result)
+		o.OutputResult(result)
 	}
 	return results
 }
 
-func (st *StructureTest) RunFileExistenceTests() []*types.TestResult {
+func (st *StructureTest) RunFileExistenceTests(o *output.OutWriter) []*types.TestResult {
 	results := make([]*types.TestResult, 0)
 	for _, test := range st.FileExistenceTests {
 		if err := test.Validate(); err != nil {
@@ -90,12 +93,14 @@ func (st *StructureTest) RunFileExistenceTests() []*types.TestResult {
 			logrus.Fatalf(err.Error())
 		}
 		defer driver.Destroy()
-		results = append(results, test.Run(driver))
+		result := test.Run(driver)
+		results = append(results, result)
+		o.OutputResult(result)
 	}
 	return results
 }
 
-func (st *StructureTest) RunFileContentTests() []*types.TestResult {
+func (st *StructureTest) RunFileContentTests(o *output.OutWriter) []*types.TestResult {
 	results := make([]*types.TestResult, 0)
 	for _, test := range st.FileContentTests {
 		if err := test.Validate(); err != nil {
@@ -108,21 +113,25 @@ func (st *StructureTest) RunFileContentTests() []*types.TestResult {
 			logrus.Error(err.Error())
 		}
 		defer driver.Destroy()
-		results = append(results, test.Run(driver))
+		result := test.Run(driver)
+		results = append(results, result)
+		o.OutputResult(result)
 	}
 	return results
 }
 
-func (st *StructureTest) RunMetadataTests() *types.TestResult {
+func (st *StructureTest) RunMetadataTests(o *output.OutWriter) *types.TestResult {
 	driver, err := st.NewDriver()
 	if err != nil {
 		logrus.Error(err.Error())
 	}
 	defer driver.Destroy()
-	return st.MetadataTest.Run(driver)
+	result := st.MetadataTest.Run(driver)
+	o.OutputResult(result)
+	return result
 }
 
-func (st *StructureTest) RunLicenseTests() []*types.TestResult {
+func (st *StructureTest) RunLicenseTests(o *output.OutWriter) []*types.TestResult {
 	results := make([]*types.TestResult, 0)
 	for _, test := range st.LicenseTests {
 		driver, err := st.NewDriver()
@@ -131,7 +140,9 @@ func (st *StructureTest) RunLicenseTests() []*types.TestResult {
 			continue
 		}
 		defer driver.Destroy()
-		results = append(results, test.Run(driver))
+		result := test.Run(driver)
+		results = append(results, result)
+		o.OutputResult(result)
 	}
 	return results
 }

@@ -42,6 +42,7 @@ go_binary(
     deps = [
         "//cmd:go_default_library",
         "//pkg/drivers:go_default_library",
+        "//pkg/output:go_default_library",
         "//pkg/utils:go_default_library",
         "//vendor/github.com/fsouza/go-dockerclient:go_default_library",
         "//vendor/github.com/sirupsen/logrus:go_default_library",
