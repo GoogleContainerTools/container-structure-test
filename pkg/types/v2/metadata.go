@@ -15,6 +15,8 @@
 package v2
 
 import (
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
@@ -33,6 +35,25 @@ type MetadataTest struct {
 
 func (mt MetadataTest) LogName() string {
 	return "Metadata Test"
+}
+
+func (mt MetadataTest) Validate() error {
+	for _, envVar := range mt.Env {
+		if envVar.Key == "" {
+			return fmt.Errorf("Environment variable key cannot be empty")
+		}
+	}
+	for _, port := range mt.ExposedPorts {
+		if port == "" {
+			return fmt.Errorf("Port cannot be empty")
+		}
+	}
+	for _, volume := range mt.Volumes {
+		if volume == "" {
+			return fmt.Errorf("Volume cannot be empty")
+		}
+	}
+	return nil
 }
 
 func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
@@ -61,11 +82,17 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		if len(*mt.Cmd) != len(imageConfig.Cmd) {
 			result.Errorf("Image Cmd %v does not match expected Cmd: %v", imageConfig.Cmd, *mt.Cmd)
 			result.Fail()
-		}
-		for i := range *mt.Cmd {
-			if (*mt.Cmd)[i] != imageConfig.Cmd[i] {
-				result.Errorf("Image config Cmd does not match expected value: %s", *mt.Cmd)
-				result.Fail()
+		} else if len(*mt.Cmd) > 0 {
+			fmt.Printf("config length: %d\n", len(*mt.Cmd))
+			fmt.Printf("image command length: %d\n", len(imageConfig.Cmd))
+			fmt.Printf("single config command entry: %s\n", (*mt.Cmd)[0])
+			fmt.Printf("single image command entry: %s\n", imageConfig.Cmd[0])
+			for i := range *mt.Cmd {
+				fmt.Println(i)
+				if (*mt.Cmd)[i] != imageConfig.Cmd[i] {
+					result.Errorf("Image config Cmd does not match expected value: %s", *mt.Cmd)
+					result.Fail()
+				}
 			}
 		}
 	}

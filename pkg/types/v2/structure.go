@@ -48,6 +48,7 @@ func (st *StructureTest) RunAll(o *output.OutWriter) []*types.TestResult {
 	results = append(results, st.RunFileExistenceTests(o)...)
 	results = append(results, st.RunFileContentTests(o)...)
 	results = append(results, st.RunLicenseTests(o)...)
+	results = append(results, st.RunMetadataTests(o))
 	return results
 }
 
@@ -121,6 +122,10 @@ func (st *StructureTest) RunFileContentTests(o *output.OutWriter) []*types.TestR
 }
 
 func (st *StructureTest) RunMetadataTests(o *output.OutWriter) *types.TestResult {
+	if err := st.MetadataTest.Validate(); err != nil {
+		logrus.Error(err.Error())
+		return nil
+	}
 	driver, err := st.NewDriver()
 	if err != nil {
 		logrus.Error(err.Error())
