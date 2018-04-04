@@ -122,6 +122,10 @@ func (st *StructureTest) RunFileContentTests(o *output.OutWriter) []*types.TestR
 }
 
 func (st *StructureTest) RunMetadataTests(o *output.OutWriter) *types.TestResult {
+	if err := st.MetadataTest.Validate(); err != nil {
+		logrus.Error(err.Error())
+		return nil
+	}
 	driver, err := st.NewDriver()
 	if err != nil {
 		logrus.Error(err.Error())
