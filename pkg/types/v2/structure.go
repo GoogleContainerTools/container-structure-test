@@ -48,6 +48,7 @@ func (st *StructureTest) RunAll(o *output.OutWriter) []*types.TestResult {
 	results = append(results, st.RunFileExistenceTests(o)...)
 	results = append(results, st.RunFileContentTests(o)...)
 	results = append(results, st.RunLicenseTests(o)...)
+	results = append(results, st.RunMetadataTests(o))
 	return results
 }
 
