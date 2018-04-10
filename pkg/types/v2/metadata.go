@@ -31,7 +31,7 @@ type MetadataTest struct {
 	Cmd          *[]string      `yaml:"cmd"`
 	Workdir      string         `yaml:"workdir"`
 	Volumes      []string       `yaml:"volumes"`
-	Labels       []types.Label `yaml:"labels"`
+	Labels       []types.Label  `yaml:"labels"`
 }
 
 func (mt MetadataTest) LogName() string {
