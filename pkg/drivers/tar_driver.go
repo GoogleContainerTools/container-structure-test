@@ -117,5 +117,6 @@ func (d *TarDriver) GetConfig() (unversioned.Config, error) {
 		Volumes:      volumes,
 		Workdir:      d.Image.Config.Config.Workdir,
 		ExposedPorts: ports,
+		Labels:       d.Image.Config.Config.Labels,
 	}, nil
 }

@@ -23,6 +23,11 @@ type EnvVar struct {
 	Value string
 }
 
+type Label struct {
+	Key   string
+	Value string
+}
+
 type Config struct {
 	Env          map[string]string
 	Entrypoint   []string
@@ -30,6 +35,7 @@ type Config struct {
 	Volumes      []string
 	Workdir      string
 	ExposedPorts []string
+	Labels       map[string]string
 }
 
 type FlattenedConfig struct {
@@ -39,6 +45,7 @@ type FlattenedConfig struct {
 	Volumes      map[string]string   `json:"Volumes"`
 	Workdir      string              `json:"WorkingDir"`
 	ExposedPorts map[string][]string `json:"ExposedPorts"`
+	Labels       []string            `json:"Labels"`
 }
 
 type FlattenedMetadata struct {

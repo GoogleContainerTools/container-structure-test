@@ -32,3 +32,10 @@ fileExistenceTests:
 licenseTests:
 - debian: true
   files:
+metadataTest:
+  env:
+  - key: "MISSING_VAR"
+    value: "MISSING_VAR_VALUE"
+  labels:
+  - key: "missing.label"
+    value: "missing_label_value"

@@ -171,5 +171,6 @@ func (d *HostDriver) GetConfig() (unversioned.Config, error) {
 		Volumes:      volumes,
 		Workdir:      config.Workdir,
 		ExposedPorts: ports,
+		Labels:       convertLabelsToMap(config.Labels),
 	}, nil
 }

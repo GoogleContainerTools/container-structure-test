@@ -79,3 +79,13 @@ func convertEnvToMap(env []string) map[string]string {
 	}
 	return envMap
 }
+
+func convertLabelsToMap(labels []string) map[string]string {
+	// convert labels to map for processing
+	labelMap := make(map[string]string)
+	for _, labelPair := range labels {
+		pair := strings.Split(labelPair, "=")
+		labelMap[pair[0]] = pair[1]
+	}
+	return labelMap
+}
