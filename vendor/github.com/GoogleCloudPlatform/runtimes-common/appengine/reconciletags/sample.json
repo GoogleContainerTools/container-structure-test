@@ -1,0 +1,38 @@
+{
+  "projects":[
+    {
+	"base_registry": "gcr.io",
+	"additional_registries": ["us.gcr.io", "eu.gcr.io", "asia.gcr.io"],
+	"repository": "myproject/myimage",
+	"images": [
+		{
+			"digest": "full_or_prefixed_digest",
+			"tag": "latest"
+		},
+		{
+			"digest": "digest1",
+			"tag": "sometag1"
+		},
+		{
+			"digest": "digest2",
+			"tag":  "sometag2"
+		}
+	]
+    },
+    {
+	"base_registry": "gcr.io",
+	"additional_registries": ["us.gcr.io", "eu.gcr.io", "asia.gcr.io"],
+	"repository": "myproject/myimage2",
+	"images": [
+		{
+			"digest": "digest1",
+			"tag": "tag1"
+		},
+		{
+			"digest": "digest1",
+			"tag": "tag2"
+		}
+	]
+    }
+  ]
+}

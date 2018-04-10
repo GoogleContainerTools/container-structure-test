@@ -38,7 +38,6 @@ type Prepper interface {
 	GetFileSystem() (string, error)
 	GetImage() (Image, error)
 	GetSource() string
-	SetSource(string)
 }
 
 type ImageType int
@@ -118,9 +117,9 @@ func getImage(p Prepper) (Image, error) {
 		logrus.Error("Error retrieving History: ", err)
 	}
 
-	logrus.Infof("Finished prepping image %s", p.GetSource())
+	logrus.Infof("Finished prepping image %s", source)
 	return Image{
-		Source: p.GetSource(),
+		Source: source,
 		FSPath: imgPath,
 		Config: config,
 	}, nil
@@ -136,13 +135,6 @@ func getImageFromTar(tarPath string) (string, error) {
 }
 
 func GetFileSystemFromReference(ref types.ImageReference, imgSrc types.ImageSource, path string, whitelist []string) error {
-	var err error
-	if imgSrc == nil {
-		imgSrc, err = ref.NewImageSource(nil)
-	}
-	if err != nil {
-		return err
-	}
 	img, err := ref.NewImage(nil)
 	if err != nil {
 		return err

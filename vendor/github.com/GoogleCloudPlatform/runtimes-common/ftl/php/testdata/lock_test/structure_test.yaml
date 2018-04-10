@@ -1,0 +1,36 @@
+schemaVersion: '2.0.0'
+fileExistenceTests:
+- name: 'firebase dependency'
+  path: '/srv/vendor/firebase'
+  shouldExist: true
+  isDirectory: true
+
+fileExistenceTests:
+- name: 'google dependency'
+  path: '/srv/vendor/google'
+  shouldExist: true
+  isDirectory: true
+
+fileExistenceTests:
+- name: 'guzzlehttp dependency'
+  path: '/srv/vendor/guzzlehttp'
+  shouldExist: true
+  isDirectory: true
+
+fileExistenceTests:
+- name: 'monolog dependency'
+  path: '/srv/vendor/monolog'
+  shouldExist: true
+  isDirectory: true
+
+fileExistenceTests:
+- name: 'psr dependency'
+  path: '/srv/vendor/psr'
+  shouldExist: true
+  isDirectory: true
+
+fileExistenceTests:
+- name: 'rize dependency'
+  path: '/srv/vendor/rize'
+  shouldExist: true
+  isDirectory: true

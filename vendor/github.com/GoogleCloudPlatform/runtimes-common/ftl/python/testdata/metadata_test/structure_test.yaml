@@ -1,0 +1,4 @@
+schemaVersion: '2.0.0'
+metadataTest:
+  entrypoint: ['/bin/echo']
+  exposedPorts: ['8091']

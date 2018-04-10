@@ -15,13 +15,17 @@
 package v2
 
 import (
+<<<<<<< HEAD
 	"fmt"
 
 	"github.com/sirupsen/logrus"
 
+=======
+>>>>>>> 93642fb... Add ctc_lib for container structure tests
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
 	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/utils"
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 )
 
 type MetadataTest struct {
@@ -61,7 +65,7 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		Name: mt.LogName(),
 		Pass: true,
 	}
-	logrus.Info(mt.LogName())
+	ctc_lib.Log.Debug(mt.LogName())
 	imageConfig, err := driver.GetConfig()
 	if err != nil {
 		result.Errorf("Error retrieving image config: %s", err.Error())

@@ -1,0 +1,15 @@
+{
+  "projects":[
+    {
+	"base_registry": "gcr.io",
+	"additional_registries": [],
+	"repository": "gcp-runtimes/retagger",
+	"images": [
+		{
+			"digest": "6e9d0c08c9fa",
+			"tag": "test"
+		}
+	]
+    }
+  ]
+}

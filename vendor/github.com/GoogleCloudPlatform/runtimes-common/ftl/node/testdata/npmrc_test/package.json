@@ -1,0 +1,12 @@
+{
+  "name": "npmrc-test",
+  "description": "Tests that .npmrc was present during npm install",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "preinstall": "cat .npmrc > npmrc.test"
+  },
+  "dependencies": {
+    "express": "3.x"
+  }
+}

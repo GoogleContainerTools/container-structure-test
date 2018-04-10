@@ -1,0 +1,7 @@
+#Pull and tag a simple docker image for retagger e2e test
+steps:
+  - name:  'gcr.io/cloud-builders/docker'
+    args: ['pull', 'gcr.io/google-containers/pause:3.0']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', 'gcr.io/google-containers/pause:3.0', 'gcr.io/gcp-runtimes/reconciler-e2etest:initial']
+images: ['gcr.io/gcp-runtimes/reconciler-e2etest:initial']

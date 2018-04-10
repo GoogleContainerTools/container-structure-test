@@ -16,6 +16,7 @@ package unversioned
 
 import (
 	"fmt"
+	"strings"
 )
 
 type EnvVar struct {
@@ -53,6 +54,23 @@ type TestResult struct {
 	Errors []string
 }
 
+func (t *TestResult) String() string {
+	strRepr := fmt.Sprintf("\nTest Name:%s", t.Name)
+	testStatus := "Fail"
+	if t.IsPass() {
+		testStatus = "Pass"
+	}
+	strRepr += fmt.Sprintf("\nTest Status:%s", testStatus)
+	if t.Stdout != "" {
+		strRepr += fmt.Sprintf("\nStdout:%s", t.Stdout)
+	}
+	if t.Stderr != "" {
+		strRepr += fmt.Sprintf("\nStderr:%s", t.Stderr)
+	}
+	strRepr += fmt.Sprintf("\nErrors:%s\n", strings.Join(t.Errors, ","))
+	return strRepr
+}
+
 func (t *TestResult) Error(s string) {
 	t.Errors = append(t.Errors, s)
 }
@@ -63,4 +81,14 @@ func (t *TestResult) Errorf(s string, args ...interface{}) {
 
 func (t *TestResult) Fail() {
 	t.Pass = false
+}
+
+func (t *TestResult) IsPass() bool {
+	return t.Pass
+}
+
+type SummaryObject struct {
+	Pass  int
+	Fail  int
+	Total int
 }

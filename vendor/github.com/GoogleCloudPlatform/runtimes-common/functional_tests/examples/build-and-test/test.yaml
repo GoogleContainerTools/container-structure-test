@@ -1,0 +1,41 @@
+# Copyright 2017 Google Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# One or more commands to setup the docker containers.
+setup:
+- command: [docker, run, --privileged=true, --name, some-redis, -d, launcher.gcr.io/google/redis3]
+- command: [sleep, 5s]
+
+teardown:
+- command: [docker, stop, some-redis]
+- command: [docker, rm, some-redis]
+
+# Name of the container to exec the tests within.
+target: some-redis
+
+tests:
+- name: Can set a new key
+  command: [redis-cli, set, mykey, test-value]
+  expect:
+    stdout:
+      equals: OK
+    stderr:
+      mustBeEmpty: true
+- name: Can get a previously set key
+  command: [redis-cli, get, mykey]
+  expect:
+    stdout:
+      equals: test-value
+    stderr:
+      mustBeEmpty: true

@@ -1,0 +1,14 @@
+steps:
+
+# Setup
+  - name: 'ubuntu'
+    args: ['chmod', 'a+rx', '-R', '/workspace']
+
+# Python
+# Requires _PYTHON_FTL_VERSION to be set
+# This is build is triggered by pushing to a tag w/ regex python-v[\d].[\d].[\d]
+# example tag: python-v0.1.0
+  - name: 'gcr.io/cloud-builders/bazel'
+    args: ['build','//ftl:python_builder.par']
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['cp', 'bazel-bin/ftl/python_builder.par', 'gs://gcp-container-tools/ftl/python/${TAG_NAME}/ftl.par']

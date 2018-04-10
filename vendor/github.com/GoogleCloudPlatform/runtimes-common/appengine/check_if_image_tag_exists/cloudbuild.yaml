@@ -1,0 +1,8 @@
+steps:
+  - name: gcr.io/cloud-builders/docker:latest
+    args: ['build', '--tag=${_IMAGE}', '.']
+    id: BUILD
+  - name: gcr.io/gcp-runtimes/structure_test:latest
+    args: ['--image', '${_IMAGE}', '-v', '--config', '/workspace/structure_test.yaml']
+    id: STRUCTURE_TEST
+images: ['${_IMAGE}']

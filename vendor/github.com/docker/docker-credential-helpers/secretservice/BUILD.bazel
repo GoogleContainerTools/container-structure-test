@@ -1,0 +1,40 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = select({
+        "@io_bazel_rules_go//go/platform:linux": [
+            "secretservice_linux.c",
+            "secretservice_linux.go",
+            "secretservice_linux.h",
+        ],
+        "//conditions:default": [],
+    }),
+    cgo = True,
+    importpath = "github.com/docker/docker-credential-helpers/secretservice",
+    visibility = ["//visibility:public"],
+    deps = select({
+        "@io_bazel_rules_go//go/platform:linux": [
+            "//vendor/github.com/docker/docker-credential-helpers/credentials:go_default_library",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = select({
+        "@io_bazel_rules_go//go/platform:linux": [
+            "secretservice_linux_test.go",
+        ],
+        "//conditions:default": [],
+    }),
+    embed = [":go_default_library"],
+    importpath = "github.com/docker/docker-credential-helpers/secretservice",
+    deps = select({
+        "@io_bazel_rules_go//go/platform:linux": [
+            "//vendor/github.com/docker/docker-credential-helpers/credentials:go_default_library",
+        ],
+        "//conditions:default": [],
+    }),
+)

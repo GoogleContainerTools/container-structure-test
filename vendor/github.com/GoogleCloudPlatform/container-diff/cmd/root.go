@@ -128,7 +128,7 @@ func getPrepperForImage(image string) (pkgutil.Prepper, error) {
 	}
 
 	if pkgutil.IsTar(image) {
-		return &pkgutil.TarPrepper{
+		return pkgutil.TarPrepper{
 			Source: image,
 			Client: cli,
 		}, nil
@@ -143,7 +143,7 @@ func getPrepperForImage(image string) (pkgutil.Prepper, error) {
 		// remove the DaemonPrefix
 		image = strings.Replace(image, DaemonPrefix, "", -1)
 
-		return &pkgutil.DaemonPrepper{
+		return pkgutil.DaemonPrepper{
 			Source: image,
 			Client: cli,
 		}, nil

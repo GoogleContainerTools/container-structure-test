@@ -15,17 +15,12 @@
 package main
 
 import (
-	"flag"
-	"os"
-
 	"github.com/GoogleCloudPlatform/container-structure-test/cmd"
-	"github.com/sirupsen/logrus"
+	"github.com/GoogleCloudPlatform/container-structure-test/pkg/version"
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 )
 
 func main() {
-	flag.Parse()
-	if err := cmd.RootCmd.Execute(); err != nil {
-		logrus.Error(err)
-		os.Exit(1)
-	}
+	ctc_lib.Version = version.GetVersion()
+	ctc_lib.Execute(cmd.RootCmd)
 }

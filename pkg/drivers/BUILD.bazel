@@ -14,8 +14,8 @@ go_library(
         "//pkg/types/unversioned:go_default_library",
         "//pkg/utils:go_default_library",
         "//vendor/github.com/GoogleCloudPlatform/container-diff/pkg/util:go_default_library",
+        "//vendor/github.com/GoogleCloudPlatform/runtimes-common/ctc_lib:go_default_library",
         "//vendor/github.com/fsouza/go-dockerclient:go_default_library",
         "//vendor/github.com/pkg/errors:go_default_library",
-        "//vendor/github.com/sirupsen/logrus:go_default_library",
     ],
 )

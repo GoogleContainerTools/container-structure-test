@@ -16,8 +16,6 @@ package types
 
 import (
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/output"
-	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/v1"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/v2"
 )
@@ -25,7 +23,7 @@ import (
 type StructureTest interface {
 	SetDriverImpl(func(drivers.DriverConfig) (drivers.Driver, error), drivers.DriverConfig)
 	NewDriver() (drivers.Driver, error)
-	RunAll(*output.OutWriter) []*types.TestResult
+	RunAll(chan interface{}, string)
 }
 
 var SchemaVersions map[string]func() StructureTest = map[string]func() StructureTest{

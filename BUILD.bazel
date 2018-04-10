@@ -37,6 +37,10 @@ sh_binary(
 go_binary(
     name = "structure_test",
     srcs = ["main.go"],
+    data = [
+        ":cred_helper.tar",
+        ":default_creds.tar",
+    ],
     importpath = "github.com/GoogleCloudPlatform/container-structure-test",
     pure = "on",
     deps = [
@@ -47,11 +51,8 @@ go_binary(
         "//vendor/github.com/fsouza/go-dockerclient:go_default_library",
         "//vendor/github.com/sirupsen/logrus:go_default_library",
         "//vendor/gopkg.in/yaml.v2:go_default_library",
+        "@runtimes_common//ctc_lib:go_default_library",
     ],
-    data = [
-        ":cred_helper.tar",
-        ":default_creds.tar",
-    ]
 )
 
 container_image(
@@ -59,9 +60,9 @@ container_image(
     base = "@distroless_base//image",
     entrypoint = ["/structure_test"],
     files = [
-        ":structure_test",
         ":cred_helper.tar",
         ":default_creds.tar",
+        ":structure_test",
     ],
 )
 
@@ -79,6 +80,7 @@ go_library(
     importpath = "github.com/GoogleCloudPlatform/container-structure-test",
     deps = [
         "//cmd:go_default_library",
-        "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//pkg/version:go_default_library",
+        "//vendor/github.com/GoogleCloudPlatform/runtimes-common/ctc_lib:go_default_library",
     ],
 )

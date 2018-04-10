@@ -1,0 +1,8 @@
+{
+  "credHelpers": {
+    "gcr.io": "gcr",
+    "us.gcr.io": "gcr",
+    "asia.gcr.io": "gcr",
+    "eu.gcr.io": "gcr"
+  }
+}

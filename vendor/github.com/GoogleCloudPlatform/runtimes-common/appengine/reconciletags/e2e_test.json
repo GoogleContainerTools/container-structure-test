@@ -1,0 +1,16 @@
+{
+    "projects": [
+      {
+        "additional_registries": [],
+        "base_registry": "gcr.io",
+        "images": [
+          {
+            "digest": "",
+            "tag": "testing"
+          }
+        ],
+        "repository": "gcp-runtimes/reconciler-e2etest"
+      }
+    ]
+}
+

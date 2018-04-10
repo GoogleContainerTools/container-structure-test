@@ -16,9 +16,10 @@ package v2
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"path"
 	"strings"
+
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
 	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
@@ -62,7 +63,7 @@ func (lt LicenseTest) Run(driver drivers.Driver) *types.TestResult {
 		Pass:   true,
 		Errors: make([]string, 0),
 	}
-	logrus.Info(lt.LogName())
+	ctc_lib.Log.Debug(lt.LogName())
 	if lt.Debian {
 		root := utils.DebianRoot
 		packages, err := driver.ReadDir(root)
@@ -75,7 +76,7 @@ func (lt LicenseTest) Run(driver drivers.Driver) *types.TestResult {
 			if !p.IsDir() {
 				continue
 			}
-			logrus.Infof(p.Name())
+			ctc_lib.Log.Debugf(p.Name())
 			// Skip over packages in the whitelist
 			whitelisted := false
 			for _, w := range whitelist {

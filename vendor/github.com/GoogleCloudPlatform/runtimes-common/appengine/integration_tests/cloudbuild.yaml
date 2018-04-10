@@ -1,0 +1,13 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ['build', '-t', '${_IMAGE}', '.']
+  - name: gcr.io/gcp-runtimes/check_if_tag_exists
+    args: ['--image=${_IMAGE}']
+  - name: gcr.io/gcp-runtimes/structure_test
+    args: [
+      '-i', '${_IMAGE}',
+      '-v',
+      '--config', '/workspace/structure_test.yaml'
+    ]
+images:
+  - '${_IMAGE}'

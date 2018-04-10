@@ -1,0 +1,12 @@
+schemaVersion: '2.0.0'
+fileExistenceTests:
+- name: 'gcp-build hello'
+  path: '/srv/hello.txt'
+  shouldExist: true
+- name: 'gcp-build devDependency'
+  path: '/srv/node_modules/package'
+  shouldExist: false
+fileContentTests:
+- name: 'gcp-build hello content'
+  path: '/srv/hello.txt'
+  expectedContents: ['Hello world!']

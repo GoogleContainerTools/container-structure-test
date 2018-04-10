@@ -1,0 +1,10 @@
+schemaVersion: '2.0.0'
+fileExistenceTests:
+- name: 'silex dependency'
+  path: '/alternative-app/vendor/silex'
+  shouldExist: true
+  isDirectory: true
+- name: 'application file'
+  path: '/alternative-app/app.php'
+  shouldExist: true
+  isDirectory: false

@@ -1,0 +1,8 @@
+runtimes:
+  foo_1:
+    target:
+      runtime: foo_doesnt_exist
+
+  foo_2:
+    target:
+      file: gs://bar/nope.yaml

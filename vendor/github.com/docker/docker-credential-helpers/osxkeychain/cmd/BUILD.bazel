@@ -1,0 +1,27 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = select({
+        "@io_bazel_rules_go//go/platform:darwin": [
+            "main_darwin.go",
+        ],
+        "//conditions:default": [],
+    }),
+    importpath = "github.com/docker/docker-credential-helpers/osxkeychain/cmd",
+    visibility = ["//visibility:private"],
+    deps = select({
+        "@io_bazel_rules_go//go/platform:darwin": [
+            "//vendor/github.com/docker/docker-credential-helpers/credentials:go_default_library",
+            "//vendor/github.com/docker/docker-credential-helpers/osxkeychain:go_default_library",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+go_binary(
+    name = "cmd",
+    embed = [":go_default_library"],
+    importpath = "github.com/docker/docker-credential-helpers/osxkeychain/cmd",
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,34 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "dest.go",
+        "src.go",
+        "transport.go",
+    ],
+    importpath = "github.com/containers/image/docker/archive",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/containers/image/docker/reference:go_default_library",
+        "//vendor/github.com/containers/image/docker/tarfile:go_default_library",
+        "//vendor/github.com/containers/image/image:go_default_library",
+        "//vendor/github.com/containers/image/transports:go_default_library",
+        "//vendor/github.com/containers/image/types:go_default_library",
+        "//vendor/github.com/pkg/errors:go_default_library",
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["transport_test.go"],
+    embed = [":go_default_library"],
+    importpath = "github.com/containers/image/docker/archive",
+    deps = [
+        "//vendor/github.com/containers/image/docker/reference:go_default_library",
+        "//vendor/github.com/containers/image/types:go_default_library",
+        "//vendor/github.com/stretchr/testify/assert:go_default_library",
+        "//vendor/github.com/stretchr/testify/require:go_default_library",
+    ],
+)

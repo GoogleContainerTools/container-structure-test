@@ -25,14 +25,15 @@ import (
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/output"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types"
+	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/utils"
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 )
 
-const warnMessage = `WARNING: Using the host driver runs tests directly on the machine 
+const warnMessage = `WARNING: Using the host driver runs tests directly on the machine
 that this binary is being run on, and can potentially corrupt your system.
 Be sure you know what you're doing before continuing!
 
@@ -43,23 +44,59 @@ var totalTests int
 var driverImpl func(drivers.DriverConfig) (drivers.Driver, error)
 var args *drivers.DriverConfig
 
-var TestCmd = &cobra.Command{
-	Use:   "test",
-	Short: "Runs the tests",
-	Long:  `Runs the tests`,
-	Args: func(cmd *cobra.Command, _ []string) error {
-		return validateArgs()
+var Channel = make(chan interface{}, 1)
+
+var TestCmd = &ctc_lib.ContainerToolListCommand{
+	ContainerToolCommandBase: &ctc_lib.ContainerToolCommandBase{
+		Command: &cobra.Command{
+			Use:   "test",
+			Short: "Runs the tests",
+			Long:  `Runs the tests`,
+			Args: func(cmd *cobra.Command, _ []string) error {
+				return validateArgs()
+			},
+		},
+		Phase:           "stable",
+		DefaultTemplate: output.StructureTestsTemplate,
+		TemplateFuncMap: initTemplateFuncMap(),
 	},
-	Run: func(cmd *cobra.Command, _ []string) {
-		out := &output.OutWriter{
-			Verbose: verbose,
-			Quiet:   quiet,
+	OutputList:      make([]interface{}, 0),
+	SummaryTemplate: output.SummaryTemplate,
+	SummaryObject:   &unversioned.SummaryObject{},
+	StreamO: func(command *cobra.Command, args []string) {
+		Run()
+	},
+	Stream: Channel,
+	TotalO: func(list []interface{}) (interface{}, error) {
+		totalPass := 0
+		totalFail := 0
+		errStrings := make([]string, 0)
+		var err error
+		for _, r := range list {
+			value, ok := r.(*unversioned.TestResult)
+			if !ok {
+				errStrings = append(errStrings, fmt.Sprintf("UnExpected Value %v in List.", value))
+				ctc_lib.Log.Errorf("UnExpected Value %v in List.", value)
+				continue
+			}
+			if value.IsPass() {
+				totalPass++
+			} else {
+				totalFail++
+			}
 		}
-		if pass := Run(out); pass {
-			os.Exit(0)
-		} else {
-			os.Exit(1)
+		if totalFail > 0 {
+			errStrings = append(errStrings, "FAIL")
 		}
+		if errStrings != nil {
+			err = fmt.Errorf(strings.Join(errStrings, "\n"))
+		}
+		return unversioned.SummaryObject{
+				Total: totalFail + totalPass,
+				Pass:  totalPass,
+				Fail:  totalFail,
+			},
+			err
 	},
 }
 
@@ -85,17 +122,17 @@ func validateArgs() error {
 	return nil
 }
 
-func RunTests(out *output.OutWriter) bool {
-	pass := true
+func RunTests() {
 	for _, file := range configFiles {
-		out.Banner(file)
+		Channel <- output.Banner(file)
 		tests, err := Parse(file)
 		if err != nil {
-			logrus.Fatalf("Error parsing config file: %s", err)
+			// Continue with other config files
+			ctc_lib.Log.Errorf("Error parsing config file: %s", err)
 		}
-		pass = pass && out.FinalResults(tests.RunAll(out))
+		tests.RunAll(Channel, file)
 	}
-	return pass
+	close(Channel)
 }
 
 func Parse(fp string) (types.StructureTest, error) {
@@ -147,7 +184,7 @@ func Parse(fp string) (types.StructureTest, error) {
 	return tests, nil
 }
 
-func Run(out *output.OutWriter) bool {
+func Run() {
 	args = &drivers.DriverConfig{
 		Image:    imagePath,
 		Save:     save,
@@ -158,12 +195,12 @@ func Run(out *output.OutWriter) bool {
 
 	if pull {
 		if driver != drivers.Docker {
-			logrus.Fatal("Image pull not supported when not using Docker driver")
+			ctc_lib.Log.Fatal("Image pull not supported when not using Docker driver")
 		}
 		var repository, tag string
 		parts := strings.Split(imagePath, ":")
 		if len(parts) < 2 {
-			logrus.Fatal("Please provide specific tag for image")
+			ctc_lib.Log.Fatal("Please provide specific tag for image")
 		}
 		repository = parts[0]
 		tag = parts[1]
@@ -173,23 +210,24 @@ func Run(out *output.OutWriter) bool {
 			Tag:          tag,
 			OutputStream: os.Stdout,
 		}, docker.AuthConfiguration{}); err != nil {
-			logrus.Fatalf("Error pulling remote image %s: %s", imagePath, err.Error())
+			ctc_lib.Log.Fatalf("Error pulling remote image %s: %s", imagePath, err.Error())
 		}
 	}
 
 	if driver == drivers.Host && !utils.UserConfirmation(warnMessage, force) {
-		return false
+		// Force Success. Skipping Running tests as directed by the user.
+		return
 	}
 
 	driverImpl = drivers.InitDriverImpl(driver)
 	if driverImpl == nil {
-		logrus.Fatalf("Unsupported driver type: %s", driver)
+		ctc_lib.Log.Fatalf("Unsupported driver type: %s", driver)
 	}
 	if err != nil {
-		logrus.Fatal(err.Error())
+		ctc_lib.Log.Fatal(err.Error())
 	}
-	logrus.Infof("Using driver %s\n", driver)
-	return RunTests(out)
+	ctc_lib.Log.Infof("Using driver %s\n", driver)
+	go RunTests()
 }
 
 func init() {
@@ -199,8 +237,22 @@ func init() {
 	TestCmd.Flags().StringVar(&metadata, "metadata", "", "path to image metadata file")
 	TestCmd.Flags().BoolVar(&pull, "pull", false, "force a pull of the image before running tests")
 	TestCmd.Flags().BoolVar(&save, "save", false, "preserve created containers after test run")
-	TestCmd.Flags().BoolVar(&force, "force", false, "force run of host driver (without command line input)")
 	TestCmd.Flags().BoolVar(&quiet, "quiet", false, "flag to suppress output")
-	TestCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "verbose testing output")
+	TestCmd.Flags().BoolVar(&force, "force", false, "force run of host driver (without user prompt)")
+
 	TestCmd.Flags().StringArrayVar(&configFiles, "config", []string{}, "test config files")
+}
+
+func isQuiet() bool {
+	return quiet
+}
+func initTemplateFuncMap() map[string]interface{} {
+	var templateFuncMap = map[string]interface{}{
+		"isQuiet": isQuiet,
+	}
+	// Copy over all the Output utilities to TemplateFuncMap
+	for k, v := range output.TemplateMap {
+		templateFuncMap[k] = v
+	}
+	return templateFuncMap
 }

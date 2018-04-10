@@ -1,0 +1,38 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = select({
+        "@io_bazel_rules_go//go/platform:windows": [
+            "wincred_windows.go",
+        ],
+        "//conditions:default": [],
+    }),
+    importpath = "github.com/docker/docker-credential-helpers/wincred",
+    visibility = ["//visibility:public"],
+    deps = select({
+        "@io_bazel_rules_go//go/platform:windows": [
+            "//vendor/github.com/danieljoos/wincred:go_default_library",
+            "//vendor/github.com/docker/docker-credential-helpers/credentials:go_default_library",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = select({
+        "@io_bazel_rules_go//go/platform:windows": [
+            "wincred_windows_test.go",
+        ],
+        "//conditions:default": [],
+    }),
+    embed = [":go_default_library"],
+    importpath = "github.com/docker/docker-credential-helpers/wincred",
+    deps = select({
+        "@io_bazel_rules_go//go/platform:windows": [
+            "//vendor/github.com/docker/docker-credential-helpers/credentials:go_default_library",
+        ],
+        "//conditions:default": [],
+    }),
+)

@@ -1,0 +1,41 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "openshift.go",
+        "openshift-copies.go",
+        "openshift_transport.go",
+    ],
+    importpath = "github.com/containers/image/openshift",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/containers/image/docker:go_default_library",
+        "//vendor/github.com/containers/image/docker/policyconfiguration:go_default_library",
+        "//vendor/github.com/containers/image/docker/reference:go_default_library",
+        "//vendor/github.com/containers/image/image:go_default_library",
+        "//vendor/github.com/containers/image/manifest:go_default_library",
+        "//vendor/github.com/containers/image/transports:go_default_library",
+        "//vendor/github.com/containers/image/types:go_default_library",
+        "//vendor/github.com/containers/image/version:go_default_library",
+        "//vendor/github.com/ghodss/yaml:go_default_library",
+        "//vendor/github.com/imdario/mergo:go_default_library",
+        "//vendor/github.com/opencontainers/go-digest:go_default_library",
+        "//vendor/github.com/pkg/errors:go_default_library",
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+        "//vendor/golang.org/x/net/http2:go_default_library",
+        "//vendor/k8s.io/client-go/util/homedir:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["openshift_transport_test.go"],
+    embed = [":go_default_library"],
+    importpath = "github.com/containers/image/openshift",
+    deps = [
+        "//vendor/github.com/containers/image/docker/reference:go_default_library",
+        "//vendor/github.com/stretchr/testify/assert:go_default_library",
+        "//vendor/github.com/stretchr/testify/require:go_default_library",
+    ],
+)

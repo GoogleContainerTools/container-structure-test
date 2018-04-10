@@ -1,0 +1,645 @@
+{{- /*
+TODOs:
+- Escape bash command and arguments.
+- Properly quote YAML values, for example "yes".
+- Maybe add instruction for viewing and grepping container log.
+*/}}
+
+
+{{- define "insertBlankLine"}}{{/* input: string */}}
+{{- with .}}
+
+{{.}}
+{{- end}}
+{{- end}}{{/* define "insertBlankLine" */}}
+
+
+{{- define "dockerRun"}}{{/* input: enhanced.RunInstruction */}}
+
+```shell
+{{- range $i, $d := .Dependencies}}
+{{- if gt $i 0}}
+{{end}}{{/* insert a blank line for non-0th elements */}}
+# {{.Name}}
+docker run \
+  --name {{.ContainerName}} \
+  {{- range $k, $v := .DockerEnvironment}}
+  -e "{{$k}}={{$v}}" \
+  {{- end}}
+  {{- range .Volumes}}
+  {{- if .GetEmptyPersistentVolume}}
+  -v {{.GetEmptyPersistentVolume.HostPath}}:{{.Path}} \
+  {{- else if .GetSingleFile}}
+  -v {{.GetSingleFile.HostFile}}:{{.Path}}/{{.GetSingleFile.HostFileBaseName}} \
+  {{- end}}
+  {{- end}}{{/* range .Volumes */}}
+  -d \
+  {{.Image}}
+{{- end}}
+{{- if gt (len .Dependencies) 0}}
+
+# {{.Name}}
+{{- end}}
+docker run \
+  --name {{.ContainerName}} \
+  {{- range $k, $v := .DockerEnvironment}}
+  -e "{{$k}}={{$v}}" \
+  {{- end}}
+  {{- range .MappedExposedPorts}}
+  -p {{.Mapped}}:{{.Port}}{{.DockerPortMappingProtocol}} \
+  {{- end}}
+  {{- range .Volumes}}
+  {{- if .GetEmptyPersistentVolume}}
+  -v {{.GetEmptyPersistentVolume.HostPath}}:{{.Path}} \
+  {{- else if .GetSingleFile}}
+  -v {{.GetSingleFile.HostFile}}:{{.Path}}/{{.GetSingleFile.HostFileBaseName}} \
+  {{- end}}
+  {{- end}}{{/* range .Volumes */}}
+  {{- range .DependenciesWithLinkAlias}}
+  --link {{.ContainerName}}:{{.DockerLinkAlias}} \
+  {{- end}}
+  {{- range .DependenciesWithoutLinkAlias}}
+  --link {{.ContainerName}}:{{.Name}} \
+  {{- end}}
+  {{- if $.RunType.DetachedContainer}}
+  -d \
+  {{- end}}
+  {{- if $.RunType.AutoremovedContainer}}
+  --rm \
+  {{- end}}
+  {{- if $.RunType.Interactive}}
+  -it \
+  {{- end}}
+  {{.Image}}
+  {{- if gt (len .Arguments) 0}} \
+  {{.ConcatArguments}}
+  {{- end}}
+```
+{{- end}}{{/* define "dockerRun" */}}
+
+
+{{- define "dockerComposeRun"}}{{/* input: enhanced.RunInstruction */}}
+
+Use the following content for the `docker-compose.yml` file, then run `docker-compose up`.
+
+```yaml
+version: '2'
+services:
+  {{.Name}}:
+    container_name: {{ .ContainerName }}
+    image: {{.Image}}
+    {{- if gt (len .Arguments) 0}}
+    command:
+      {{- range .Arguments}}
+      - {{.}}
+      {{- end}}
+    {{- end}}
+    {{- if .DockerComposeEnvironment}}
+    environment:
+      {{- range $k, $v := .DockerComposeEnvironment}}
+      "{{$k}}": "{{$v}}"
+      {{- end}}
+    {{- end}}
+    {{- if gt (len .MappedExposedPorts) 0}}
+    ports:
+      {{- range .MappedExposedPorts}}
+      - '{{.Mapped}}:{{.Port}}{{.DockerPortMappingProtocol}}'
+      {{- end}}
+    {{- end}}
+    {{- if gt (len .Volumes) 0}}
+    volumes:
+      {{- range .Volumes}}
+      {{- if .GetEmptyPersistentVolume}}
+      - {{.GetEmptyPersistentVolume.HostPath}}:{{.Path}}
+      {{- else if .GetSingleFile}}
+      - {{.GetSingleFile.HostFile}}:{{.Path}}/{{.GetSingleFile.HostFileBaseName}}
+      {{- end}}
+      {{- end}}{{/* range .Volumes */}}
+    {{- end}}
+    {{- if gt (len .DependenciesWithLinkAlias) 0}}
+    links:
+      {{- range .DependenciesWithLinkAlias}}
+      - {{.Name}}:{{.DockerLinkAlias}}
+      {{- end}}
+    {{- end}}
+    {{- if gt (len .DependenciesWithoutLinkAlias) 0}}
+    depends_on:
+      {{- range .DependenciesWithoutLinkAlias}}
+      - {{.Name}}
+      {{- end}}
+    {{- end}}
+  {{- range .Dependencies}}
+  {{.Name}}:
+    image: {{.Image}}
+    {{- if .DockerComposeEnvironment}}
+    environment:
+      {{- range $k, $v := .DockerComposeEnvironment}}
+      "{{$k}}": "{{$v}}"
+      {{- end}}
+    {{- end}}
+    {{- if gt (len .Volumes) 0}}
+    volumes:
+      {{- range .Volumes}}
+      {{- if .GetEmptyPersistentVolume}}
+      - {{.GetEmptyPersistentVolume.HostPath}}:{{.Path}}
+      {{- else if .GetSingleFile}}
+      - {{.GetSingleFile.HostFile}}:{{.Path}}/{{.GetSingleFile.HostFileBaseName}}
+      {{- end}}
+      {{- end}}{{/* range .Volumes */}}
+    {{- end}}
+  {{- end}}
+```
+
+{{- end}}{{/* define "dockerComposeRun" */}}
+
+
+{{- define "kubernetesRun"}}{{/* input: enhanced.RunInstruction */}}
+
+{{- if not .RunType.DetachedContainer}}
+{{- template "kubernetesRunAttached" .}}
+{{- else}}
+{{- template "kubernetesRunDetached" .}}
+{{- end}}
+
+{{- end}}{{/* define "kubernetesRun" */}}
+
+
+{{- define "kubernetesRunDetached"}}{{/* input: enhanced.RunInstruction */}}
+
+{{- if gt (len .AllSingleFileVolumes) 0}}
+
+Create the following `configmap`{{ if gt (len .AllSingleFileVolumes) 1}}s{{end}}:
+
+```shell
+{{- range .AllSingleFileVolumes}}
+kubectl create configmap {{.GetSingleFile.ConfigMapName}} \
+  --from-file={{.GetSingleFile.HostFile}}
+{{- end}}
+```
+{{- end}}
+
+Copy the following content to `pod.yaml` file, and run `kubectl create -f pod.yaml`.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{.ContainerName}}
+  labels:
+    name: {{.ContainerName}}
+spec:
+  containers:
+    - image: {{.Image}}
+      name: {{.Name}}
+      {{- if gt (len .Arguments) 0}}
+      args:
+        {{- range .Arguments}}
+        - {{.}}
+        {{- end}}
+      {{- end}}
+      {{- if.KubernetesEnvironment}}
+      env:
+        {{- range $k, $v := .KubernetesEnvironment}}
+        - name: "{{$k}}"
+          value: "{{$v}}"
+        {{- end}}
+      {{- end}}
+      {{- if gt (len .Volumes) 0}}
+      volumeMounts:
+        {{- range .Volumes}}
+        - name: {{.KubernetesName}}
+          mountPath: {{.Path}}
+          {{- if .GetEmptyPersistentVolume}}
+          {{- if gt (len .GetEmptyPersistentVolume.SubPath) 0}}
+          subPath: {{.GetEmptyPersistentVolume.SubPath}}
+          {{- end}}
+          {{- end}}
+        {{- end}}
+      {{- end}}
+    {{- range .Dependencies}}
+    - image: {{.Image}}
+      name: {{.Name}}
+      {{- if.KubernetesEnvironment}}
+      env:
+        {{- range $k, $v := .KubernetesEnvironment}}
+        - name: "{{$k}}"
+          value: "{{$v}}"
+        {{- end}}
+      {{- end}}
+      {{- if gt (len .Volumes) 0}}
+      volumeMounts:
+        {{- range .Volumes}}
+        - name: {{.KubernetesName}}
+          mountPath: {{.Path}}
+          {{- if .GetEmptyPersistentVolume}}
+          {{- if gt (len .GetEmptyPersistentVolume.SubPath) 0}}
+          subPath: {{.GetEmptyPersistentVolume.SubPath}}
+          {{- end}}
+          {{- end}}
+        {{- end}}
+      {{- end}}
+    {{- end}}{{/* range .Dependencies */}}
+  {{- if gt (len .Volumes) 0}}
+  volumes:
+    {{- range .AllVolumes}}
+    - name: {{.KubernetesName}}
+      {{- if .GetEmptyPersistentVolume}}
+      persistentVolumeClaim:
+        claimName: {{.KubernetesClaimName}}
+      {{- else if .GetSingleFile}}
+      configMap:
+        name: {{.GetSingleFile.ConfigMapName}}
+      {{- end}}
+    {{- end}}
+  {{- end}}
+
+{{- if gt (len .AllEmptyPersistentVolumes) 0}}
+{{- range .AllEmptyPersistentVolumes}}
+---
+# Request a persistent volume from the cluster using a Persistent Volume Claim.
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{.KubernetesClaimName}}
+  annotations:
+    volume.alpha.kubernetes.io/storage-class: default
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+{{- end}}
+{{- end}}
+```
+
+{{- if gt (len .ExposedPorts) 0}}
+
+Run the following to expose the port{{if gt (len .ExposedPorts) 1}}s{{end}}.
+Depending on your cluster setup, this might expose your service to the
+Internet with an external IP address. For more information, consult
+[Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/connect-applications-service/).
+
+```shell
+{{- range .ExposedPorts}}
+kubectl expose pod {{$.ContainerName}} --name {{$.ContainerName}}-{{.NamingPort}} \
+  --type LoadBalancer --port {{.Port}} --protocol {{.Protocol.String}}
+{{- end}}
+```
+
+{{- end}}
+
+{{- end}}{{/* define "kubernetesRunDetached" */}}
+
+
+{{- define "kubernetesRunAttached"}}{{/* input: enhanced.RunInstruction */}}
+
+```shell
+kubectl run \
+  {{.ContainerName}} \
+  --image {{.Image}} \
+  {{- range $k, $v := .KubernetesEnvironment}}
+  -env="{{$k}}={{$v}}" \
+  {{- end}}
+  --rm --attach --restart=Never
+  {{- if $.RunType.Interactive}} \
+  -it
+  {{- end}}
+  {{- if gt (len .Arguments) 0}} \
+  -- {{.ConcatArguments}}
+  {{- end}}
+```
+{{- end }}{{/* define "kubernetesRunAttached" */}}
+
+
+{{- define "runInstruction"}}{{/* input: enhanced.RunInstruction */}}
+
+{{- if .Runtime.IsDocker}}
+{{- if .RunType.DetachedContainer}}
+{{- template "dockerComposeRun" .}}
+
+Or you can use `docker run` directly:
+{{- template "dockerRun" .}}
+{{- else}}
+{{- template "dockerRun" .}}
+{{- end}}
+{{- else if .Runtime.IsKubernetes}}
+{{- template "kubernetesRun" .}}
+{{- end}}
+
+{{- end}}{{/* define "runInstruction" */}}
+
+
+{{- define "dockerfileInstruction"}}{{/* input: enhanced.DockerfileInstruction */}}
+
+Use the following content for the `Dockerfile` file:
+
+```dockerfile
+FROM {{.BaseImage}}
+{{.Content}}
+```
+
+Then build the image with:
+
+```shell
+docker build -t {{.DeriveTargetImage}}
+```
+
+{{- end}}{{/* define "dockerfileInstruction" */}}
+
+
+{{- define "dockerExec"}}{{/* input: enhanced.ExecInstruction */}}
+
+```shell
+{{- if .Interactive}}
+docker exec -it {{.ContainerName}} {{.Command}}
+{{- else}}
+docker exec {{.ContainerName}} {{.Command}}
+{{- end}}
+{{- if gt (len .RedirectOutputTo) 0}}
+{{- /**/}} > {{.RedirectOutputTo}}
+{{- end}}
+```
+{{- end}}{{/* define "dockerExec" */}}
+
+
+{{- define "kubernetesExec"}}{{/* input: enhanced.ExecInstruction */}}
+
+```shell
+{{- if .Interactive}}
+kubectl exec -it {{.ContainerName}} -- {{.Command}}
+{{- else}}
+kubectl exec {{.ContainerName}} -- {{.Command}}
+{{- end}}
+{{- if gt (len .RedirectOutputTo) 0}}
+{{- /**/}} > {{.RedirectOutputTo}}
+{{- end}}
+```
+{{- end}}{{/* define "kubernetesExec" */}}
+
+
+{{- define "execInstruction"}}{{/* input: enhanced.ExecInstruction */}}
+
+{{- if .Runtime.IsDocker}}
+{{- template "dockerExec" .}}
+{{- else}}
+{{- template "kubernetesExec" .}}
+{{- end}}
+
+{{- if .Interactive}}
+
+{{- range .Subcommands}}
+{{- if gt (len .Description) 0}}
+
+{{.Description}}
+{{- end}}
+{{- if gt (len .Command) 0}}
+
+```
+{{.Command}}
+```
+{{- end}}
+{{- end}}{{/* range .Subcommands */}}
+
+{{- end}}{{/* if .Interactive */}}
+
+{{- end}}{{/* define "execInstruction" */}}
+
+
+{{- define "copyInstruction"}}{{/* input: enhanced.CopyInstruction */}}
+
+{{- if .Runtime.IsDocker}}
+
+{{- if .ToContainer}}
+
+```shell
+docker cp {{.HostPath}} {{.ContainerName}}:{{.Path}}
+```
+{{- else}}
+
+```shell
+docker cp {{.ContainerName}}:{{.Path}} {{.HostPath}}
+```
+{{- end}}
+
+{{- else}}
+
+{{- if .ToContainer}}
+
+```shell
+kubectl cp {{.HostPath}} {{.ContainerName}}:{{.Path}}
+```
+{{- else}}
+
+```shell
+kubectl cp {{.ContainerName}}:{{.Path}} {{.HostPath}}
+```
+{{- end}}
+
+{{- end}}
+
+{{- end}}{{/* define "copyInstruction" */}}
+
+
+{{- define "instruction"}}{{/* input: enhanced.TaskInstruction */}}
+
+{{- template "insertBlankLine" .Description}}
+{{- if .GetRun}}{{template "runInstruction" .GetRun}}{{end}}
+{{- if .GetDockerfile}}{{template "dockerfileInstruction" .GetDockerfile}}{{end}}
+{{- if .GetExec}}{{template "execInstruction" .GetExec}}{{end}}
+{{- if .GetCopy}}{{template "copyInstruction" .GetCopy}}{{end}}
+
+{{- end}}{{/* define "instruction" */}}
+
+
+{{- define "taskgroups"}}{{/* input: []enhanced.SingleRuntimeTaskGroup */}}
+
+{{- range .}}
+
+## <a name="{{.AnchorId}}"></a>{{.Title}}
+
+{{- template "insertBlankLine" .Description}}
+
+{{- range .Tasks }}
+
+### <a name="{{.AnchorId}}"></a>{{.Title}}
+
+{{- template "insertBlankLine" .Description}}
+
+{{- range .Instructions}}
+{{- template "instruction" .}}
+{{- end}}
+
+{{- end}}{{/* range .Tasks */}}
+
+{{- end}}{{/* range . */}}
+
+{{- end}}{{/* define "taskgroups" */}}
+
+
+{{- define "portReference"}}{{/* input: enhanced.PortReference */}}
+
+## <a name="references-ports"></a>Ports
+
+These are the ports exposed by the container image.
+
+| **Port** | **Description** |
+|:---------|:----------------|
+{{- range .Ports}}
+| {{.UppercasedProtocol}} {{.Port}} | {{.Description}} |
+{{- end}}
+
+{{- end}}{{/* define "portReference" */}}
+
+
+{{- define "environmentVariableReference"}}{{/* input: EnvironmentVariableReference */}}
+
+## <a name="references-environment-variables"></a>Environment Variables
+
+These are the environment variables understood by the container image.
+
+| **Variable** | **Description** |
+|:-------------|:----------------|
+{{- range .Variables}}
+| {{.Name}} | {{.Description}} |
+{{- end}}
+
+{{- end}}{{/* define "environmentVariableReference" */}}
+
+
+{{- define "volumeReference"}}{{/* input: VolumeReference */}}
+
+## <a name="references-volumes"></a>Volumes
+
+These are the filesystem paths used by the container image.
+
+| **Path** | **Description** |
+|:---------|:----------------|
+{{- range .Volumes}}
+| {{.Path}} | {{.Description}} |
+{{- end}}
+
+{{- end}}{{/* define "environmentVariableReference" */}}
+
+
+{{- define "tableOfContents"}}{{/* input: enhanced.Document*/}}
+
+# <a name="table-of-contents"></a>Table of Contents
+
+{{- if gt (len .Overview.OtherVersions) 0}}
+* [Other Versions](#other-versions)
+{{- end }}
+
+{{- if gt (len .KubernetesTaskGroups) 0}}
+* [Using Kubernetes](#using-kubernetes)
+
+{{- range .KubernetesTaskGroups}}
+  * [{{.Title}}](#{{.AnchorId}})
+  {{- range .Tasks}}
+    * [{{.Title}}](#{{.AnchorId}})
+  {{- end}}
+{{- end}}
+
+{{- end}}{{/* if gt (len .KubernetesTaskGroups) 0 */}}
+
+{{- if gt (len .DockerTaskGroups) 0}}
+* [Using Docker](#using-docker)
+
+{{- range .DockerTaskGroups}}
+  * [{{.Title}}](#{{.AnchorId}})
+  {{- range .Tasks}}
+    * [{{.Title}}](#{{.AnchorId}})
+  {{- end}}
+{{- end}}
+
+{{- end}}{{/* if gt (len .DockerTaskGroups) 0 */}}
+
+{{- if .HasReferences}}
+* [References](#references)
+{{- if .PortReference}}
+  * [Ports](#references-ports)
+{{- end}}
+{{- if .EnvironmentVariableReference}}
+  * [Environment Variables](#references-environment-variables)
+{{- end}}
+{{- if .VolumeReference}}
+  * [Volumes](#references-volumes)
+{{- end}}
+{{- end}}
+
+{{- end}}{{/* define "tableOfContents" */}}
+
+
+{{- /* collapsing empty lines... */ -}}
+
+# <a name="about"></a>About
+
+{{.Overview.Description}}
+
+{{- if .NeedsGcloud}}
+
+Pull command (first install [gcloud](https://cloud.google.com/sdk/downloads)):
+{{- else}}
+
+Pull command:
+{{- end}}
+
+```shell
+{{.Overview.PullCommand}}
+```
+
+Dockerfile for this image can be found [here]({{.Overview.DockerfileUrl}}).
+
+{{- if gt (len .Overview.OtherVersions) 0}}
+
+# <a name="other-versions"></a>Other Versions
+
+{{- range .Overview.OtherVersions}}
+
+## {{.Title}}
+
+{{- template "insertBlankLine" .Description}}
+
+[Dockerfile]({{.DockerfileUrl}})
+
+{{- if .DocumentationUrl}}
+
+[Documentation]({{.DocumentationUrl}})
+{{- end}}
+
+{{- end}}{{/* range .Overview.OtherVersions */}}
+
+{{- end}}{{/* if .Overview.OtherVersions */}}
+
+{{- template "tableOfContents" .}}
+
+{{- if gt (len .KubernetesTaskGroups) 0}}
+
+# <a name="using-kubernetes"></a>Using Kubernetes
+
+Consult [Launcher container documentation](https://cloud.google.com/launcher/docs/launcher-container)
+for additional information about setting up your Kubernetes environment.
+
+{{- template "taskgroups" .KubernetesTaskGroups}}
+
+{{- end}}{{/* if gt (len .KubernetesTaskGroups) 0 */}}
+
+{{- if gt (len .DockerTaskGroups) 0}}
+
+# <a name="using-docker"></a>Using Docker
+
+Consult [Launcher container documentation](https://cloud.google.com/launcher/docs/launcher-container)
+for additional information about setting up your Docker environment.
+
+{{- template "taskgroups" .DockerTaskGroups}}
+
+{{- end}}{{/* if gt (len .DockerTaskGroups) 0 */}}
+
+{{- if .HasReferences}}
+
+# <a name="references"></a>References
+
+{{- if .PortReference}}{{template "portReference" .PortReference}}{{end}}
+{{- if .EnvironmentVariableReference}}{{template "environmentVariableReference" .EnvironmentVariableReference}}{{end}}
+{{- if .VolumeReference}}{{template "volumeReference" .VolumeReference}}{{end}}
+
+{{- end}}{{/* if .HasReferences */}}

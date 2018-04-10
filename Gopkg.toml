@@ -29,5 +29,5 @@
   name = "github.com/fsouza/go-dockerclient"
 
 [[constraint]]
-  name = "github.com/ghodss/yaml"
-  version = "1.0.0"
+  branch = "master"
+  name = "github.com/GoogleCloudPlatform/runtimes-common"

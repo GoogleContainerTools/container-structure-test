@@ -1,0 +1,12 @@
+{
+  "name": "hello-world-express",
+  "description": "Hello World test app",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "package": "1.0.1"
+  },
+  "dependencies": {
+    "express": "3.x"
+  }
+}

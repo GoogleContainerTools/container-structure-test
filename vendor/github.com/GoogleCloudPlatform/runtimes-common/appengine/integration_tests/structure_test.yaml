@@ -1,0 +1,38 @@
+schemaVersion: "1.0.0"
+
+commandTests:
+- name: 'uname'
+  command: ['uname', '-s']
+  expectedError: ['']
+  expectedOutput: ['Linux\n']
+
+- name: 'broken uname'
+  command: ['uname', '-s', '-asdf']
+  exitCode: 1
+  expectedError: ['.*[invalid | unrecognized].*']
+
+- name: 'pip'
+  command: ['pip', 'freeze']
+  expectedOutput: [
+    '.*google-cloud-bigquery==0\.27\.0.*',
+    '.*google-cloud-logging==1\.3\.0.*',
+    '.*google-cloud-monitoring==0\.27\.0.*',
+    '.*google-cloud-error-reporting==0\.27\.0.*',
+    '.*retrying==1\.3\.3.*'
+  ]
+
+fileExistenceTests:
+- name: 'Root'
+  path: '/'
+  isDirectory: true
+  shouldExist: true
+
+- name: 'Fake file'
+  path: '/foo/bar'
+  isDirectory: false
+  shouldExist: false
+
+fileContentTests:
+- name: 'driver'
+  path: '/testsuite/driver.py'
+  expectedContents: ['#!/usr/bin/python.*']

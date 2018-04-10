@@ -1,0 +1,39 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "alltransports.go",
+        "ostree.go",
+        "storage.go",
+    ],
+    importpath = "github.com/containers/image/transports/alltransports",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/containers/image/directory:go_default_library",
+        "//vendor/github.com/containers/image/docker:go_default_library",
+        "//vendor/github.com/containers/image/docker/archive:go_default_library",
+        "//vendor/github.com/containers/image/docker/daemon:go_default_library",
+        "//vendor/github.com/containers/image/oci/archive:go_default_library",
+        "//vendor/github.com/containers/image/oci/layout:go_default_library",
+        "//vendor/github.com/containers/image/openshift:go_default_library",
+        "//vendor/github.com/containers/image/ostree:go_default_library",
+        "//vendor/github.com/containers/image/storage:go_default_library",
+        "//vendor/github.com/containers/image/tarball:go_default_library",
+        "//vendor/github.com/containers/image/transports:go_default_library",
+        "//vendor/github.com/containers/image/types:go_default_library",
+        "//vendor/github.com/pkg/errors:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["alltransports_test.go"],
+    embed = [":go_default_library"],
+    importpath = "github.com/containers/image/transports/alltransports",
+    deps = [
+        "//vendor/github.com/containers/image/transports:go_default_library",
+        "//vendor/github.com/stretchr/testify/assert:go_default_library",
+        "//vendor/github.com/stretchr/testify/require:go_default_library",
+    ],
+)

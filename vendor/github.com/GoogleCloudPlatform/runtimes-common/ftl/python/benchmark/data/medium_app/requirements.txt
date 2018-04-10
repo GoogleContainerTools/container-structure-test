@@ -1,0 +1,4 @@
+flask==0.12.2
+pytest==3.2.3
+pytest-cov==2.5.1
+pyyaml==3.12
