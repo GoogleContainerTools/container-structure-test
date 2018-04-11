@@ -71,7 +71,7 @@ var TestCmd = &ctc_lib.ContainerToolListCommand{
 		totalPass := 0
 		totalFail := 0
 		errStrings := make([]string, 0)
-		var err error
+		var err error = nil
 		for _, r := range list {
 			value, ok := r.(*unversioned.TestResult)
 			if !ok {
@@ -88,9 +88,10 @@ var TestCmd = &ctc_lib.ContainerToolListCommand{
 		if totalFail > 0 {
 			errStrings = append(errStrings, "FAIL")
 		}
-		if errStrings != nil {
+		if len(errStrings) > 0 {
 			err = fmt.Errorf(strings.Join(errStrings, "\n"))
 		}
+
 		return unversioned.SummaryObject{
 				Total: totalFail + totalPass,
 				Pass:  totalPass,
