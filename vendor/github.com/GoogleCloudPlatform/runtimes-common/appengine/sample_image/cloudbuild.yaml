@@ -1,5 +1,0 @@
-steps:
-  - name: gcr.io/cloud-builders/docker:latest
-    args: ['build', '--tag=${_IMAGE}', '.']
-    id: BUILD
-images: ['${_IMAGE}']

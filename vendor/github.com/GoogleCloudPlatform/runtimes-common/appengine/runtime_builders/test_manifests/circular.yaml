@@ -1,7 +1,0 @@
-runtimes:
-  foo_1:
-    target:
-      runtime: foo_2
-  foo_2:
-    target:
-      runtime: foo_1

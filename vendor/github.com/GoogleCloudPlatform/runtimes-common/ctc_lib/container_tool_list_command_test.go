@@ -29,27 +29,15 @@ type TestListOutput struct {
 	Name string
 }
 
-type TestFooterOutput struct {
-	Count int
-}
-
 var LName string
-var Channel chan interface{}
-
-func processNames(names string) {
-	for _, name := range strings.Split(names, ",") {
-		testListOutput := TestListOutput{Name: name}
-		Channel <- testListOutput
-	}
-	// Make sure to close the stream.
-	close(Channel)
-}
 
 func RunListCommand(command *cobra.Command, args []string) ([]interface{}, error) {
 	Log.Debug("Running Hello World Command")
 	var testOutputs []TestListOutput
 	for _, name := range strings.Split(LName, ",") {
-		testOutputs = append(testOutputs, TestListOutput{Name: name})
+		testOutputs = append(testOutputs, TestListOutput{
+			Name: name,
+		})
 	}
 	s := make([]interface{}, len(testOutputs))
 	for i, v := range testOutputs {
@@ -58,21 +46,13 @@ func RunListCommand(command *cobra.Command, args []string) ([]interface{}, error
 	return s, nil
 }
 
-func RunStreamCommand(command *cobra.Command, args []string) {
-	// Do pre processing.
-	Log.Debug("Running Hello World Command")
-	// Run the method which writes to the stream
-	go processNames(LName)
-}
-
 func TestContainerToolCommandListOutput(t *testing.T) {
 	testCommand := ContainerToolListCommand{
 		ContainerToolCommandBase: &ContainerToolCommandBase{
 			Command: &cobra.Command{
 				Use: "Hello Command",
 			},
-			Phase:           "test",
-			DefaultTemplate: "{{ range $k, $v := . }}{{$v.Name}},{{ end }}",
+			Phase: "test",
 		},
 		OutputList: make([]interface{}, 0),
 		RunO:       RunListCommand,
@@ -92,88 +72,6 @@ func TestContainerToolCommandListOutput(t *testing.T) {
 	}
 	if !reflect.DeepEqual(s, testCommand.OutputList) {
 		t.Errorf("Expected to contain: \n %v\nGot:\n %v\n", s, testCommand.OutputList)
-	}
-	// Check if the output is good
-	if OutputBuffer.String() != "John,Jane,\n" {
-		t.Errorf("Expected to contain: \n John,Jane,\nGot:\n %v\n", OutputBuffer.String())
-	}
-}
-func TestContainerToolCommandStreamOutput(t *testing.T) {
-	Channel = make(chan interface{}, 1)
-	testCommand := ContainerToolListCommand{
-		ContainerToolCommandBase: &ContainerToolCommandBase{
-			Command: &cobra.Command{
-				Use: "Hello Command",
-			},
-			Phase:           "test",
-			DefaultTemplate: "{{.Name}},",
-		},
-		OutputList:      make([]interface{}, 0),
-		SummaryObject:   &TestFooterOutput{},
-		SummaryTemplate: "{{.Count}} Names",
-		StreamO:         RunStreamCommand,
-		Stream:          Channel,
-	}
-	testCommand.Flags().StringVarP(&LName, "name", "n", "", "Comma Separated list of Name")
-	var OutputBuffer bytes.Buffer
-	testCommand.Command.SetOutput(&OutputBuffer)
-	testCommand.SetArgs([]string{"--name=John,Jane"})
-	Execute(&testCommand)
-	var expectedOutput = []TestListOutput{
-		{Name: "John"},
-		{Name: "Jane"},
-	}
-	s := make([]interface{}, len(expectedOutput))
-	for i, v := range expectedOutput {
-		s[i] = v
-	}
-	if !reflect.DeepEqual(s, testCommand.OutputList) {
-		t.Errorf("Expected to contain: \n %v\nGot:\n %v\n", s, testCommand.OutputList)
-	}
-	// Check if the output is good
-	if OutputBuffer.String() != "John,Jane,\n" {
-		t.Errorf("Expected to contain: \n John,Jane,\nGot:\n %v\n", OutputBuffer.String())
-	}
-}
-
-func TestContainerToolCommandStreamOutputValidateResult(t *testing.T) {
-	Channel = make(chan interface{}, 1)
-	testCommand := ContainerToolListCommand{
-		ContainerToolCommandBase: &ContainerToolCommandBase{
-			Command: &cobra.Command{
-				Use: "Hello Command",
-			},
-			Phase:           "test",
-			DefaultTemplate: "{{.}}",
-		},
-		OutputList:      make([]interface{}, 0),
-		SummaryObject:   &TestFooterOutput{},
-		SummaryTemplate: "\n{{.Count}} Names",
-		StreamO:         RunStreamCommand,
-		Stream:          Channel,
-		TotalO: func(list []interface{}) (interface{}, error) {
-			return &TestFooterOutput{Count: len(list)}, nil
-		},
-	}
-	testCommand.Flags().StringVarP(&LName, "name", "n", "", "Comma Separated list of Name")
-	var OutputBuffer bytes.Buffer
-	testCommand.Command.SetOutput(&OutputBuffer)
-	testCommand.SetArgs([]string{"--name=John,Jane"})
-	Execute(&testCommand)
-	var expectedOutput = []TestListOutput{
-		{Name: "John"},
-		{Name: "Jane"},
-	}
-	s := make([]interface{}, len(expectedOutput))
-	for i, v := range expectedOutput {
-		s[i] = v
-	}
-	if !reflect.DeepEqual(s, testCommand.OutputList) {
-		t.Errorf("Expected to contain: \n %v\nGot:\n %v\n", s, testCommand.OutputList)
-	}
-	// Check if the output is good
-	if strings.Contains("2 Names", OutputBuffer.String()) {
-		t.Errorf("Expected to contain: \n 2 Names\nGot:\n %v\n", OutputBuffer.String())
 	}
 }
 

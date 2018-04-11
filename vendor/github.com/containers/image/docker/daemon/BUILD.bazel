@@ -32,7 +32,6 @@ go_test(
         "client_test.go",
         "daemon_transport_test.go",
     ],
-    data = glob(["testdata/**"]),
     embed = [":go_default_library"],
     importpath = "github.com/containers/image/docker/daemon",
     deps = [

@@ -18,7 +18,6 @@ go_library(
 go_test(
     name = "go_default_test",
     srcs = ["printer_test.go"],
-    data = glob(["testdata/**"]),
     embed = [":go_default_library"],
     importpath = "github.com/hashicorp/hcl/hcl/printer",
     deps = ["//vendor/github.com/hashicorp/hcl/hcl/parser:go_default_library"],

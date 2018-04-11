@@ -214,7 +214,6 @@ go_test(
         ],
         "//conditions:default": [],
     }),
-    data = glob(["testdata/**"]),
     embed = [":go_default_library"],
     importpath = "github.com/docker/docker/pkg/archive",
     deps = [

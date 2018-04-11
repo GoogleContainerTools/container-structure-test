@@ -1,1 +1,0 @@
-This composer.json file can be found [here](https://github.com/GoogleCloudPlatform/google-cloud-php-storage/blob/master/composer.json).
