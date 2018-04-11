@@ -15,13 +15,8 @@
 package v2
 
 import (
-<<<<<<< HEAD
 	"fmt"
 
-	"github.com/sirupsen/logrus"
-
-=======
->>>>>>> 93642fb... Add ctc_lib for container structure tests
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
 	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/utils"

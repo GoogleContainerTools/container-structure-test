@@ -40,16 +40,6 @@ func (st *StructureTest) SetDriverImpl(f func(drivers.DriverConfig) (drivers.Dri
 	st.DriverArgs = args
 }
 
-<<<<<<< HEAD
-func (st *StructureTest) RunAll(o *output.OutWriter) []*types.TestResult {
-	results := make([]*types.TestResult, 0)
-	results = append(results, st.RunCommandTests(o)...)
-	results = append(results, st.RunFileExistenceTests(o)...)
-	results = append(results, st.RunFileContentTests(o)...)
-	results = append(results, st.RunLicenseTests(o)...)
-	results = append(results, st.RunMetadataTests(o))
-	return results
-=======
 func (st *StructureTest) RunAll(channel chan interface{}, file string) {
 	fileProcessed := make(chan bool, 1)
 	go st.runAll(channel, fileProcessed)
@@ -62,7 +52,6 @@ func (st *StructureTest) runAll(channel chan interface{}, fileProcessed chan boo
 	st.RunFileExistenceTests(channel)
 	st.RunLicenseTests(channel)
 	fileProcessed <- true
->>>>>>> 93642fb... Add ctc_lib for container structure tests
 }
 
 func (st *StructureTest) RunCommandTests(channel chan interface{}) {
@@ -121,15 +110,7 @@ func (st *StructureTest) RunFileContentTests(channel chan interface{}) {
 	}
 }
 
-<<<<<<< HEAD
-func (st *StructureTest) RunMetadataTests(o *output.OutWriter) *types.TestResult {
-	if err := st.MetadataTest.Validate(); err != nil {
-		logrus.Error(err.Error())
-		return nil
-	}
-=======
 func (st *StructureTest) RunMetadataTests(channel chan interface{}) {
->>>>>>> 93642fb... Add ctc_lib for container structure tests
 	driver, err := st.NewDriver()
 	if err != nil {
 		ctc_lib.Log.Error(err.Error())
