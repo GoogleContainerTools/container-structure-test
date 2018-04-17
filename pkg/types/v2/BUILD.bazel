@@ -10,7 +10,7 @@ go_library(
         "metadata.go",
         "structure.go",
     ],
-    importpath = "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/v2",
+    importpath = "github.com/GoogleContainerTools/container-structure-test/pkg/types/v2",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/drivers:go_default_library",

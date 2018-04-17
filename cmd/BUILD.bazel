@@ -7,7 +7,7 @@ go_library(
         "test.go",
         "version.go",
     ],
-    importpath = "github.com/GoogleCloudPlatform/container-structure-test/cmd",
+    importpath = "github.com/GoogleContainerTools/container-structure-test/cmd",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/drivers:go_default_library",

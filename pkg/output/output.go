@@ -19,7 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
+	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
 type OutWriter struct {

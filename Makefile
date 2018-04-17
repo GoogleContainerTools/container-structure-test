@@ -24,7 +24,7 @@ GOARCH = amd64
 PROJECT := container-structure-test
 RELEASE_BUCKET ?= gcp-container-tools/structure-test
 
-LD_FLAGS := -X github.com/GoogleCloudPlatform/container-structure-test/pkg/version.version=$(VERSION)
+LD_FLAGS := -X github.com/GoogleContainerTools/container-structure-test/pkg/version.version=$(VERSION)
 
 SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH)
 

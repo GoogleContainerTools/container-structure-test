@@ -16,7 +16,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/version"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/version"
 	"github.com/spf13/cobra"
 )
 

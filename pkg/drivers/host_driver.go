@@ -26,7 +26,7 @@ import (
 
 	"bytes"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
 type HostDriver struct {

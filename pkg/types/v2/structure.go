@@ -17,9 +17,9 @@ package v2
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/output"
-	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/output"
+	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
 type StructureTest struct {

@@ -11,7 +11,7 @@
   revision = "d6e3b3328b783f23731bc4d058875b0371ff8109"
 
 [[projects]]
-  name = "github.com/GoogleCloudPlatform/container-diff"
+  name = "github.com/GoogleContainerTools/container-diff"
   packages = ["cmd/util/output","pkg/util"]
   revision = "d2b317ec63b9e9db4ad6a4065399d74c9b7ebd78"
 

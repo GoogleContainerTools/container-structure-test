@@ -22,7 +22,7 @@
 
 
 [[constraint]]
-  name = "github.com/GoogleCloudPlatform/container-diff"
+  name = "github.com/GoogleContainerTools/container-diff"
   revision = "d2b317ec63b9e9db4ad6a4065399d74c9b7ebd78"
 
 [[constraint]]

@@ -27,8 +27,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/utils"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
 	docker "github.com/fsouza/go-dockerclient"
 )
 
