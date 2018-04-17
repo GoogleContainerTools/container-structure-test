@@ -76,7 +76,7 @@ var TestCmd = &ctc_lib.ContainerToolListCommand{
 			value, ok := r.(*unversioned.TestResult)
 			if !ok {
 				errStrings = append(errStrings, fmt.Sprintf("UnExpected Value %v in List.", value))
-				ctc_lib.Log.Errorf("Unexpected Value %v in List.", value)
+				ctc_lib.Log.Errorf("Unexpected value %v in List.", value)
 				continue
 			}
 			if value.IsPass() {
