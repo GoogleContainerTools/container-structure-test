@@ -40,8 +40,8 @@ then
 fi
 
 # test image metadata
-run_metadata_tests=false
-if [[ $run_metadata_test ]];
+run_metadata_tests=true
+if $run_metadata_tests ;
 then
   test_metadata_image=debian8-with-metadata:latest
   docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_dir"
@@ -68,7 +68,7 @@ then
   failures=$((failures +1))
 fi
 
-Test the image.
+# Test the image.
 abs_test_dir=$(readlink -f "$test_dir")
 bazel run //:structure_test_image -- --norun
 res=$(docker run -v /var/run/docker.sock:/var/run/docker.sock \

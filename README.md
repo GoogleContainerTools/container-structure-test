@@ -181,7 +181,7 @@ metadataTest:
   env:
     - key: foo
       value: baz
-  lables:
+  labels:
     - key: 'com.example.vendor'
       value: 'ACME Incorporated'
   exposedPorts: ["8080", "2345"]

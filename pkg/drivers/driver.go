@@ -70,22 +70,12 @@ func InitDriverImpl(driver string) func(DriverConfig) (Driver, error) {
 	}
 }
 
-func convertEnvToMap(env []string) map[string]string {
-	// convert env to map for processing
-	envMap := make(map[string]string)
-	for _, varPair := range env {
-		pair := strings.Split(varPair, "=")
-		envMap[pair[0]] = pair[1]
+func convertSliceToMap(slice []string) map[string]string {
+	// convert slice to map for processing
+	trgtMap := make(map[string]string)
+	for _, slicePair := range slice {
+		pair := strings.Split(slicePair, "=")
+		trgtMap[pair[0]] = pair[1]
 	}
-	return envMap
-}
-
-func convertLabelsToMap(labels []string) map[string]string {
-	// convert labels to map for processing
-	labelMap := make(map[string]string)
-	for _, labelPair := range labels {
-		pair := strings.Split(labelPair, "=")
-		labelMap[pair[0]] = pair[1]
-	}
-	return labelMap
+	return trgtMap
 }
