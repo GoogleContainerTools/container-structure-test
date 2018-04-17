@@ -76,7 +76,7 @@ var TestCmd = &ctc_lib.ContainerToolListCommand{
 			value, ok := r.(*unversioned.TestResult)
 			if !ok {
 				errStrings = append(errStrings, fmt.Sprintf("UnExpected Value %v in List.", value))
-				ctc_lib.Log.Errorf("UnExpected Value %v in List.", value)
+				ctc_lib.Log.Errorf("Unexpected Value %v in List.", value)
 				continue
 			}
 			if value.IsPass() {
@@ -216,8 +216,7 @@ func Run() {
 	}
 
 	if driver == drivers.Host && !utils.UserConfirmation(warnMessage, force) {
-		// Force Success. Skipping Running tests as directed by the user.
-		return
+		ctc_lib.Log.Fatalf("User Aborted")
 	}
 
 	driverImpl = drivers.InitDriverImpl(driver)

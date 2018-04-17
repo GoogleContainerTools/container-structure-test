@@ -94,10 +94,10 @@ func (d *DockerDriver) ProcessCommand(envVars []unversioned.EnvVar, fullCommand 
 	}
 
 	if stdout != "" {
-		ctc_lib.Log.Debugf("stdout: %s", stdout)
+		ctc_lib.Log.Infof("stdout: %s", stdout)
 	}
 	if stderr != "" {
-		ctc_lib.Log.Debugf("stderr: %s", stderr)
+		ctc_lib.Log.Infof("stderr: %s", stderr)
 	}
 	return stdout, stderr, exitCode, nil
 }

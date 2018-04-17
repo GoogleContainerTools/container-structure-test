@@ -22,6 +22,7 @@ import (
 
 	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
 	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 )
 
 type FileExistenceTest struct {
@@ -51,7 +52,7 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 		Pass:   true,
 		Errors: make([]string, 0),
 	}
-
+	ctc_lib.Log.Info(ft.LogName())
 	var info os.FileInfo
 	info, err := driver.StatFile(ft.Path)
 	if info == nil {
