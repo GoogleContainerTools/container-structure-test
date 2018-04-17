@@ -37,6 +37,10 @@ sh_binary(
 go_binary(
     name = "structure_test",
     srcs = ["main.go"],
+    data = [
+        ":cred_helper.tar",
+        ":default_creds.tar",
+    ],
     importpath = "github.com/GoogleContainerTools/container-structure-test",
     pure = "on",
     deps = [
@@ -48,10 +52,6 @@ go_binary(
         "//vendor/github.com/sirupsen/logrus:go_default_library",
         "//vendor/gopkg.in/yaml.v2:go_default_library",
     ],
-    data = [
-        ":cred_helper.tar",
-        ":default_creds.tar",
-    ]
 )
 
 container_image(
@@ -59,9 +59,9 @@ container_image(
     base = "@distroless_base//image",
     entrypoint = ["/structure_test"],
     files = [
-        ":structure_test",
         ":cred_helper.tar",
         ":default_creds.tar",
+        ":structure_test",
     ],
 )
 

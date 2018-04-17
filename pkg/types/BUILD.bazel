@@ -7,7 +7,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/drivers:go_default_library",
-        "//pkg/output:go_default_library",        
+        "//pkg/output:go_default_library",
         "//pkg/types/unversioned:go_default_library",
         "//pkg/types/v1:go_default_library",
         "//pkg/types/v2:go_default_library",
