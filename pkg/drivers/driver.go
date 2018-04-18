@@ -18,7 +18,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
 const (

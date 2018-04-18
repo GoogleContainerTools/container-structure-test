@@ -18,7 +18,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/cmd"
+	"github.com/GoogleContainerTools/container-structure-test/cmd"
 	"github.com/sirupsen/logrus"
 )
 

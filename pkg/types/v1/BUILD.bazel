@@ -9,11 +9,11 @@ go_library(
         "licenses.go",
         "structure.go",
     ],
-    importpath = "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/v1",
+    importpath = "github.com/GoogleContainerTools/container-structure-test/pkg/types/v1",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/drivers:go_default_library",
-        "//pkg/output:go_default_library",        
+        "//pkg/output:go_default_library",
         "//pkg/types/unversioned:go_default_library",
         "//pkg/utils:go_default_library",
         "//vendor/github.com/pkg/errors:go_default_library",

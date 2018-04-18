@@ -22,8 +22,8 @@
 
 
 [[constraint]]
-  name = "github.com/GoogleCloudPlatform/container-diff"
-  revision = "d2b317ec63b9e9db4ad6a4065399d74c9b7ebd78"
+  name = "github.com/GoogleContainerTools/container-diff"
+  revision = "b2e2f7ef8897f29306877618f16f0d67d8a89094"
 
 [[constraint]]
   name = "github.com/fsouza/go-dockerclient"

@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/GoogleCloudPlatform/container-structure-test",
+	"ImportPath": "github.com/GoogleContainerTools/container-structure-test",
 	"GoVersion": "go1.9",
 	"GodepVersion": "v79",
 	"Packages": [
@@ -15,11 +15,11 @@
 			"Rev": "d6e3b3328b783f23731bc4d058875b0371ff8109"
 		},
 		{
-			"ImportPath": "github.com/GoogleCloudPlatform/container-diff/pkg/cache",
+			"ImportPath": "github.com/GoogleContainerTools/container-diff/pkg/cache",
 			"Rev": "3d6d46814835c2773749cb31c0232f17f692d66d"
 		},
 		{
-			"ImportPath": "github.com/GoogleCloudPlatform/container-diff/pkg/util",
+			"ImportPath": "github.com/GoogleContainerTools/container-diff/pkg/util",
 			"Rev": "3d6d46814835c2773749cb31c0232f17f692d66d"
 		},
 		{

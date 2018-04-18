@@ -11,9 +11,12 @@
   revision = "d6e3b3328b783f23731bc4d058875b0371ff8109"
 
 [[projects]]
-  name = "github.com/GoogleCloudPlatform/container-diff"
-  packages = ["cmd/util/output","pkg/util"]
-  revision = "d2b317ec63b9e9db4ad6a4065399d74c9b7ebd78"
+  name = "github.com/GoogleContainerTools/container-diff"
+  packages = [
+    "cmd/util/output",
+    "pkg/util"
+  ]
+  revision = "b2e2f7ef8897f29306877618f16f0d67d8a89094"
 
 [[projects]]
   name = "github.com/Microsoft/go-winio"
@@ -29,7 +32,22 @@
 
 [[projects]]
   name = "github.com/containers/image"
-  packages = ["docker","docker/daemon","docker/policyconfiguration","docker/reference","docker/tarfile","image","internal/tmpdir","manifest","pkg/compression","pkg/docker/config","pkg/strslice","pkg/tlsclientconfig","transports","types"]
+  packages = [
+    "docker",
+    "docker/daemon",
+    "docker/policyconfiguration",
+    "docker/reference",
+    "docker/tarfile",
+    "image",
+    "internal/tmpdir",
+    "manifest",
+    "pkg/compression",
+    "pkg/docker/config",
+    "pkg/strslice",
+    "pkg/tlsclientconfig",
+    "transports",
+    "types"
+  ]
   revision = "495da41bd26c50be62fa07ae903ea2ee54c00283"
 
 [[projects]]
@@ -227,6 +245,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4f99009c978e25f71eddd55b8f65a0153e4d76cc6b7f0ce65930398cb0823d04"
+  inputs-digest = "4c873413fc90a4a28d64fcaf484afa7942ceb38c6c3d197b3db3c1141c590d18"
   solver-name = "gps-cdcl"
   solver-version = 1
