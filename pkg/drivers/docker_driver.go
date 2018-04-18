@@ -110,7 +110,7 @@ func retrieveEnv(d *DockerDriver) func(string) string {
 				return ""
 			}
 			// convert env to map for processing
-			env = convertEnvToMap(image.Config.Env)
+			env = convertSliceToMap(image.Config.Env)
 		}
 		return env[envVar]
 	}
@@ -359,12 +359,13 @@ func (d *DockerDriver) GetConfig() (unversioned.Config, error) {
 	}
 
 	return unversioned.Config{
-		Env:          convertEnvToMap(img.Config.Env),
+		Env:          convertSliceToMap(img.Config.Env),
 		Entrypoint:   img.Config.Entrypoint,
 		Cmd:          img.Config.Cmd,
 		Volumes:      volumes,
 		Workdir:      img.Config.WorkingDir,
 		ExposedPorts: ports,
+		Labels:       img.Config.Labels,
 	}, nil
 }
 
