@@ -12,23 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package output
 
 import (
-	"fmt"
-	"github.com/GoogleContainerTools/container-structure-test/pkg/version"
-	"github.com/spf13/cobra"
+	"text/template"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print the version number of container-structure-test",
-	Long:  `Print the version number of container-structure-test`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(version.GetVersion())
-	},
+var TemplateMap = template.FuncMap{
+	"orange":       orange,
+	"blue":         blue,
+	"lightGreen":   lightGreen,
+	"yellow":       yellow,
+	"red":          red,
+	"lightRed":     lightRed,
+	"cyan":         cyan,
+	"green":        green,
+	"purple":       purple,
+	"Banner":       Banner,
+	"OutputResult": OutputResult,
+	"FinalResults": FinalResults,
 }
 
-func init() {
-	RootCmd.AddCommand(versionCmd)
-}
+var StructureTestsTemplate = `{{OutputResult . isQuiet}}`
+
+var SummaryTemplate = `{{FinalResults .}}`

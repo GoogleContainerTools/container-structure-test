@@ -15,36 +15,27 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/sirupsen/logrus"
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 	"github.com/spf13/cobra"
 )
 
 var logLevel string
 var imagePath, driver, metadata string
-var save, pull, force, quiet, verbose bool
+var save, pull, force, quiet bool
 
 var configFiles []string
 
-var RootCmd = &cobra.Command{
-	Use:   "container-structure-test",
-	Short: "container-structure-test provides a framework to test the structure of a container image",
-	Long: `container-structure-test provides a powerful framework to validate
+var RootCmd = &ctc_lib.ContainerToolListCommand{
+	ContainerToolCommandBase: &ctc_lib.ContainerToolCommandBase{
+		Command: &cobra.Command{
+			Use:   "container-structure-test",
+			Short: "container-structure-test provides a framework to test the structure of a container image",
+			Long: `container-structure-test provides a powerful framework to validate
 the structure of a container image.
-These tests can be used to check the output of commands in an image, 
+These tests can be used to check the output of commands in an image,
 as well as verify metadata and contents of the filesystem.`,
-	PersistentPreRun: func(c *cobra.Command, s []string) {
-		ll, err := logrus.ParseLevel(logLevel)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		logrus.SetLevel(ll)
+		},
+		Phase:           "stable",
+		DefaultTemplate: "{{.}}",
 	},
-}
-
-func init() {
-	RootCmd.PersistentFlags().StringVar(&logLevel, "logLevel", "warning", "This flag controls the verbosity of container-structure-test.")
 }

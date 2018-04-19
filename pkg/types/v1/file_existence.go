@@ -16,10 +16,11 @@ package v1
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"os"
 
+	"github.com/pkg/errors"
+
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
@@ -51,7 +52,7 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 		Pass:   true,
 		Errors: make([]string, 0),
 	}
-	logrus.Info(ft.LogName())
+	ctc_lib.Log.Info(ft.LogName())
 	var info os.FileInfo
 	info, err := driver.StatFile(ft.Path)
 	if info == nil {

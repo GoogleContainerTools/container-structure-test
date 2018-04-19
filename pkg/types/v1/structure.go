@@ -15,10 +15,9 @@
 package v1
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
-	"github.com/GoogleContainerTools/container-structure-test/pkg/output"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
@@ -41,96 +40,87 @@ func (st *StructureTest) SetDriverImpl(f func(drivers.DriverConfig) (drivers.Dri
 	st.DriverArgs = args
 }
 
-func (st *StructureTest) RunAll(o *output.OutWriter) []*types.TestResult {
-	results := make([]*types.TestResult, 0)
-	results = append(results, st.RunCommandTests(o)...)
-	results = append(results, st.RunFileExistenceTests(o)...)
-	results = append(results, st.RunFileContentTests(o)...)
-	results = append(results, st.RunLicenseTests(o)...)
-	return results
+func (st *StructureTest) RunAll(channel chan interface{}, file string) {
+	// Wait till the file is Processed so we can display the results per file.
+	fileProcessed := make(chan bool, 1)
+	go st.runAll(channel, fileProcessed)
+	<-fileProcessed
 }
 
-func (st *StructureTest) RunCommandTests(o *output.OutWriter) []*types.TestResult {
-	results := make([]*types.TestResult, 0)
+func (st *StructureTest) runAll(channel chan interface{}, fileProcessed chan bool) {
+	st.RunCommandTests(channel)
+	st.RunFileContentTests(channel)
+	st.RunFileExistenceTests(channel)
+	st.RunLicenseTests(channel)
+	fileProcessed <- true
+}
+
+func (st *StructureTest) RunCommandTests(channel chan interface{}) {
 	for _, test := range st.CommandTests {
 		if err := test.Validate(); err != nil {
-			logrus.Error(err.Error())
+			ctc_lib.Log.Error(err.Error())
 			continue
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			logrus.Error(err.Error())
+			ctc_lib.Log.Error(err.Error())
 			continue
 		}
 		defer driver.Destroy()
 		vars := append(st.GlobalEnvVars, test.EnvVars...)
 		if err = driver.Setup(vars, test.Setup); err != nil {
-			logrus.Error(err.Error())
+			ctc_lib.Log.Error(err.Error())
 			continue
 		}
 		defer func() {
 			if err := driver.Teardown(vars, test.Teardown); err != nil {
-				logrus.Error(err.Error())
+				ctc_lib.Log.Error(err.Error())
 			}
 		}()
-		result := test.Run(driver)
-		results = append(results, result)
-		o.OutputResult(result)
+		channel <- test.Run(driver)
 	}
-	return results
+
 }
 
-func (st *StructureTest) RunFileExistenceTests(o *output.OutWriter) []*types.TestResult {
-	results := make([]*types.TestResult, 0)
+func (st *StructureTest) RunFileExistenceTests(channel chan interface{}) {
 	for _, test := range st.FileExistenceTests {
 		if err := test.Validate(); err != nil {
-			logrus.Error(err.Error())
+			ctc_lib.Log.Error(err.Error())
 			continue
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			logrus.Fatalf(err.Error())
+			ctc_lib.Log.Fatalf(err.Error())
 		}
 		defer driver.Destroy()
-		result := test.Run(driver)
-		results = append(results, result)
-		o.OutputResult(result)
+		channel <- test.Run(driver)
 	}
-	return results
-}
 
-func (st *StructureTest) RunFileContentTests(o *output.OutWriter) []*types.TestResult {
-	results := make([]*types.TestResult, 0)
+}
+func (st *StructureTest) RunFileContentTests(channel chan interface{}) {
 	for _, test := range st.FileContentTests {
 		if err := test.Validate(); err != nil {
-			logrus.Error(err.Error())
+			ctc_lib.Log.Error(err.Error())
 			continue
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			logrus.Error(err)
-			logrus.Error(err.Error())
+			ctc_lib.Log.Error(err)
+			ctc_lib.Log.Error(err.Error())
 		}
 		defer driver.Destroy()
-		result := test.Run(driver)
-		results = append(results, result)
-		o.OutputResult(result)
+		channel <- test.Run(driver)
 	}
-	return results
 }
 
-func (st *StructureTest) RunLicenseTests(o *output.OutWriter) []*types.TestResult {
-	results := make([]*types.TestResult, 0)
+func (st *StructureTest) RunLicenseTests(channel chan interface{}) {
 	for _, test := range st.LicenseTests {
 		driver, err := st.NewDriver()
 		if err != nil {
-			logrus.Error(err.Error())
+			ctc_lib.Log.Error(err.Error())
 			continue
 		}
 		defer driver.Destroy()
-		result := test.Run(driver)
-		results = append(results, result)
-		o.OutputResult(result)
+		channel <- test.Run(driver)
 	}
-	return results
 }

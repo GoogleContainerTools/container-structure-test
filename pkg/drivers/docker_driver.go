@@ -19,16 +19,18 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/pkg/errors"
+
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
+
 	docker "github.com/fsouza/go-dockerclient"
 )
 
@@ -59,7 +61,7 @@ func (d *DockerDriver) Destroy() {
 	// image (that isn't the original) removes all previous ones as well.
 	if d.currentImage != d.originalImage {
 		if err := d.cli.RemoveImage(d.currentImage); err != nil {
-			logrus.Warnf("error removing image: %s", err)
+			ctc_lib.Log.Warnf("error removing image: %s", err)
 		}
 	}
 }
@@ -78,7 +80,7 @@ func (d *DockerDriver) Setup(envVars []unversioned.EnvVar, fullCommands [][]stri
 
 func (d *DockerDriver) Teardown(envVars []unversioned.EnvVar, fullCommands [][]string) error {
 	// since we create a new driver for each test, skip teardown commands
-	logrus.Debug("Docker driver does not support teardown commands, since each test gets a new driver. Skipping commands.")
+	ctc_lib.Log.Debug("Docker driver does not support teardown commands, since each test gets a new driver. Skipping commands.")
 	return nil
 }
 
@@ -93,10 +95,10 @@ func (d *DockerDriver) ProcessCommand(envVars []unversioned.EnvVar, fullCommand 
 	}
 
 	if stdout != "" {
-		logrus.Infof("stdout: %s", stdout)
+		ctc_lib.Log.Infof("stdout: %s", stdout)
 	}
 	if stderr != "" {
-		logrus.Infof("stderr: %s", stderr)
+		ctc_lib.Log.Infof("stderr: %s", stderr)
 	}
 	return stdout, stderr, exitCode, nil
 }
@@ -287,7 +289,7 @@ func (d *DockerDriver) runAndCommit(env []string, command []string) (string, err
 		if err = d.cli.RemoveContainer(docker.RemoveContainerOptions{
 			ID: container.ID,
 		}); err != nil {
-			logrus.Warnf("Error when removing container %s: %s", container.ID, err.Error())
+			ctc_lib.Log.Warnf("Error when removing container %s: %s", container.ID, err.Error())
 		}
 	}
 
@@ -376,6 +378,6 @@ func (d *DockerDriver) removeContainer(containerID string) {
 	if err := d.cli.RemoveContainer(docker.RemoveContainerOptions{
 		ID: containerID,
 	}); err != nil {
-		logrus.Warnf("Error when removing container %s: %s", containerID, err.Error())
+		ctc_lib.Log.Warnf("Error when removing container %s: %s", containerID, err.Error())
 	}
 }

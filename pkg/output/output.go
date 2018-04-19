@@ -22,66 +22,40 @@ import (
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
-type OutWriter struct {
-	Format  string // TODO(nkubala): implement JSON type
-	Verbose bool
-	Quiet   bool
-}
-
-func (o *OutWriter) OutputResult(result *types.TestResult) {
-	// TODO(nkubala): use template
-	o.Printf("=== RUN: %s", result.Name)
+func OutputResult(result *types.TestResult, isQuiet bool) string {
+	resultStr := fmt.Sprintf("=== RUN: %s\n", result.Name)
 	if result.Pass {
-		o.green("--- PASS")
+		resultStr += green("--- PASS\n")
 	} else {
-		o.red("--- FAIL")
+		resultStr += red("--- FAIL\n")
 	}
-	if o.Verbose {
-		if result.Stdout != "" {
-			o.blue(fmt.Sprintf("stdout: %s", result.Stdout))
-		}
-		if result.Stderr != "" {
-			o.blue(fmt.Sprintf("stderr: %s", result.Stderr))
-		}
+	if result.Stdout != "" && !isQuiet {
+		resultStr += blue(fmt.Sprintf("stdout: %s", result.Stdout))
+	}
+	if result.Stderr != "" && !isQuiet {
+		resultStr += blue(fmt.Sprintf("stderr: %s", result.Stderr))
 	}
 	for _, s := range result.Errors {
-		o.orange(fmt.Sprintf("Error: %s\n", s))
+		resultStr += orange(fmt.Sprintf("Error: %s\n", s))
 	}
+	return resultStr
 }
 
-func (o *OutWriter) Banner(filename string) {
+func Banner(filename string) string {
 	fileStr := fmt.Sprintf("====== Test file: %s ======", filepath.Base(filename))
 	bannerStr := strings.Repeat("=", len(fileStr))
-	o.purple(bannerStr)
-	o.purple(fileStr)
-	o.purple(bannerStr)
+	return purple(bannerStr) + "\n" + purple(fileStr) + "\n" + purple(bannerStr)
 }
 
-func (o *OutWriter) FinalResults(results []*types.TestResult) bool {
-	totalPass := 0
-	totalFail := 0
-	for _, result := range results {
-		if result.Pass {
-			totalPass++
-		} else {
-			totalFail++
-		}
+func FinalResults(result types.SummaryObject) string {
+	resultStr := "\n===============\n"
+	resultStr += "=== RESULTS ===\n"
+	resultStr += "===============\n"
+	resultStr += lightGreen(fmt.Sprintf("Passes:      %d\n", result.Pass))
+	resultStr += lightRed(fmt.Sprintf("Failures:    %d\n", result.Fail))
+	resultStr += cyan(fmt.Sprintf("Total tests: %d\n", result.Total))
+	if result.Fail == 0 {
+		resultStr += green("PASS\n")
 	}
-	totalTests := totalPass + totalFail
-	if totalTests == 0 {
-		o.red("No tests run! Check config file format.")
-		return false
-	}
-	o.Print("===============")
-	o.Print("=== RESULTS ===")
-	o.Print("===============")
-	o.lightGreen(fmt.Sprintf("Passes:      %d", totalPass))
-	o.lightRed(fmt.Sprintf("Failures:    %d", totalFail))
-	o.cyan(fmt.Sprintf("Total tests: %d", totalTests))
-	if totalFail > 0 {
-		o.red("\nFAIL")
-		return false
-	}
-	o.green("\nPASS")
-	return true
+	return resultStr
 }

@@ -16,6 +16,12 @@ git_repository(
     remote = "https://github.com/bazelbuild/rules_docker.git",
 )
 
+git_repository(
+    name = "runtimes_common",
+    commit = "4e4460fceb6d0a94d8094e56c0e62b6d239da962",
+    remote = "https://github.com/GoogleCloudPlatform/runtimes-common.git",
+)
+
 new_http_archive(
     name = "docker_credential_gcr",
     build_file_content = """package(default_visibility = ["//visibility:public"])

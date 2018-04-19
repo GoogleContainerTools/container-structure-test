@@ -16,8 +16,9 @@ package utils
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"regexp"
+
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 )
 
 var yesResponses = []string{"y", "Y", "yes", "Yes", "YES"}
@@ -32,7 +33,7 @@ const (
 func CompileAndRunRegex(regex string, base string, shouldMatch bool) bool {
 	r, rErr := regexp.Compile(regex)
 	if rErr != nil {
-		logrus.Errorf("Error compiling regex %s : %s", regex, rErr.Error())
+		ctc_lib.Log.Errorf("Error compiling regex %s : %s", regex, rErr.Error())
 		return false
 	}
 	return shouldMatch == r.MatchString(base)
@@ -49,7 +50,7 @@ func UserConfirmation(message string, force bool) bool {
 	var input string
 	_, err := fmt.Scanln(&input)
 	if err != nil {
-		// should maybe log something here
+		ctc_lib.Log.Errorf("Error reading input from stdin.", err)
 		return false
 	}
 	for _, response := range yesResponses {

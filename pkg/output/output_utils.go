@@ -14,10 +14,6 @@
 
 package output
 
-import (
-	"fmt"
-)
-
 const (
 	RED         = "\033[0;31m"
 	LIGHT_RED   = "\033[1;31m"
@@ -40,48 +36,38 @@ const (
 // Purple       0;35     Light Purple  1;35
 // Cyan         0;36     Light Cyan    1;36
 
-func (o *OutWriter) green(s string) {
-	o.Print(GREEN + s + NC)
+func green(s string) string {
+	return GREEN + s + NC
 }
 
-func (o *OutWriter) blue(s string) {
-	o.Print(BLUE + s + NC)
+func blue(s string) string {
+	return BLUE + s + NC
 }
 
-func (o *OutWriter) lightGreen(s string) {
-	o.Print(LIGHT_GREEN + s + NC)
+func lightGreen(s string) string {
+	return LIGHT_GREEN + s + NC
 }
 
-func (o *OutWriter) yellow(s string) {
-	o.Print(YELLOW + s + NC)
+func yellow(s string) string {
+	return YELLOW + s + NC
 }
 
-func (o *OutWriter) red(s string) {
-	o.Print(RED + s + NC)
+func red(s string) string {
+	return RED + s + NC
 }
 
-func (o *OutWriter) lightRed(s string) {
-	o.Print(LIGHT_RED + s + NC)
+func lightRed(s string) string {
+	return LIGHT_RED + s + NC
 }
 
-func (o *OutWriter) cyan(s string) {
-	o.Print(CYAN + s + NC)
+func cyan(s string) string {
+	return CYAN + s + NC
 }
 
-func (o *OutWriter) orange(s string) {
-	o.Print(ORANGE + s + NC)
+func orange(s string) string {
+	return ORANGE + s + NC
 }
 
-func (o *OutWriter) purple(s string) {
-	o.Print(PURPLE + s + NC)
-}
-
-func (o *OutWriter) Print(s string) {
-	if !o.Quiet {
-		fmt.Println(s)
-	}
-}
-
-func (o *OutWriter) Printf(s string, args ...interface{}) {
-	o.Print(fmt.Sprintf(s, args))
+func purple(s string) string {
+	return PURPLE + s + NC
 }

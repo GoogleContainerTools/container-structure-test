@@ -17,7 +17,7 @@ package v2
 import (
 	"fmt"
 
-	"github.com/sirupsen/logrus"
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
@@ -74,7 +74,7 @@ func (ct *CommandTest) LogName() string {
 }
 
 func (ct *CommandTest) Run(driver drivers.Driver) *types.TestResult {
-	logrus.Info(ct.LogName())
+	ctc_lib.Log.Debug(ct.LogName())
 	fullCommand := append([]string{ct.Command}, ct.Args...)
 	stdout, stderr, exitcode, err := driver.ProcessCommand(ct.EnvVars, fullCommand)
 	result := &types.TestResult{

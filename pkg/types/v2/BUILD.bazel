@@ -14,10 +14,9 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/drivers:go_default_library",
-        "//pkg/output:go_default_library",
         "//pkg/types/unversioned:go_default_library",
         "//pkg/utils:go_default_library",
+        "//vendor/github.com/GoogleCloudPlatform/runtimes-common/ctc_lib:go_default_library",
         "//vendor/github.com/pkg/errors:go_default_library",
-        "//vendor/github.com/sirupsen/logrus:go_default_library",
     ],
 )

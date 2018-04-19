@@ -17,8 +17,6 @@ package v1
 import (
 	"fmt"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
@@ -51,7 +49,6 @@ func (ft FileContentTest) Run(driver drivers.Driver) *types.TestResult {
 		Pass:   true,
 		Errors: make([]string, 0),
 	}
-	logrus.Info(ft.LogName())
 	actualContents, err := driver.ReadFile(ft.Path)
 	if err != nil {
 		result.Errorf("Failed to open %s. Error: %s", ft.Path, err)
