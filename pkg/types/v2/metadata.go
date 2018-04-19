@@ -17,10 +17,10 @@ package v2
 import (
 	"fmt"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
-	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/utils"
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
+	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
 )
 
 type MetadataTest struct {
@@ -30,6 +30,7 @@ type MetadataTest struct {
 	Cmd          *[]string      `yaml:"cmd"`
 	Workdir      string         `yaml:"workdir"`
 	Volumes      []string       `yaml:"volumes"`
+	Labels       []types.Label  `yaml:"labels"`
 }
 
 func (mt MetadataTest) LogName() string {
@@ -40,6 +41,11 @@ func (mt MetadataTest) Validate() error {
 	for _, envVar := range mt.Env {
 		if envVar.Key == "" {
 			return fmt.Errorf("Environment variable key cannot be empty")
+		}
+	}
+	for _, label := range mt.Labels {
+		if label.Key == "" {
+			return fmt.Errorf("Label key cannot be empty")
 		}
 	}
 	for _, port := range mt.ExposedPorts {
@@ -67,14 +73,30 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		result.Fail()
 		return result
 	}
+
 	for _, pair := range mt.Env {
-		if imageConfig.Env[pair.Key] == "" {
+		if act_val, has_key := imageConfig.Env[pair.Key]; has_key {
+			if !utils.CompileAndRunRegex(pair.Value, act_val, true) {
+				result.Errorf("env var %s value does not match expected value: %s", pair.Key, pair.Value)
+				result.Fail()
+			}
+		} else {
 			result.Errorf("variable %s not found in image env", pair.Key)
 			result.Fail()
-		} else if imageConfig.Env[pair.Key] != pair.Value {
-			result.Errorf("env var %s value does not match expected value: %s", pair.Key, pair.Value)
+		}
+	}
+
+	for _, pair := range mt.Labels {
+		if act_val, has_key := imageConfig.Labels[pair.Key]; has_key {
+			if !utils.CompileAndRunRegex(pair.Value, act_val, true) {
+				result.Errorf("label %s value does not match expected value: %s", pair.Key, pair.Value)
+				result.Fail()
+			}
+		} else {
+			result.Errorf("label %s not found in image metadata", pair.Key)
 			result.Fail()
 		}
+
 	}
 
 	if mt.Cmd != nil {

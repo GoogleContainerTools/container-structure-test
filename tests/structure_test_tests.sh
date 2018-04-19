@@ -39,6 +39,24 @@ then
   failures=$((failures +1))
 fi
 
+# test image metadata
+run_metadata_tests=true
+if $run_metadata_tests ;
+then
+  test_metadata_image=debian8-with-metadata:latest
+  docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_dir"
+  res=$(./out/container-structure-test test --image "$test_metadata_image" --config "$test_dir"/debian_metadata_test.yaml)
+  code=$?
+
+  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+  then
+    echo "Metadata success case test failed"
+    echo "$res"
+    failures=$((failures +1))
+  fi
+  docker rmi "$test_metadata_image"
+fi
+
 # Run some bogus tests, they should fail as expected
 res=$(./out/container-structure-test test --image "$test_image" --config "$test_dir"/debian_failure_test.yaml)
 code=$?
@@ -64,7 +82,6 @@ then
   echo "$res"
   failures=$((failures +1))
 fi
-
 
 echo "Failure Count: $failures"
 if [ "$failures" -gt "0" ]

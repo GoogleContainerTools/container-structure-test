@@ -26,8 +26,8 @@ import (
 
 	"bytes"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
 type HostDriver struct {
@@ -166,11 +166,12 @@ func (d *HostDriver) GetConfig() (unversioned.Config, error) {
 	}
 
 	return unversioned.Config{
-		Env:          convertEnvToMap(config.Env),
+		Env:          convertSliceToMap(config.Env),
 		Entrypoint:   config.Entrypoint,
 		Cmd:          config.Cmd,
 		Volumes:      volumes,
 		Workdir:      config.Workdir,
 		ExposedPorts: ports,
+		Labels:       convertSliceToMap(config.Labels),
 	}, nil
 }

@@ -19,9 +19,9 @@ import (
 
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
-	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/utils"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
+	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
 )
 
 type CommandTest struct {

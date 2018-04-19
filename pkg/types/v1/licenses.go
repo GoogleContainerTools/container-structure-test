@@ -21,9 +21,9 @@ import (
 
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
-	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/utils"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
+	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
 )
 
 type LicenseTest struct {
@@ -34,7 +34,7 @@ type LicenseTest struct {
 var (
 	// Whitelist is the list of packages that we want to automatically pass this
 	// check even if it would normally fail for one reason or another.
-	whitelist = []string{}
+	whitelist = []string{"libgnutls30"}
 
 	// Blacklist is the set of words that, if contained in a license file, should cause a failure.
 	// This will most likely just be names of unsupported licenses.

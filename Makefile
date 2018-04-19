@@ -14,7 +14,7 @@
 
 # Bump these on release
 VERSION_MAJOR ?= 1
-VERSION_MINOR ?= 0
+VERSION_MINOR ?= 1
 VERSION_BUILD ?= 0
 
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
@@ -24,7 +24,7 @@ GOARCH = amd64
 PROJECT := container-structure-test
 RELEASE_BUCKET ?= gcp-container-tools/structure-test
 
-LD_FLAGS := -X github.com/GoogleCloudPlatform/container-structure-test/pkg/version.version=$(VERSION)
+LD_FLAGS := -X github.com/GoogleContainerTools/container-structure-test/pkg/version.version=$(VERSION)
 
 SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH)
 

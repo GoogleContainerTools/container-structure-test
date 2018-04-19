@@ -12,7 +12,7 @@ gazelle(
     name = "gazelle",
     build_tags = ["go1.7"],
     external = "vendored",
-    prefix = "github.com/GoogleCloudPlatform/container-structure-test",
+    prefix = "github.com/GoogleContainerTools/container-structure-test",
 )
 
 pkg_tar(
@@ -41,7 +41,11 @@ go_binary(
         ":cred_helper.tar",
         ":default_creds.tar",
     ],
+<<<<<<< HEAD
     importpath = "github.com/GoogleCloudPlatform/container-structure-test",
+=======
+    importpath = "github.com/GoogleContainerTools/container-structure-test",
+>>>>>>> master
     pure = "on",
     deps = [
         "//cmd:go_default_library",
@@ -67,18 +71,18 @@ container_image(
     ],
 )
 
-go_prefix("github.com/GoogleCloudPlatform/container-structure-test")
+go_prefix("github.com/GoogleContainerTools/container-structure-test")
 
 go_binary(
     name = "container-structure-test",
     embed = [":go_default_library"],
-    importpath = "github.com/GoogleCloudPlatform/container-structure-test",
+    importpath = "github.com/GoogleContainerTools/container-structure-test",
 )
 
 go_library(
     name = "go_default_library",
     srcs = ["main.go"],
-    importpath = "github.com/GoogleCloudPlatform/container-structure-test",
+    importpath = "github.com/GoogleContainerTools/container-structure-test",
     deps = [
         "//cmd:go_default_library",
         "//pkg/version:go_default_library",

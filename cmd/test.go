@@ -22,12 +22,13 @@ import (
 	"os"
 	"strings"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/output"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/utils"
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/output"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/types"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
+
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"

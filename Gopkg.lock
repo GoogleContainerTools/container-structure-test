@@ -11,12 +11,12 @@
   revision = "d6e3b3328b783f23731bc4d058875b0371ff8109"
 
 [[projects]]
-  name = "github.com/GoogleCloudPlatform/container-diff"
+  name = "github.com/GoogleContainerTools/container-diff"
   packages = [
     "cmd/util/output",
     "pkg/util"
   ]
-  revision = "d2b317ec63b9e9db4ad6a4065399d74c9b7ebd78"
+  revision = "b2e2f7ef8897f29306877618f16f0d67d8a89094"
 
 [[projects]]
   branch = "master"
@@ -359,6 +359,10 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
+<<<<<<< HEAD
   inputs-digest = "ce18338c905012cfb6628e80e915ed96b7e2cbe2b2460ce103baec43e953df25"
+=======
+  inputs-digest = "4c873413fc90a4a28d64fcaf484afa7942ceb38c6c3d197b3db3c1141c590d18"
+>>>>>>> master
   solver-name = "gps-cdcl"
   solver-version = 1

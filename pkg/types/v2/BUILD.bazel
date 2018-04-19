@@ -10,10 +10,14 @@ go_library(
         "metadata.go",
         "structure.go",
     ],
-    importpath = "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/v2",
+    importpath = "github.com/GoogleContainerTools/container-structure-test/pkg/types/v2",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/drivers:go_default_library",
+<<<<<<< HEAD
+=======
+        "//pkg/output:go_default_library",
+>>>>>>> master
         "//pkg/types/unversioned:go_default_library",
         "//pkg/utils:go_default_library",
         "//vendor/github.com/GoogleCloudPlatform/runtimes-common/ctc_lib:go_default_library",

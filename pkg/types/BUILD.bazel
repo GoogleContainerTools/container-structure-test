@@ -3,10 +3,15 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["types.go"],
-    importpath = "github.com/GoogleCloudPlatform/container-structure-test/pkg/types",
+    importpath = "github.com/GoogleContainerTools/container-structure-test/pkg/types",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/drivers:go_default_library",
+<<<<<<< HEAD
+=======
+        "//pkg/output:go_default_library",
+        "//pkg/types/unversioned:go_default_library",
+>>>>>>> master
         "//pkg/types/v1:go_default_library",
         "//pkg/types/v2:go_default_library",
     ],

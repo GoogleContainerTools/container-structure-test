@@ -17,8 +17,8 @@ package v1
 import (
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/drivers"
-	types "github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
+	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
 type StructureTest struct {

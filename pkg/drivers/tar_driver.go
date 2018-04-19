@@ -21,8 +21,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	pkgutil "github.com/GoogleCloudPlatform/container-diff/pkg/util"
-	"github.com/GoogleCloudPlatform/container-structure-test/pkg/types/unversioned"
+	pkgutil "github.com/GoogleContainerTools/container-diff/pkg/util"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
 type TarDriver struct {
@@ -111,11 +111,12 @@ func (d *TarDriver) GetConfig() (unversioned.Config, error) {
 	}
 
 	return unversioned.Config{
-		Env:          convertEnvToMap(d.Image.Config.Config.Env),
+		Env:          convertSliceToMap(d.Image.Config.Config.Env),
 		Entrypoint:   d.Image.Config.Config.Entrypoint,
 		Cmd:          d.Image.Config.Config.Cmd,
 		Volumes:      volumes,
 		Workdir:      d.Image.Config.Config.Workdir,
 		ExposedPorts: ports,
+		Labels:       d.Image.Config.Config.Labels,
 	}, nil
 }
