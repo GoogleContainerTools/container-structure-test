@@ -41,11 +41,7 @@ go_binary(
         ":cred_helper.tar",
         ":default_creds.tar",
     ],
-<<<<<<< HEAD
-    importpath = "github.com/GoogleCloudPlatform/container-structure-test",
-=======
     importpath = "github.com/GoogleContainerTools/container-structure-test",
->>>>>>> master
     pure = "on",
     deps = [
         "//cmd:go_default_library",

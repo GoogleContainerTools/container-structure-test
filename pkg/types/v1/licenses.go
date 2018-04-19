@@ -62,7 +62,7 @@ func (lt LicenseTest) Run(driver drivers.Driver) *types.TestResult {
 		Pass:   true,
 		Errors: make([]string, 0),
 	}
-	ctc_lib.Log.Debug(lt.LogName())
+	ctc_lib.Log.Info(lt.LogName())
 	if lt.Debian {
 		root := utils.DebianRoot
 		packages, err := driver.ReadDir(root)
@@ -75,7 +75,7 @@ func (lt LicenseTest) Run(driver drivers.Driver) *types.TestResult {
 			if !p.IsDir() {
 				continue
 			}
-			ctc_lib.Log.Debugf(p.Name())
+			ctc_lib.Log.Infof(p.Name())
 			// Skip over packages in the whitelist
 			whitelisted := false
 			for _, w := range whitelist {

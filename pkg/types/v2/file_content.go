@@ -51,7 +51,7 @@ func (ft FileContentTest) Run(driver drivers.Driver) *types.TestResult {
 		Pass:   true,
 		Errors: make([]string, 0),
 	}
-	ctc_lib.Log.Debug(ft.LogName())
+	ctc_lib.Log.Info(ft.LogName())
 	actualContents, err := driver.ReadFile(ft.Path)
 	if err != nil {
 		result.Errorf("Failed to open %s. Error: %s", ft.Path, err)

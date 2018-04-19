@@ -52,7 +52,7 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 		Pass:   true,
 		Errors: make([]string, 0),
 	}
-	ctc_lib.Log.Debug(ft.LogName())
+	ctc_lib.Log.Info(ft.LogName())
 	var info os.FileInfo
 	info, err := driver.StatFile(ft.Path)
 	if info == nil {
