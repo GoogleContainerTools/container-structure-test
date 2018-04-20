@@ -70,6 +70,7 @@ func ExecuteE(ctb CLIInterface) (err error) {
 	lastUpdatedCheckFilePath := filepath.Join(
 		util.GetToolTempDirOrDefault(viper.GetString(config.TmpDirKey), ctb.toolName()),
 		constants.LastUpdatedCheckFileName)
+
 	Log.WithFields(log.Fields{
 		"updatecheck":             viper.GetString(config.UpdateCheckConfigKey),
 		"last_updated_check_file": lastUpdatedCheckFilePath,
@@ -78,7 +79,7 @@ func ExecuteE(ctb CLIInterface) (err error) {
 	if notify.ShouldCheckURLVersion(lastUpdatedCheckFilePath) && ReleaseUrl != "" {
 		// Calling UpdateCheckCommand Explicitly. Hence no need to pass args.
 		Log.Debug("Running Update Check Command")
-		UpdateCheckCommand.Run(ctb.getCommand(), nil)
+		UpdateCheckCommand.RunE(ctb.getCommand(), nil)
 		notify.WriteTimeToFile(lastUpdatedCheckFilePath, time.Now().UTC())
 	}
 
@@ -88,6 +89,7 @@ func ExecuteE(ctb CLIInterface) (err error) {
 			ctb.getCommand().Println("See logs at ", logFile)
 		}
 	}
+
 	return err
 }
 

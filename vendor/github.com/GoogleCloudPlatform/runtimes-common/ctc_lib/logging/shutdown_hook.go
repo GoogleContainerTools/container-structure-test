@@ -17,7 +17,6 @@ limitations under the License.
 package logging
 
 import (
-	"fmt"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -33,7 +32,6 @@ func NewFatalHook(exitOnError bool) *FatalHook {
 }
 
 func (hook *FatalHook) Fire(entry *log.Entry) error {
-	Out.Error(fmt.Errorf(entry.Message))
 	if hook.exitOnError {
 		os.Exit(1)
 	}

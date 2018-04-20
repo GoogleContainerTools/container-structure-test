@@ -17,15 +17,23 @@ limitations under the License.
 package util
 
 import (
+	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
 	"text/template"
 
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/constants"
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/flags"
 	"github.com/sirupsen/logrus"
 )
 
 func ExecuteTemplate(templateStr string, obj interface{}, funcMap template.FuncMap, out io.Writer) error {
+	if flags.JsonOutput {
+		// Do not execute the template.
+		return PrintJson(obj, out)
+	}
+
 	tmpl, err := template.New("Template").Funcs(funcMap).Parse(templateStr)
 	if err != nil {
 		return err
@@ -44,4 +52,12 @@ func GetToolTempDirOrDefault(tmpDir string, toolName string) string {
 	toolTmpDir := filepath.Join(tmpDir, toolName)
 	os.Mkdir(toolTmpDir, 0700)
 	return toolTmpDir
+}
+
+func PrintJson(obj interface{}, out io.Writer) error {
+	encoded_bytes, err := json.MarshalIndent(obj, constants.JsonEncoderPrefix, constants.JsonEncoderIndent)
+	if err == nil {
+		out.Write(encoded_bytes)
+	}
+	return err
 }

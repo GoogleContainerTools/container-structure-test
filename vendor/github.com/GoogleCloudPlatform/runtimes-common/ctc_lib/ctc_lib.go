@@ -50,8 +50,8 @@ func GetExitOnError() bool {
 }
 
 func CommandExit(err error) {
+	LogIfErr(err, logging.Out)
 	if err != nil {
-		logging.Out.Error(err)
 		if exitOnError {
 			os.Exit(1)
 		}
@@ -79,5 +79,11 @@ You can override it via ctc_lib.ConfigFile pkg variable`)
 	err := viper.MergeInConfig()
 	if err != nil {
 		logging.Out.Warningf("Error reading config file at %s: %s. Using Defaults", ConfigFile, err)
+	}
+}
+
+func LogIfErr(err error, logger *log.Logger) {
+	if err != nil {
+		logger.Error(err)
 	}
 }

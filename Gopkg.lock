@@ -11,14 +11,6 @@
   revision = "d6e3b3328b783f23731bc4d058875b0371ff8109"
 
 [[projects]]
-  name = "github.com/GoogleContainerTools/container-diff"
-  packages = [
-    "cmd/util/output",
-    "pkg/util"
-  ]
-  revision = "b2e2f7ef8897f29306877618f16f0d67d8a89094"
-
-[[projects]]
   branch = "master"
   name = "github.com/GoogleCloudPlatform/runtimes-common"
   packages = [
@@ -31,7 +23,15 @@
     "ctc_lib/types",
     "ctc_lib/util"
   ]
-  revision = "2b4e07b86e889b3c62aab9a94ef0dbb8ff60d070"
+  revision = "9828ee5659320cebbfd8d34707c36648ca087888"
+
+[[projects]]
+  name = "github.com/GoogleContainerTools/container-diff"
+  packages = [
+    "cmd/util/output",
+    "pkg/util"
+  ]
+  revision = "b2e2f7ef8897f29306877618f16f0d67d8a89094"
 
 [[projects]]
   name = "github.com/Microsoft/go-winio"
@@ -359,6 +359,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4c873413fc90a4a28d64fcaf484afa7942ceb38c6c3d197b3db3c1141c590d18"
+  inputs-digest = "d359f699ce5dcf312ea2e6df9e8805a9e4db07954abb15d7702f4b594a3d7306"
   solver-name = "gps-cdcl"
   solver-version = 1
