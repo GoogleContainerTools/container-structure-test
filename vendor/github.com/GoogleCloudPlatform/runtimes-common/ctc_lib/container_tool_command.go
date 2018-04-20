@@ -43,8 +43,12 @@ Either implement Command.Run implementation or RunO implemetation`)
 }
 
 func (ctc *ContainerToolCommand) printO(c *cobra.Command, args []string) error {
-	obj, _ := ctc.RunO(c, args)
+	obj, err := ctc.RunO(c, args)
 	ctc.Output = obj
-	return util.ExecuteTemplate(ctc.ReadTemplateFromFlagOrCmdDefault(),
+	display_err := util.ExecuteTemplate(ctc.ReadTemplateFromFlagOrCmdDefault(),
 		ctc.Output, ctc.TemplateFuncMap, ctc.OutOrStdout())
+	if err != nil {
+		return err
+	}
+	return display_err
 }

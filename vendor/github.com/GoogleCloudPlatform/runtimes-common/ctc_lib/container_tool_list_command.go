@@ -17,13 +17,22 @@ limitations under the License.
 package ctc_lib
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
+
+	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/flags"
 
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/constants"
 
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/util"
 	"github.com/spf13/cobra"
 )
+
+type ListCommandOutputObject struct {
+	OutputList    []interface{}
+	SummaryObject interface{}
+}
 
 type ContainerToolListCommand struct {
 	*ContainerToolCommandBase
@@ -42,22 +51,26 @@ type ContainerToolListCommand struct {
 	Stream chan interface{}
 }
 
-func (commandList ContainerToolListCommand) ReadFromStream() ([]interface{}, error) {
+func (commandList ContainerToolListCommand) ReadFromStream(streamOutput bool) ([]interface{}, error) {
 	results := make([]interface{}, 0)
 	for obj := range commandList.Stream {
 		if _, ok := obj.(string); ok {
 			// Display any Arbitary strings written to the channel as is.
 			// These could be headers or any text.
 			// TODO: Provide a callback for users to overwrite this default behavior.
-			util.ExecuteTemplate(constants.EmptyTemplate,
-				obj, commandList.TemplateFuncMap, commandList.OutOrStdout())
+			if streamOutput {
+				util.ExecuteTemplate(constants.EmptyTemplate,
+					obj, commandList.TemplateFuncMap, commandList.OutOrStdout())
+			}
 			continue
 		}
 		results = append(results, obj)
-		err := util.ExecuteTemplate(commandList.ReadTemplateFromFlagOrCmdDefault(),
-			obj, commandList.TemplateFuncMap, commandList.OutOrStdout())
-		if err != nil {
-			return nil, err
+		if streamOutput {
+			err := util.ExecuteTemplate(commandList.ReadTemplateFromFlagOrCmdDefault(),
+				obj, commandList.TemplateFuncMap, commandList.OutOrStdout())
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return results, nil
@@ -76,35 +89,63 @@ Either implement Command.Run implementation or RunO implemetation`)
 }
 
 func (ctc *ContainerToolListCommand) printO(c *cobra.Command, args []string) error {
-	var err error
+	var commandError, totalFuncError, totalDisplayError error
+	var totalDisplayString string
 	if ctc.StreamO != nil {
-		// Stream Objects
+		// Stream Objects only when JsonOutput = False
 		ctc.StreamO(c, args)
-		ctc.OutputList, err = ctc.ReadFromStream()
+		ctc.OutputList, commandError = ctc.ReadFromStream(!flags.JsonOutput)
 	} else {
 		// Run RunO function.
-		ctc.OutputList, err = ctc.RunO(c, args)
-		if err != nil {
-			return err
-		}
-		err = util.ExecuteTemplate(ctc.ReadTemplateFromFlagOrCmdDefault(),
-			ctc.OutputList, ctc.TemplateFuncMap, ctc.OutOrStdout())
+		ctc.OutputList, commandError = ctc.RunO(c, args)
+		LogIfErr(commandError, Log)
 	}
-	if err != nil {
-		return err
+	totalDisplayString, totalFuncError, totalDisplayError = ctc.runTotalIfDefined()
+	LogIfErr(totalFuncError, Log)
+	ctc.printResult(totalDisplayString)
+	LogIfErr(totalDisplayError, Log)
+
+	if commandError == nil && totalDisplayError == nil && totalFuncError == nil {
+		return nil
+	} else if commandError != nil {
+		// Return Command Error if occurred
+		return commandError
+	} else if totalFuncError != nil {
+		// Return TotalFuncError if occurred
+		return totalFuncError
+	} else {
+		return totalDisplayError
 	}
-	// If TotalO function defined and Summary Template provided, print the summary.
+}
+
+func (ctc *ContainerToolListCommand) runTotalIfDefined() (string, error, error) {
+	var totalCommandError, totalError error
+	var OutputBuffer bytes.Buffer
+	// If TotalO function defined & Summary Template provided, get the summary text
 	if ctc.TotalO != nil && ctc.SummaryTemplate != "" {
-		total, err := ctc.TotalO(ctc.OutputList)
-		ctc.SummaryObject = total
-		display_err := util.ExecuteTemplate(ctc.SummaryTemplate, ctc.SummaryObject,
-			ctc.TemplateFuncMap, ctc.OutOrStdout())
-		if err != nil {
-			return err
+		ctc.SummaryObject, totalCommandError = ctc.TotalO(ctc.OutputList)
+		totalError = util.ExecuteTemplate(ctc.SummaryTemplate,
+			ctc.SummaryObject, ctc.TemplateFuncMap, &OutputBuffer)
+	}
+	return OutputBuffer.String(), totalCommandError, totalError
+}
+
+func (ctc *ContainerToolListCommand) printResult(totalDisplayString string) {
+	if flags.JsonOutput {
+		data := ListCommandOutputObject{
+			OutputList:    ctc.OutputList,
+			SummaryObject: ctc.SummaryObject,
 		}
-		if display_err != nil {
-			return display_err
+		util.PrintJson(data, ctc.OutOrStdout())
+	} else {
+		if ctc.StreamO == nil {
+			err := util.ExecuteTemplate(ctc.ReadTemplateFromFlagOrCmdDefault(),
+				ctc.OutputList, ctc.TemplateFuncMap, ctc.OutOrStdout())
+			LogIfErr(err, Log)
+		}
+		// Display total if defined.
+		if totalDisplayString != "" {
+			fmt.Fprintln(ctc.OutOrStdout(), totalDisplayString)
 		}
 	}
-	return nil
 }

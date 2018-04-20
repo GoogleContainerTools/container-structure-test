@@ -35,6 +35,7 @@ go_test(
     srcs = [
         "config_command_test.go",
         "container_tool_command_test.go",
+        "container_tool_list_command_failures_test.go",
         "container_tool_list_command_test.go",
         "template_test.go",
     ],

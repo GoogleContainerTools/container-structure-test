@@ -17,10 +17,12 @@ limitations under the License.
 package constants
 
 const (
-	EmptyTemplate            = "{{.}}"
+	EmptyTemplate            = "{{.}}\n"
 	DefaultLogLevel          = "info"
 	ConfigType               = "json"
 	LogFileName              = "debug.log"
 	DayInSeconds             = 86400
 	LastUpdatedCheckFileName = "last_updated_check"
+	JsonEncoderPrefix        = ""
+	JsonEncoderIndent        = "\t"
 )

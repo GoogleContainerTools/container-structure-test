@@ -18,7 +18,7 @@ git_repository(
 
 git_repository(
     name = "runtimes_common",
-    commit = "4e4460fceb6d0a94d8094e56c0e62b6d239da962",
+    commit = "9828ee5659320cebbfd8d34707c36648ca087888",
     remote = "https://github.com/GoogleCloudPlatform/runtimes-common.git",
 )
 

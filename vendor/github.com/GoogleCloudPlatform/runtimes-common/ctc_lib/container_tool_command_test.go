@@ -17,10 +17,12 @@ package ctc_lib
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"os/exec"
+	"reflect"
 	"testing"
 
 	"github.com/spf13/cobra"
@@ -222,5 +224,42 @@ func TestContainerToolCommandRunDefined(t *testing.T) {
 		"\nEither implement Command.Run implementation or RunO implemetation")
 	if err.Error() != expectedError {
 		t.Errorf("Expected Error: \n %q \nGot:\n %q\n", expectedError, err.Error())
+	}
+}
+
+func TestContainerToolCommandOutputInJson(t *testing.T) {
+	testCommand := ContainerToolCommand{
+		ContainerToolCommandBase: &ContainerToolCommandBase{
+			Command: &cobra.Command{
+				Use: "Hello Command",
+			},
+			Phase: "test",
+		},
+		Output: &TestInterface{},
+		RunO:   RunCommand,
+	}
+	testCommand.Flags().StringVarP(&Greeting, "greeting", "g", "Hello", "Greeting")
+	testCommand.Flags().StringVarP(&Name, "name", "n", "", "Name")
+	var OutputBuffer bytes.Buffer
+	testCommand.Command.SetOutput(&OutputBuffer)
+	testCommand.SetArgs([]string{"--name=Sparks", "--jsonOutput=True"})
+	Execute(&testCommand)
+	var expectedObj = TestInterface{
+		Greeting: "Hello",
+		Name:     "Sparks",
+	}
+	var expectedOutput, _ = json.MarshalIndent(expectedObj, "", "\t")
+	expectedStr := string(expectedOutput[:]) + "\n"
+	if expectedStr != OutputBuffer.String() {
+		t.Errorf("Expected to contain: \n %v\nGot:\n %v\n", string(expectedOutput[:]), OutputBuffer.String())
+	}
+
+	// Make sure you can unmarshall the data and read it.
+	var actualObj TestInterface
+	if err := json.Unmarshal([]byte(OutputBuffer.String()), &actualObj); err != nil {
+		t.Errorf("Error while decoding json %v", err)
+	}
+	if !reflect.DeepEqual(actualObj, expectedObj) {
+		t.Errorf("Expected to contain: \n %v\nGot:\n %v\n", expectedObj, actualObj)
 	}
 }
