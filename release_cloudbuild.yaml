@@ -14,6 +14,9 @@ steps:
 # Upload the linux binary to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
     args: ['cp', 'bazel-bin/linux_amd64_pure_stripped/structure_test', 'gs://container-structure-test/$TAG_NAME/container-structure-test']
+# Upload the linux binary to GCS
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['cp', 'bazel-bin/linux_amd64_pure_stripped/structure_test', 'gs://container-structure-test/latest/container-structure-test']
 
 images: [
   'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME',
