@@ -63,23 +63,22 @@ func (st *StructureTest) RunCommandTests(channel chan interface{}) {
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Error(err.Error())
-			continue
+			ctc_lib.Log.Fatal(err.Error())
 		}
-		defer driver.Destroy()
 		vars := append(st.GlobalEnvVars, test.EnvVars...)
 		if err = driver.Setup(vars, test.Setup); err != nil {
 			ctc_lib.Log.Error(err.Error())
+			driver.Destroy()
 			continue
 		}
 		defer func() {
 			if err := driver.Teardown(vars, test.Teardown); err != nil {
 				ctc_lib.Log.Error(err.Error())
 			}
+			driver.Destroy()
 		}()
 		channel <- test.Run(driver)
 	}
-
 }
 
 func (st *StructureTest) RunFileExistenceTests(channel chan interface{}) {
@@ -90,10 +89,10 @@ func (st *StructureTest) RunFileExistenceTests(channel chan interface{}) {
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Fatalf(err.Error())
+			ctc_lib.Log.Fatal(err.Error())
 		}
-		defer driver.Destroy()
 		channel <- test.Run(driver)
+		driver.Destroy()
 	}
 
 }
@@ -105,11 +104,10 @@ func (st *StructureTest) RunFileContentTests(channel chan interface{}) {
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Error(err)
-			ctc_lib.Log.Error(err.Error())
+			ctc_lib.Log.Fatal(err.Error())
 		}
-		defer driver.Destroy()
 		channel <- test.Run(driver)
+		driver.Destroy()
 	}
 }
 
@@ -117,10 +115,9 @@ func (st *StructureTest) RunLicenseTests(channel chan interface{}) {
 	for _, test := range st.LicenseTests {
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Error(err.Error())
-			continue
+			ctc_lib.Log.Fatal(err.Error())
 		}
-		defer driver.Destroy()
 		channel <- test.Run(driver)
+		driver.Destroy()
 	}
 }
