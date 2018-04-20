@@ -51,6 +51,7 @@ func (st *StructureTest) runAll(channel chan interface{}, fileProcessed chan boo
 	st.RunFileContentTests(channel)
 	st.RunFileExistenceTests(channel)
 	st.RunLicenseTests(channel)
+	st.RunMetadataTests(channel)
 	fileProcessed <- true
 }
 
