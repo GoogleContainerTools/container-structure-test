@@ -44,7 +44,7 @@ func OutputResult(result *types.TestResult, isQuiet bool) string {
 func Banner(filename string) string {
 	fileStr := fmt.Sprintf("====== Test file: %s ======", filepath.Base(filename))
 	bannerStr := strings.Repeat("=", len(fileStr))
-	return purple(bannerStr) + "\n" + purple(fileStr) + "\n" + purple(bannerStr)
+	return purple(bannerStr) + "\n" + purple(fileStr) + "\n" + purple(bannerStr) + "\n"
 }
 
 func FinalResults(result types.SummaryObject) string {

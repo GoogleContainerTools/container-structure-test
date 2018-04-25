@@ -91,8 +91,8 @@ func (st *StructureTest) RunFileExistenceTests(channel chan interface{}) {
 		if err != nil {
 			ctc_lib.Log.Fatalf(err.Error())
 		}
-		defer driver.Destroy()
 		channel <- test.Run(driver)
+		driver.Destroy()
 	}
 }
 
@@ -104,30 +104,29 @@ func (st *StructureTest) RunFileContentTests(channel chan interface{}) {
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Error(err)
-			ctc_lib.Log.Error(err.Error())
+			ctc_lib.Log.Fatal(err.Error())
 		}
 		channel <- test.Run(driver)
+		driver.Destroy()
 	}
 }
 
 func (st *StructureTest) RunMetadataTests(channel chan interface{}) {
 	driver, err := st.NewDriver()
 	if err != nil {
-		ctc_lib.Log.Error(err.Error())
+		ctc_lib.Log.Fatal(err.Error())
 	}
-	defer driver.Destroy()
 	channel <- st.MetadataTest.Run(driver)
+	driver.Destroy()
 }
 
 func (st *StructureTest) RunLicenseTests(channel chan interface{}) {
 	for _, test := range st.LicenseTests {
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Error(err.Error())
-			continue
+			ctc_lib.Log.Fatal(err.Error())
 		}
-		defer driver.Destroy()
 		channel <- test.Run(driver)
+		driver.Destroy()
 	}
 }
