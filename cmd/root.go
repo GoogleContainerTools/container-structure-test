@@ -34,6 +34,7 @@ var RootCmd = &ctc_lib.ContainerToolListCommand{
 the structure of a container image.
 These tests can be used to check the output of commands in an image,
 as well as verify metadata and contents of the filesystem.`,
+			SilenceErrors: true,
 		},
 		Phase:           "stable",
 		DefaultTemplate: "{{.}}",
