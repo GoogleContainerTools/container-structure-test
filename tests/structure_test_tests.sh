@@ -75,7 +75,7 @@ res=$(docker run -v /var/run/docker.sock:/var/run/docker.sock \
                  -v "$abs_test_dir":/tests \
                  bazel:structure_test_image test --image "$test_image" --config /tests/debian_test.yaml)
 code=$?
-PersistentPreRunE
+
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
   echo "Image success case test failed"

@@ -45,7 +45,6 @@ as well as verify metadata and contents of the filesystem.`,
 					// Create TestReport File with permissions 0666 Truncate previous if Exists already.
 					TestReportFile, err := os.Create(testReport)
 					if err != nil {
-						ctc_lib.Log.Error(err)
 						return err
 					}
 					TestCmd.SetOutput(TestReportFile)

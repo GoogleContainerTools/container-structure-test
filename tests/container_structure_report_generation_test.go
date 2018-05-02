@@ -17,8 +17,10 @@ package tests
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io/ioutil"
+	"os"
+	"reflect"
 	"testing"
 
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
@@ -50,69 +52,61 @@ func streamOTest(command *cobra.Command, args []string) {
 	go addResults(GenerateSuccessResult)
 }
 
-func TestContainerStructureTestsTestReportGenerationWhenCmdSucceds(t *testing.T) {
-	TestChannel = make(chan interface{}, 1)
-	tmpfile, _ := ioutil.TempFile("", "test.json")
-	cmd.RootCmd.SetArgs([]string{"test", "--image", TestImage, "--config", TestConfig,
-		"--test-report", tmpfile.Name()})
-	cmd.TestCmd.StreamO = streamOTest
-	cmd.TestCmd.Stream = TestChannel
-	GenerateSuccessResult = true
-	err := ctc_lib.ExecuteE(cmd.RootCmd)
-	if err != nil {
-		fmt.Println("Unexpected error", err)
-		t.Fail()
+func IsErrorEqual(err1 error, err2 error) bool {
+	if err1 == nil && err2 == nil {
+		return true // Return true Both of them are nil
+	} else if err1 == nil || err2 == nil {
+		return false // Return false if either of them are nil
+	} else if err1.Error() == err2.Error() {
+		return true // Return true if Messages are equal
 	}
-	raw, err := ioutil.ReadFile(tmpfile.Name())
-	if err != nil {
-		t.Fatalf("Error while reading the test report %v", err)
-	}
-	var c ctc_lib.ListCommandOutputObject
-	json.Unmarshal(raw, &c)
-	expectedMap := c.SummaryObject.(map[string]interface{})
-	if expectedMap["Fail"].(float64) != 0 {
-		t.Fatalf("Expected 0 Fail count. Got %d", expectedMap["Fail"])
-	}
+	return false // Return false
 }
 
-func TestContainerStructureTestsTestReportGenerationWhenCmdFails(t *testing.T) {
-	cmd.RootCmd.ResetFlags()
-	TestChannel = make(chan interface{}, 1)
-	tmpfile, _ := ioutil.TempFile("", "test.json")
-	cmd.RootCmd.SetArgs([]string{"test", "--image", TestImage, "--config", TestConfig,
-		"--test-report", tmpfile.Name()})
-	cmd.TestCmd.StreamO = streamOTest
-	cmd.TestCmd.Stream = TestChannel
-	GenerateSuccessResult = false // Generate Failed Test Results
-	err := ctc_lib.ExecuteE(cmd.RootCmd)
-	if err == nil {
-		fmt.Println("Expected Command to fail but it Succeeded")
-		t.Fail()
-	}
-	raw, err := ioutil.ReadFile(tmpfile.Name())
-	if err != nil {
-		t.Fatalf("Error while reading the test report %v", err)
-	}
-	var c ctc_lib.ListCommandOutputObject
-	json.Unmarshal(raw, &c)
-	expectedMap := c.SummaryObject.(map[string]interface{})
-	if expectedMap["Pass"].(float64) != 0 {
-		t.Fatalf("Expected 0 Pass count. Got %d", expectedMap["Pass"])
-	}
+var testCases = []struct {
+	name                  string
+	generateSuccessResult bool
+	expectedCommandError  error
+	expectedOutput        map[string]interface{}
+	testfile              string
+	checkReport           bool
+}{
+	{"reportSuccess", true, nil, map[string]interface{}{"Pass": 1.0, "Fail": 0.0, "Total": 1.0}, "", true},
+	{"reportFail", false, errors.New("Test(s) FAIL"), map[string]interface{}{"Pass": 0.0, "Fail": 1.0, "Total": 1.0}, "", true},
+	{"InvalidReportFile", false, errors.New("open /invalid_dir/file: no such file or directory"), nil, "/invalid_dir/file", false},
 }
 
-func TestContainerStructureTestsTestReportGenerationWhenTestReportFileInvalid(t *testing.T) {
-	TestChannel = make(chan interface{}, 1)
-	ctc_lib.SetExitOnError(false)
-	defer ctc_lib.SetExitOnError(true)
-	cmd.RootCmd.SetArgs([]string{"test", "--image", TestImage, "--config", TestConfig,
-		"--test-report", "/invalid_dir/test.json"})
-	cmd.TestCmd.StreamO = streamOTest
-	cmd.TestCmd.Stream = TestChannel
-	GenerateSuccessResult = true // Generate Failed Test Results
-	cmd.RootCmd.ResetFlags()
-	err := ctc_lib.ExecuteE(cmd.RootCmd)
-	if err == nil {
-		t.Fatal("Expected Command to fail but it Succeeded")
+func TestContainerStructureTestsTestReportGeneration(t *testing.T) {
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			TestChannel = make(chan interface{}, 1)
+			if tc.testfile == "" {
+				tmpfile, _ := ioutil.TempFile("", "test.json")
+				defer os.Remove(tmpfile.Name())
+				tc.testfile = tmpfile.Name()
+			}
+			cmd.RootCmd.SetArgs([]string{"test", "--image", TestImage, "--config", TestConfig,
+				"--test-report", tc.testfile})
+			cmd.TestCmd.StreamO = streamOTest
+			cmd.TestCmd.Stream = TestChannel
+			GenerateSuccessResult = tc.generateSuccessResult
+			cmd.RootCmd.ResetFlags()
+			err := ctc_lib.ExecuteE(cmd.RootCmd)
+			if !IsErrorEqual(err, tc.expectedCommandError) {
+				t.Fatalf("Expected error %v\nGot %v\n", tc.expectedCommandError, err)
+			}
+			if tc.checkReport { //Read results if checkReport set to True
+				raw, err := ioutil.ReadFile(tc.testfile)
+				if err != nil {
+					t.Fatalf("Error while reading the test report %v", err)
+				}
+				c := ctc_lib.ListCommandOutputObject{}
+				json.Unmarshal(raw, &c)
+				actualMap := c.SummaryObject.(map[string]interface{})
+				if !reflect.DeepEqual(actualMap, tc.expectedOutput) {
+					t.Fatalf("Expected %v.\nGot %v", tc.expectedOutput, actualMap)
+				}
+			}
+		})
 	}
 }
