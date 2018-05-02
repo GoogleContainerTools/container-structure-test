@@ -112,6 +112,13 @@ func (st *StructureTest) RunFileContentTests(channel chan interface{}) {
 }
 
 func (st *StructureTest) RunMetadataTests(channel chan interface{}) {
+	if st.MetadataTest.IsEmpty() {
+		ctc_lib.Log.Debug("Skipping empty metadata test")
+		return
+	}
+	if err := st.MetadataTest.Validate(); err != nil {
+		return
+	}
 	driver, err := st.NewDriver()
 	if err != nil {
 		ctc_lib.Log.Fatal(err.Error())

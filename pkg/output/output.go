@@ -15,6 +15,7 @@
 package output
 
 import (
+	"bytes"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -22,40 +23,55 @@ import (
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
+var bannerLength = 27 // default banner length
+
 func OutputResult(result *types.TestResult, isQuiet bool) string {
-	resultStr := fmt.Sprintf("=== RUN: %s\n", result.Name)
+	var strBuffer bytes.Buffer
+	strBuffer.WriteString(fmt.Sprintf("=== RUN: %s\n", result.Name))
 	if result.Pass {
-		resultStr += green("--- PASS\n")
+		strBuffer.WriteString(green("--- PASS\n"))
 	} else {
-		resultStr += red("--- FAIL\n")
+		strBuffer.WriteString(red("--- FAIL\n"))
 	}
 	if result.Stdout != "" && !isQuiet {
-		resultStr += blue(fmt.Sprintf("stdout: %s", result.Stdout))
+		strBuffer.WriteString(blue(fmt.Sprintf("stdout: %s", result.Stdout)))
 	}
 	if result.Stderr != "" && !isQuiet {
-		resultStr += blue(fmt.Sprintf("stderr: %s", result.Stderr))
+		strBuffer.WriteString(blue(fmt.Sprintf("stderr: %s", result.Stderr)))
 	}
 	for _, s := range result.Errors {
-		resultStr += orange(fmt.Sprintf("Error: %s\n", s))
+		strBuffer.WriteString(orange(fmt.Sprintf("Error: %s\n", s)))
 	}
-	return resultStr
+	return strBuffer.String()
 }
 
 func Banner(filename string) string {
+	var strBuffer bytes.Buffer
 	fileStr := fmt.Sprintf("====== Test file: %s ======", filepath.Base(filename))
-	bannerStr := strings.Repeat("=", len(fileStr))
-	return purple(bannerStr) + "\n" + purple(fileStr) + "\n" + purple(bannerStr) + "\n"
+	bannerLength = len(fileStr)
+	strBuffer.WriteString(strings.Repeat("=", bannerLength) + "\n")
+	strBuffer.WriteString(fileStr + "\n")
+	strBuffer.WriteString(strings.Repeat("=", bannerLength) + "\n")
+	return purple(strBuffer.String())
 }
 
 func FinalResults(result types.SummaryObject) string {
-	resultStr := "\n===============\n"
-	resultStr += "=== RESULTS ===\n"
-	resultStr += "===============\n"
-	resultStr += lightGreen(fmt.Sprintf("Passes:      %d\n", result.Pass))
-	resultStr += lightRed(fmt.Sprintf("Failures:    %d\n", result.Fail))
-	resultStr += cyan(fmt.Sprintf("Total tests: %d\n", result.Total))
-	if result.Fail == 0 {
-		resultStr += green("PASS\n")
+	if bannerLength%2 == 0 {
+		bannerLength++
 	}
-	return resultStr
+	var strBuffer bytes.Buffer
+	strBuffer.WriteString("\n" + strings.Repeat("=", bannerLength) + "\n")
+	strBuffer.WriteString(strings.Repeat("=", (bannerLength-9)/2))
+	strBuffer.WriteString(" RESULTS ")
+	strBuffer.WriteString(strings.Repeat("=", (bannerLength-9)/2))
+	strBuffer.WriteString("\n" + strings.Repeat("=", bannerLength) + "\n")
+	strBuffer.WriteString(lightGreen(fmt.Sprintf("Passes:      %d\n", result.Pass)))
+	strBuffer.WriteString(lightRed(fmt.Sprintf("Failures:    %d\n", result.Fail)))
+	strBuffer.WriteString(cyan(fmt.Sprintf("Total tests: %d\n", result.Total)))
+	if result.Fail == 0 {
+		strBuffer.WriteString(green("\nPASS\n"))
+	} else {
+		strBuffer.WriteString(red("\nFAIL\n"))
+	}
+	return strBuffer.String()
 }

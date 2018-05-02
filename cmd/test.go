@@ -72,12 +72,12 @@ var TestCmd = &ctc_lib.ContainerToolListCommand{
 		totalPass := 0
 		totalFail := 0
 		errStrings := make([]string, 0)
-		var err error = nil
+		var err error
 		for _, r := range list {
 			value, ok := r.(*unversioned.TestResult)
 			if !ok {
-				errStrings = append(errStrings, fmt.Sprintf("UnExpected Value %v in List.", value))
-				ctc_lib.Log.Errorf("Unexpected value %v in List.", value)
+				errStrings = append(errStrings, fmt.Sprintf("unexpected value %v in list", value))
+				ctc_lib.Log.Errorf("unexpected value %v in list", value)
 				continue
 			}
 			if value.IsPass() {
@@ -94,11 +94,10 @@ var TestCmd = &ctc_lib.ContainerToolListCommand{
 		}
 
 		return unversioned.SummaryObject{
-				Total: totalFail + totalPass,
-				Pass:  totalPass,
-				Fail:  totalFail,
-			},
-			err
+			Total: totalFail + totalPass,
+			Pass:  totalPass,
+			Fail:  totalFail,
+		}, err
 	},
 }
 
@@ -129,8 +128,8 @@ func RunTests() {
 		Channel <- output.Banner(file)
 		tests, err := Parse(file)
 		if err != nil {
-			// Continue with other config files
 			ctc_lib.Log.Errorf("Error parsing config file: %s", err)
+			continue // Continue with other config files
 		}
 		tests.RunAll(Channel, file)
 	}
@@ -227,7 +226,6 @@ func Run() {
 	if err != nil {
 		ctc_lib.Log.Fatal(err.Error())
 	}
-	ctc_lib.Log.Infof("Using driver %s\n", driver)
 	go RunTests()
 }
 

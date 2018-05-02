@@ -33,6 +33,16 @@ type MetadataTest struct {
 	Labels       []types.Label  `yaml:"labels"`
 }
 
+func (mt MetadataTest) IsEmpty() bool {
+	return len(mt.Env) == 0 &&
+		len(mt.ExposedPorts) == 0 &&
+		mt.Entrypoint == nil &&
+		mt.Cmd == nil &&
+		mt.Workdir == "" &&
+		len(mt.Volumes) == 0 &&
+		len(mt.Labels) == 0
+}
+
 func (mt MetadataTest) LogName() string {
 	return "Metadata Test"
 }
