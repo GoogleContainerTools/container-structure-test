@@ -23,6 +23,7 @@ import (
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
 )
 
 type FileExistenceTest struct {
@@ -54,7 +55,11 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 	}
 	ctc_lib.Log.Info(ft.LogName())
 	var info os.FileInfo
-	info, err := driver.StatFile(ft.Path)
+	config, err := driver.GetConfig()
+	if err != nil {
+		ctc_lib.Log.Errorf("error retrieving image config: %s", err.Error())
+	}
+	info, err = driver.StatFile(utils.SubstituteEnvVar(ft.Path, config.Env))
 	if info == nil {
 		result.Errorf(errors.Wrap(err, "Error examining file in container").Error())
 		result.Fail()

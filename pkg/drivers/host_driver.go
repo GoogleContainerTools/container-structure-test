@@ -46,7 +46,7 @@ func (d *HostDriver) Destroy() {
 }
 
 func (d *HostDriver) Setup(envVars []unversioned.EnvVar, fullCommands [][]string) error {
-	// since we're running on the host, we'll provide an optional teardown field for`
+	// since we're running on the host, we'll provide an optional teardown field for
 	// each test that will allow users to undo the setup they did.
 	// keep track of the original env vars so we can reset later.
 	d.GlobalVars = SetEnvVars(envVars)
@@ -59,7 +59,7 @@ func (d *HostDriver) Setup(envVars []unversioned.EnvVar, fullCommands [][]string
 	return nil
 }
 
-func (d *HostDriver) Teardown(envVars []unversioned.EnvVar, fullCommands [][]string) error {
+func (d *HostDriver) Teardown(fullCommands [][]string) error {
 	// since we're running on the host, we'll provide an optional teardown field for each test that
 	// will allow users to undo the setup they did.
 	ResetEnvVars(d.GlobalVars)
@@ -72,32 +72,41 @@ func (d *HostDriver) Teardown(envVars []unversioned.EnvVar, fullCommands [][]str
 	return nil
 }
 
+func (d *HostDriver) SetEnv(envVars []unversioned.EnvVar) error {
+	for _, envVar := range envVars {
+		if err := os.Setenv(envVar.Key, os.ExpandEnv(envVar.Value)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // given a list of environment variable key/value pairs, set these in the current environment.
 // also, keep track of the previous values of these vars to reset after test execution.
-func SetEnvVars(vars []unversioned.EnvVar) []unversioned.EnvVar {
+func SetEnvVars(envVars []unversioned.EnvVar) []unversioned.EnvVar {
 	var originalVars []unversioned.EnvVar
-	for _, env_var := range vars {
-		originalVars = append(originalVars, unversioned.EnvVar{env_var.Key, os.Getenv(env_var.Key)})
-		if err := os.Setenv(env_var.Key, os.ExpandEnv(env_var.Value)); err != nil {
-			ctc_lib.Log.Fatalf("Error setting env var: %s", err)
+	for _, envVar := range envVars {
+		originalVars = append(originalVars, unversioned.EnvVar{envVar.Key, os.Getenv(envVar.Key)})
+		if err := os.Setenv(envVar.Key, os.ExpandEnv(envVar.Value)); err != nil {
+			ctc_lib.Log.Errorf("Error setting env var: %s", err)
 		}
 	}
 	return originalVars
 }
 
-func ResetEnvVars(vars []unversioned.EnvVar) {
-	for _, env_var := range vars {
+func ResetEnvVars(envVars []unversioned.EnvVar) {
+	for _, envVar := range envVars {
 		var err error
-		if env_var.Value == "" {
+		if envVar.Value == "" {
 			// if the previous value was empty string, the variable did not
 			// exist in the environment; unset it
-			err = os.Unsetenv(env_var.Key)
+			err = os.Unsetenv(envVar.Key)
 		} else {
 			// otherwise, set it back to its previous value
-			err = os.Setenv(env_var.Key, env_var.Value)
+			err = os.Setenv(envVar.Key, envVar.Value)
 		}
 		if err != nil {
-			ctc_lib.Log.Fatalf("error resetting env var: %s", err)
+			ctc_lib.Log.Errorf("error resetting env var: %s", err)
 		}
 	}
 }
