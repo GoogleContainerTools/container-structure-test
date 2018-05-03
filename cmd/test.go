@@ -41,6 +41,7 @@ Be sure you know what you're doing before continuing!
 Continue? (y/n)`
 
 var totalTests int
+var testReportFile *os.File
 
 var driverImpl func(drivers.DriverConfig) (drivers.Driver, error)
 var args *drivers.DriverConfig
@@ -87,7 +88,7 @@ var TestCmd = &ctc_lib.ContainerToolListCommand{
 			}
 		}
 		if totalFail > 0 {
-			errStrings = append(errStrings, "FAIL")
+			errStrings = append(errStrings, "Test(s) FAIL")
 		}
 		if len(errStrings) > 0 {
 			err = fmt.Errorf(strings.Join(errStrings, "\n"))
@@ -240,6 +241,8 @@ func init() {
 	TestCmd.Flags().BoolVar(&force, "force", false, "force run of host driver (without user prompt)")
 
 	TestCmd.Flags().StringArrayVar(&configFiles, "config", []string{}, "test config files")
+	TestCmd.Flags().StringVar(&testReport, "test-report", "", `Generate Json Test Report and write it to specified filename.
+Implies --jsonOutput flag`)
 }
 
 func isQuiet() bool {

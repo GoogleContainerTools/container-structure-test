@@ -23,4 +23,5 @@ addons:
 script:
   - ./.gofmt.sh
   - make
+  - bazel test tests:go_default_test
   - ./tests/structure_test_tests.sh
