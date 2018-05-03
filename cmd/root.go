@@ -42,12 +42,11 @@ as well as verify metadata and contents of the filesystem.`,
 				if testReport != "" {
 					// Force JsonOutput
 					flags.JsonOutput = true
-					// Create TestReport File with permissions 0666 Truncate previous if Exists already.
-					TestReportFile, err := os.Create(testReport)
+					testReportFile, err := os.Create(testReport)
 					if err != nil {
 						return err
 					}
-					TestCmd.SetOutput(TestReportFile)
+					TestCmd.SetOutput(testReportFile)
 				}
 				return nil
 			},

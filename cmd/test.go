@@ -41,7 +41,7 @@ Be sure you know what you're doing before continuing!
 Continue? (y/n)`
 
 var totalTests int
-var TestReportFile *os.File
+var testReportFile *os.File
 
 var driverImpl func(drivers.DriverConfig) (drivers.Driver, error)
 var args *drivers.DriverConfig
