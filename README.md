@@ -11,6 +11,7 @@ Tests can be run either through a standalone binary, or through a Docker image.
 
 Download the latest binary release [here](https://storage.googleapis.com/container-structure-test/latest/container-structure-test),
 or pull the image at `gcr.io/gcp-runtimes/container-structure-test`.
+
 **Please note that at this time the binary is only compatible with Linux.**
 
 ## Setup
@@ -32,10 +33,11 @@ be provided to force a pull of a remote image before running the tests.
 An example run of the test framework:
 
 ```shell
-./structure-test test \
+./container-structure-test test \
   --image gcr.io/google-appengine/python \
   --config python_test_config.yaml
 ```
+
 This command will run the tests on the Google App Engine Python image, with
 verbose logging, using the `python_test_config.yaml` test config.
 
@@ -260,7 +262,7 @@ steps:
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/image', '.']
 # Test the image.
 - name: 'gcr.io/gcp-runtimes/container-structure-test'
-  args: ['-image', 'gcr.io/$PROJECT_ID/image', 'test_config.yaml']
+  args: ['--image', 'gcr.io/$PROJECT_ID/image', '--config', 'test_config.yaml']
 
 # Push the image.
 images: ['gcr.io/$PROJECT_ID/image']
@@ -294,8 +296,10 @@ in the tests, with the `-driver` flag.
 An example test run with a different driver looks like:
 
 ```shell
-./structure-test -driver tar -image gcr.io/google-appengine/python \
-python_test_config.yaml
+./container-structure-test \
+  --driver tar \
+  --image gcr.io/google-appengine/python \
+  --config python_test_config.yaml
 ```
 
 The currently supported drivers in the framework are:
@@ -335,6 +339,7 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_go/releases/download/0.9.0/rules_go-0.9.0.tar.gz",
     sha256 = "4d8d6244320dd751590f9100cf39fd7a4b75cd901e1f3ffdfd6f048328883695",
 )
+
 load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
 go_rules_dependencies()
 go_register_toolchains()
