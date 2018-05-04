@@ -262,7 +262,7 @@ steps:
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/image', '.']
 # Test the image.
 - name: 'gcr.io/gcp-runtimes/container-structure-test'
-  args: ['--image', 'gcr.io/$PROJECT_ID/image', '--config', 'test_config.yaml']
+  args: ['test', '--image', 'gcr.io/$PROJECT_ID/image', '--config', 'test_config.yaml']
 
 # Push the image.
 images: ['gcr.io/$PROJECT_ID/image']
@@ -276,9 +276,10 @@ If you want to run the tests yourself locally or in a different CICD tool:
 docker run --rm -i \
   -v ${PWD}:/src:ro \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  gcr.io/gcp-runtimes/container-structure-test:v1.1.0 test \
-    --image IMAGE_NAME \
-    --config /src/PATH_TO_CONFIG.yaml
+  gcr.io/gcp-runtimes/container-structure-test:v1.1.0 \
+  test \
+  --image IMAGE_NAME \
+  --config /src/PATH_TO_CONFIG.yaml
 ```
 
 ## Running File Tests Without Docker
