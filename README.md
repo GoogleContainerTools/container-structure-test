@@ -338,7 +338,6 @@ http_archive(
 load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
 go_rules_dependencies()
 go_register_toolchains()
-
 ```
 
 and then include the rule definition in your `BUILD` file:
