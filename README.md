@@ -2,7 +2,7 @@ Container Structure Tests
 ====================
 
 The Container Structure Tests provide a powerful framework to validate the
-structure f a container image. These tests can be used to check the output of
+structure of a container image. These tests can be used to check the output of
 commands in an image, as well as verify metadata and contents of the filesystem.
 
 Tests can be run either through a standalone binary, or through a Docker image.
