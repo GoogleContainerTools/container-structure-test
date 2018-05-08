@@ -10,7 +10,10 @@ Tests can be run either through a standalone binary, or through a Docker image.
 ## Installation
 Download the latest binary release [here](https://storage.googleapis.com/container-structure-test/latest/container-structure-test),
 or pull the image at `gcr.io/gcp-runtimes/container-structure-test`.
-**Please note that at this time the binary is only compatible with Linux.**
+**At this time, only a Linux binary is published. However, an OS X binary can be built using bazel:**
+```shell
+bazel build //:container_structure_test
+```
 
 ## Setup
 To use container structure tests to validate your containers, you need the following:

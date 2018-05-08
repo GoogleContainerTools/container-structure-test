@@ -29,13 +29,8 @@ pkg_tar(
     package_dir = "/root/.docker",
 )
 
-sh_binary(
-    name = "ext_run",
-    srcs = ["ext_run.sh"],
-)
-
 go_binary(
-    name = "structure_test",
+    name = "container_structure_test",
     srcs = ["main.go"],
     data = [
         ":cred_helper.tar",
@@ -54,26 +49,21 @@ go_binary(
         "//vendor/gopkg.in/yaml.v2:go_default_library",
         "@runtimes_common//ctc_lib:go_default_library",
     ],
+    x_defs = {"github.com/GoogleContainerTools/container-structure-test/pkg/version.version": "1.2.0"}
 )
 
 container_image(
     name = "structure_test_image",
     base = "@distroless_base//image",
-    entrypoint = ["/structure_test"],
+    entrypoint = ["/container_structure_test"],
     files = [
         ":cred_helper.tar",
         ":default_creds.tar",
-        ":structure_test",
+        ":container_structure_test",
     ],
 )
 
 go_prefix("github.com/GoogleContainerTools/container-structure-test")
-
-go_binary(
-    name = "container-structure-test",
-    embed = [":go_default_library"],
-    importpath = "github.com/GoogleContainerTools/container-structure-test",
-)
 
 go_library(
     name = "go_default_library",
