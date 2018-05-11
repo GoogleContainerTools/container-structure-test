@@ -38,6 +38,7 @@ go_binary(
     ],
     importpath = "github.com/GoogleContainerTools/container-structure-test",
     pure = "on",
+    x_defs = {"github.com/GoogleContainerTools/container-structure-test/pkg/version.version": "1.2.0"},
     deps = [
         "//cmd:go_default_library",
         "//pkg/drivers:go_default_library",
@@ -49,7 +50,6 @@ go_binary(
         "//vendor/gopkg.in/yaml.v2:go_default_library",
         "@runtimes_common//ctc_lib:go_default_library",
     ],
-    x_defs = {"github.com/GoogleContainerTools/container-structure-test/pkg/version.version": "1.2.0"}
 )
 
 container_image(
@@ -57,9 +57,9 @@ container_image(
     base = "@distroless_base//image",
     entrypoint = ["/container_structure_test"],
     files = [
+        ":container_structure_test",
         ":cred_helper.tar",
         ":default_creds.tar",
-        ":container_structure_test",
     ],
 )
 
@@ -74,4 +74,10 @@ go_library(
         "//pkg/version:go_default_library",
         "//vendor/github.com/GoogleCloudPlatform/runtimes-common/ctc_lib:go_default_library",
     ],
+)
+
+go_binary(
+    name = "container-structure-test",
+    embed = [":go_default_library"],
+    importpath = "github.com/GoogleContainerTools/container-structure-test",
 )
