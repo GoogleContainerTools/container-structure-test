@@ -75,7 +75,11 @@ func (ct *CommandTest) LogName() string {
 
 func (ct *CommandTest) Run(driver drivers.Driver) *types.TestResult {
 	ctc_lib.Log.Debug(ct.LogName())
-	fullCommand := append([]string{ct.Command}, ct.Args...)
+	config, err := driver.GetConfig()
+	if err != nil {
+		ctc_lib.Log.Errorf("error retrieving image config: %s", err.Error())
+	}
+	fullCommand := utils.SubstituteEnvVars(append([]string{ct.Command}, ct.Args...), config.Env)
 	stdout, stderr, exitcode, err := driver.ProcessCommand(ct.EnvVars, fullCommand)
 	result := &types.TestResult{
 		Name:   ct.LogName(),

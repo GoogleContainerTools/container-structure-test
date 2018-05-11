@@ -15,11 +15,12 @@
 package drivers
 
 import (
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	pkgutil "github.com/GoogleContainerTools/container-diff/pkg/util"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
@@ -70,16 +71,47 @@ func (d *TarDriver) Destroy() {
 	}
 }
 
-func (d *TarDriver) Setup(envVars []unversioned.EnvVar, fullCommand [][]string) error {
+func (d *TarDriver) SetEnv(envVars []unversioned.EnvVar) error {
+	config, err := d.GetConfig()
+	if err != nil {
+		return errors.Wrapf(err, "getting image config")
+	}
+	env := config.Env
+	for _, envVar := range envVars {
+		env[envVar.Key] = envVar.Value
+	}
+	newConfig := pkgutil.ConfigObject{
+		Entrypoint:   config.Entrypoint,
+		Cmd:          config.Cmd,
+		Volumes:      d.Image.Config.Config.Volumes,
+		Workdir:      config.Workdir,
+		ExposedPorts: d.Image.Config.Config.ExposedPorts,
+		Labels:       config.Labels,
+		Env:          convertMapToSlice(env),
+	}
+	newImage := pkgutil.Image{
+		Source: d.Image.Source,
+		FSPath: d.Image.FSPath,
+		Type:   d.Image.Type,
+		Config: pkgutil.ConfigSchema{
+			History: d.Image.Config.History,
+			Config:  newConfig,
+		},
+	}
+	d.Image = newImage
+	return nil
+}
+
+func (d *TarDriver) Setup(_ []unversioned.EnvVar, _ [][]string) error {
 	// this driver is unable to process commands, inform user and fail.
 	return errors.New("Tar driver is unable to process commands, please use a different driver")
 }
 
-func (d *TarDriver) Teardown(envVars []unversioned.EnvVar, fullCommands [][]string) error {
+func (d *TarDriver) Teardown(_ [][]string) error {
 	return errors.New("Tar driver is unable to process commands, please use a different driver")
 }
 
-func (d *TarDriver) ProcessCommand(envVars []unversioned.EnvVar, fullCommand []string) (string, string, int, error) {
+func (d *TarDriver) ProcessCommand(_ []unversioned.EnvVar, _ []string) (string, string, int, error) {
 	// this driver is unable to process commands, inform user and fail.
 	return "", "", -1, errors.New("Tar driver is unable to process commands, please use a different driver")
 }

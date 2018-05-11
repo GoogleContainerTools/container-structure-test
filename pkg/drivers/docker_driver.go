@@ -66,6 +66,33 @@ func (d *DockerDriver) Destroy() {
 	}
 }
 
+func (d *DockerDriver) SetEnv(envVars []unversioned.EnvVar) error {
+	env := d.processEnvVars(envVars)
+	container, err := d.cli.CreateContainer(docker.CreateContainerOptions{
+		Config: &docker.Config{
+			Image:        d.currentImage,
+			Env:          env,
+			Cmd:          []string{utils.NoopCommand},
+			Entrypoint:   []string{},
+			AttachStdout: true,
+			AttachStderr: true,
+		},
+		HostConfig:       nil,
+		NetworkingConfig: nil,
+	})
+	if err != nil {
+		return errors.Wrap(err, "Error creating container")
+	}
+	image, err := d.cli.CommitContainer(docker.CommitContainerOptions{
+		Container: container.ID,
+	})
+	if err != nil {
+		return errors.Wrap(err, "Error committing container")
+	}
+	d.currentImage = image.ID
+	return nil
+}
+
 func (d *DockerDriver) Setup(envVars []unversioned.EnvVar, fullCommands [][]string) error {
 	env := d.processEnvVars(envVars)
 	for _, cmd := range fullCommands {
@@ -78,7 +105,7 @@ func (d *DockerDriver) Setup(envVars []unversioned.EnvVar, fullCommands [][]stri
 	return nil
 }
 
-func (d *DockerDriver) Teardown(envVars []unversioned.EnvVar, fullCommands [][]string) error {
+func (d *DockerDriver) Teardown(_ [][]string) error {
 	// since we create a new driver for each test, skip teardown commands
 	ctc_lib.Log.Debug("Docker driver does not support teardown commands, since each test gets a new driver. Skipping commands.")
 	return nil
@@ -103,6 +130,8 @@ func (d *DockerDriver) ProcessCommand(envVars []unversioned.EnvVar, fullCommand 
 	return stdout, stderr, exitCode, nil
 }
 
+// returns a func that consumes a string, and returns the value associated with
+// that string when treated as a key in the image's environment.
 func retrieveEnv(d *DockerDriver) func(string) string {
 	return func(envVar string) string {
 		var env map[string]string
@@ -118,11 +147,14 @@ func retrieveEnv(d *DockerDriver) func(string) string {
 	}
 }
 
+// returns the value associated with the provided key in the image's environment
 func (d *DockerDriver) retrieveEnvVar(envVar string) string {
 	// since we're only retrieving these during processing, we can use a closure to cache this
 	return retrieveEnv(d)(envVar)
 }
 
+// given a list of env vars, return a new list with each var's value appended to it
+// in the form 'key==val'. we do this because docker expects them to be passed this way.
 func (d *DockerDriver) processEnvVars(vars []unversioned.EnvVar) []string {
 	if len(vars) == 0 {
 		return nil

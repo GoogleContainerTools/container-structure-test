@@ -16,6 +16,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
@@ -74,4 +75,20 @@ func ValueInList(target string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func SubstituteEnvVar(arg string, env map[string]string) string {
+	f := func(key string) string {
+		return env[key]
+	}
+	subbed := os.Expand(arg, f)
+	return subbed
+}
+
+func SubstituteEnvVars(args []string, env map[string]string) []string {
+	finalArgs := []string{}
+	for _, arg := range args {
+		finalArgs = append(finalArgs, SubstituteEnvVar(arg, env))
+	}
+	return finalArgs
 }

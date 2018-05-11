@@ -70,7 +70,11 @@ func (ct *CommandTest) Validate() error {
 
 func (ct *CommandTest) Run(driver drivers.Driver) *types.TestResult {
 	ctc_lib.Log.Debug(ct.LogName())
-	stdout, stderr, exitcode, err := driver.ProcessCommand(ct.EnvVars, ct.Command)
+	config, err := driver.GetConfig()
+	if err != nil {
+		ctc_lib.Log.Errorf("error retrieving image config: %s", err.Error())
+	}
+	stdout, stderr, exitcode, err := driver.ProcessCommand(ct.EnvVars, utils.SubstituteEnvVars(ct.Command, config.Env))
 	result := &types.TestResult{
 		Name:   ct.LogName(),
 		Pass:   true,

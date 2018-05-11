@@ -72,7 +72,7 @@ func (st *StructureTest) RunCommandTests(channel chan interface{}) {
 			continue
 		}
 		defer func() {
-			if err := driver.Teardown(vars, test.Teardown); err != nil {
+			if err := driver.Teardown(test.Teardown); err != nil {
 				ctc_lib.Log.Error(err.Error())
 			}
 			driver.Destroy()

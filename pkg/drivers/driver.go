@@ -15,6 +15,7 @@
 package drivers
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -37,7 +38,9 @@ type Driver interface {
 	Setup(envVars []unversioned.EnvVar, fullCommands [][]string) error
 
 	// Teardown is optional and is only used in the host driver
-	Teardown(envVars []unversioned.EnvVar, fullCommands [][]string) error
+	Teardown(fullCommands [][]string) error
+
+	SetEnv(envVars []unversioned.EnvVar) error
 
 	// given an array of command parts, construct a full command and execute it against the
 	// current environment. a list of environment variables can be passed to be set in the
@@ -72,10 +75,18 @@ func InitDriverImpl(driver string) func(DriverConfig) (Driver, error) {
 
 func convertSliceToMap(slice []string) map[string]string {
 	// convert slice to map for processing
-	trgtMap := make(map[string]string)
+	res := make(map[string]string)
 	for _, slicePair := range slice {
 		pair := strings.Split(slicePair, "=")
-		trgtMap[pair[0]] = pair[1]
+		res[pair[0]] = pair[1]
 	}
-	return trgtMap
+	return res
+}
+
+func convertMapToSlice(m map[string]string) []string {
+	res := []string{}
+	for k, v := range m {
+		res = append(res, fmt.Sprintf("%s=%s", k, v))
+	}
+	return res
 }
