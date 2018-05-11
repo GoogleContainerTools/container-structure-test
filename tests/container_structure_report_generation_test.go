@@ -72,7 +72,7 @@ var testCases = []struct {
 	checkReport           bool
 }{
 	{"reportSuccess", true, nil, map[string]interface{}{"Pass": 1.0, "Fail": 0.0, "Total": 1.0}, "", true},
-	{"reportFail", false, errors.New("Test(s) FAIL"), map[string]interface{}{"Pass": 0.0, "Fail": 1.0, "Total": 1.0}, "", true},
+	{"reportFail", false, errors.New("FAIL"), map[string]interface{}{"Pass": 0.0, "Fail": 1.0, "Total": 1.0}, "", true},
 	{"InvalidReportFile", false, errors.New("open /invalid_dir/file: no such file or directory"), nil, "/invalid_dir/file", false},
 }
 
