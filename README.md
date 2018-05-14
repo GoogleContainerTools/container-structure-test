@@ -8,12 +8,25 @@ in an image, as well as verify metadata and contents of the filesystem.
 Tests can be run either through a standalone binary, or through a Docker image.
 
 ## Installation
-Download the latest binary release [here](https://storage.googleapis.com/container-structure-test/latest/container-structure-test),
-or pull the image at `gcr.io/gcp-runtimes/container-structure-test`.
-**At this time, only a Linux binary is published. However, an OS X binary can be built using bazel:**
+
+### OS X
 ```shell
-bazel build //:container_structure_test
+curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-darwin-amd64 && chmod +x container-structure-test-darwin-amd64 && sudo mv container-structure-test-darwin-amd64 /usr/local/bin/container-structure-test
 ```
+
+### Linux
+```shell
+curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+```
+
+If you want to avoid using sudo:
+
+```shell
+curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && chmod +x container-structure-test-linux-amd64 && mkdir -p $HOME/bin && export PATH=$PATH:$HOME/bin && mv container-structure-test-linux-amd64 $HOME/bin/container-structure-test
+```
+
+Additionally, a container image for running tests through Google Cloud Builder can be found
+at `gcr.io/gcp-runtimes/container-structure-test:latest`.
 
 ## Setup
 To use container structure tests to validate your containers, you need the following:

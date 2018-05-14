@@ -4,12 +4,33 @@ steps:
     args: ['run', '//:structure_test_image']
 # Tag the built image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['tag', 'bazel:structure_test_image', 'gcr.io/gcp-runtimes/container-structure-test:$COMMIT_SHA']
-# Build the binary
+    args: [
+      'tag', 'bazel:structure_test_image',
+      'gcr.io/gcp-runtimes/container-structure-test:$COMMIT_SHA'
+    ]
+
+# Build the linux binary
   - name: 'gcr.io/cloud-builders/bazel'
     args: ['build', '//:container_structure_test']
-# Upload the binary to GCS
+# Upload the linux binary to GCS build tag bucket
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', 'bazel-bin/linux_amd64_pure_stripped/container_structure_test', 'gs://container-structure-test/builds/$COMMIT_SHA/container-structure-test']
+    args: [
+      'cp', 'bazel-bin/linux_amd64_pure_stripped/container_structure_test',
+      'gs://container-structure-test/builds/$COMMIT_SHA/container-structure-test-linux-amd64'
+    ]
+
+# Build the OS X binary
+  - name: 'gcr.io/cloud-builders/bazel'
+    args: [
+      'build',
+      '--platforms=@io_bazel_rules_go//go/toolchain:darwin_amd64',
+      '//:container_structure_test'
+    ]
+# Upload the OS X binary to GCS build tag bucket
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: [
+      'cp', 'bazel-bin/darwin_amd64_pure_stripped/container_structure_test',
+      'gs://container-structure-test/builds/$COMMIT_SHA/container-structure-test-darwin-amd64'
+    ]
 
 images: ['gcr.io/gcp-runtimes/container-structure-test:$COMMIT_SHA']
