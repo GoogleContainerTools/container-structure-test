@@ -33,7 +33,6 @@ fileExistenceTests:
 - name: 'Machine ID'
   isDirectory: false
   path: '/etc/machine-id'
-  shouldExist: true
 - name: 'Dummy File'
   isDirectory: false
   path: '/etc/dummy'

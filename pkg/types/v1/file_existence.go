@@ -32,6 +32,25 @@ type FileExistenceTest struct {
 	Permissions string `yaml:"permissions"` // expected Unix permission string of the file, e.g. drwxrwxrwx
 }
 
+func (fe FileExistenceTest) MarshalYAML() (interface{}, error) {
+	return FileExistenceTest{ShouldExist: true}, nil
+}
+
+func (fe *FileExistenceTest) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type feAlias FileExistenceTest
+	feTest := &feAlias{
+		ShouldExist: true,
+	}
+	err := unmarshal(&feTest)
+	fmt.Println(feTest)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	*fe = FileExistenceTest(*feTest)
+	return nil
+}
+
 func (ft FileExistenceTest) Validate() error {
 	if ft.Name == "" {
 		return fmt.Errorf("Please provide a valid name for every test")
