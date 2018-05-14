@@ -4,7 +4,7 @@ dist: trusty
 language: java
 language: go
 go:
-        - 1.8.1
+  - 1.10.x
 go_import_path: github.com/GoogleContainerTools/container-structure-test
 
 jdk:
