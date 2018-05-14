@@ -13,9 +13,10 @@
 # limitations under the License.
 
 # Bump these on release
+# These are only used for local builds, all released builds are done with Bazel
 VERSION_MAJOR ?= 1
-VERSION_MINOR ?= 1
-VERSION_BUILD ?= 0
+VERSION_MINOR ?= 2
+VERSION_BUILD ?= 1
 
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
 
