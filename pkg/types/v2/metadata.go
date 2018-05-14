@@ -85,9 +85,9 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 	}
 
 	for _, pair := range mt.Env {
-		if act_val, has_key := imageConfig.Env[pair.Key]; has_key {
-			if !utils.CompileAndRunRegex(pair.Value, act_val, true) {
-				result.Errorf("env var %s value does not match expected value: %s", pair.Key, pair.Value)
+		if val, ok := imageConfig.Env[pair.Key]; ok {
+			if pair.Value != val {
+				result.Errorf("env var %s value %s does not match expected value: %s", pair.Key, val, pair.Value)
 				result.Fail()
 			}
 		} else {
@@ -97,16 +97,15 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 	}
 
 	for _, pair := range mt.Labels {
-		if act_val, has_key := imageConfig.Labels[pair.Key]; has_key {
-			if !utils.CompileAndRunRegex(pair.Value, act_val, true) {
-				result.Errorf("label %s value does not match expected value: %s", pair.Key, pair.Value)
+		if val, ok := imageConfig.Labels[pair.Key]; ok {
+			if pair.Value != val {
+				result.Errorf("label %s value %s does not match expected value: %s", pair.Key, val, pair.Value)
 				result.Fail()
 			}
 		} else {
 			result.Errorf("label %s not found in image metadata", pair.Key)
 			result.Fail()
 		}
-
 	}
 
 	if mt.Cmd != nil {
