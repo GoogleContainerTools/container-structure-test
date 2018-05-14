@@ -182,9 +182,9 @@ of these checks are optional.
 #### Supported Fields:
 
 - Env (`[]EnvVar`): A list of environment variable key/value pairs that should be set
-in the container.  Supports regexes for values.
+in the container.
 - Labels (`[]Label`): A list of image labels key/value pairs that should be set on the
-container.  Supports regexes for values.
+container.
 - Entrypoint (`[]string`): The entrypoint of the container
 - Cmd (`[]string`): The CMD specified in the container.
 - Exposed Ports (`[]string`): The ports exposed in the container.
