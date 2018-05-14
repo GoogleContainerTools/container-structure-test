@@ -43,7 +43,7 @@ func (ct *CommandTest) Validate() error {
 		return fmt.Errorf("Please provide a valid name for every test")
 	}
 	if ct.Command == "" {
-		return fmt.Errorf("Please provide a valid entrypoint to run for test %s", ct.Name)
+		return fmt.Errorf("Please provide a valid Command to run for test %s", ct.Name)
 	}
 	if ct.Setup != nil {
 		for _, c := range ct.Setup {
