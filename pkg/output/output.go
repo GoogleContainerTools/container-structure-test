@@ -60,6 +60,10 @@ func FinalResults(result types.SummaryObject) string {
 		bannerLength++
 	}
 	var strBuffer bytes.Buffer
+	if result.Total == 0 {
+		strBuffer.WriteString(red("No tests run! Check config file format."))
+		return strBuffer.String()
+	}
 	strBuffer.WriteString("\n" + strings.Repeat("=", bannerLength) + "\n")
 	strBuffer.WriteString(strings.Repeat("=", (bannerLength-9)/2))
 	strBuffer.WriteString(" RESULTS ")

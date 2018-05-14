@@ -87,8 +87,8 @@ var TestCmd = &ctc_lib.ContainerToolListCommand{
 				totalFail++
 			}
 		}
-		if totalFail > 0 {
-			errStrings = append(errStrings, "Test(s) FAIL")
+		if totalPass+totalFail == 0 || totalFail > 0 {
+			errStrings = append(errStrings, "FAIL")
 		}
 		if len(errStrings) > 0 {
 			err = fmt.Errorf(strings.Join(errStrings, "\n"))
