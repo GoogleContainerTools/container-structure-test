@@ -60,7 +60,7 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 		ctc_lib.Log.Errorf("error retrieving image config: %s", err.Error())
 	}
 	info, err = driver.StatFile(utils.SubstituteEnvVar(ft.Path, config.Env))
-	if info == nil {
+	if info == nil && ft.ShouldExist {
 		result.Errorf(errors.Wrap(err, "Error examining file in container").Error())
 		result.Fail()
 		return result
