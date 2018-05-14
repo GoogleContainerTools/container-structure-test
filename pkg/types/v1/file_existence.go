@@ -38,16 +38,14 @@ func (fe FileExistenceTest) MarshalYAML() (interface{}, error) {
 
 func (fe *FileExistenceTest) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type feAlias FileExistenceTest
-	feTest := &feAlias{
+	feTest := feAlias{
 		ShouldExist: true,
 	}
 	err := unmarshal(&feTest)
-	fmt.Println(feTest)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-	*fe = FileExistenceTest(*feTest)
+	*fe = FileExistenceTest(feTest)
 	return nil
 }
 

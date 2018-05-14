@@ -42,15 +42,11 @@ func (fe *FileExistenceTest) UnmarshalYAML(unmarshal func(interface{}) error) er
 	feTest := feAlias{
 		ShouldExist: true,
 	}
-	fmt.Println(feTest)
 	err := unmarshal(&feTest)
-	fmt.Println(feTest)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	*fe = FileExistenceTest(feTest)
-	fmt.Println(fe)
 	return nil
 }
 
