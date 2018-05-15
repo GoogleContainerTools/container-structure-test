@@ -83,6 +83,7 @@ func (d *DockerDriver) SetEnv(envVars []unversioned.EnvVar) error {
 	if err != nil {
 		return errors.Wrap(err, "Error creating container")
 	}
+	defer d.removeContainer(container.ID)
 	image, err := d.cli.CommitContainer(docker.CommitContainerOptions{
 		Container: container.ID,
 	})
