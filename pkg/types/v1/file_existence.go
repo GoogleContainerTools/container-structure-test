@@ -32,6 +32,23 @@ type FileExistenceTest struct {
 	Permissions string `yaml:"permissions"` // expected Unix permission string of the file, e.g. drwxrwxrwx
 }
 
+func (fe FileExistenceTest) MarshalYAML() (interface{}, error) {
+	return FileExistenceTest{ShouldExist: true}, nil
+}
+
+func (fe *FileExistenceTest) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type feAlias FileExistenceTest
+	feTest := feAlias{
+		ShouldExist: true,
+	}
+	err := unmarshal(&feTest)
+	if err != nil {
+		return err
+	}
+	*fe = FileExistenceTest(feTest)
+	return nil
+}
+
 func (ft FileExistenceTest) Validate() error {
 	if ft.Name == "" {
 		return fmt.Errorf("Please provide a valid name for every test")
@@ -55,7 +72,7 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 	ctc_lib.Log.Info(ft.LogName())
 	var info os.FileInfo
 	info, err := driver.StatFile(ft.Path)
-	if info == nil {
+	if info == nil && ft.ShouldExist {
 		result.Errorf(errors.Wrap(err, "Error examining file in container").Error())
 		result.Fail()
 		return result

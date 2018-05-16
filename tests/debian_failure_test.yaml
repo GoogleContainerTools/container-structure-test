@@ -21,11 +21,9 @@ fileContentTests:
   path: '/etc/apt/apt.conf.d/apt-retry'
 fileExistenceTests:
 - name: 'Fake Dir'
-  isDirectory: true
   path: '/foo/bar'
   shouldExist: true
 - name: 'Wrong permissions'
-  isDirectory: false
   path: '/etc/apt/sources.list'
   permissions: '-rwxrwxrwx'
   shouldExist: true

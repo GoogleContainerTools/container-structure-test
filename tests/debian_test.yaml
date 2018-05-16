@@ -23,17 +23,16 @@ fileContentTests:
   path: '/etc/apt/apt.conf.d/apt-retry'
 fileExistenceTests:
 - name: 'Root'
-  isDirectory: true
   path: '/'
   shouldExist: true
 - name: 'Netbase'
-  isDirectory: false
   path: '/etc/protocols'
   shouldExist: true
 - name: 'Machine ID'
-  isDirectory: false
   path: '/etc/machine-id'
-  shouldExist: true
+- name: 'Dummy File'
+  path: '/etc/dummy'
+  shouldExist: false
 licenseTests:
 - debian: true
   files:
