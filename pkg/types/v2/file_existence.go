@@ -38,6 +38,8 @@ func (fe FileExistenceTest) MarshalYAML() (interface{}, error) {
 }
 
 func (fe *FileExistenceTest) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	// Create a type Alias and call unmarshal on this type to unmarshal the yaml text into
+	// struct. Else, calling unmarshal on FileExistence will result in to infinite recursive loop.
 	type feAlias FileExistenceTest
 	feTest := feAlias{
 		ShouldExist: true,
