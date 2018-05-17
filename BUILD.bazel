@@ -38,7 +38,7 @@ go_binary(
     ],
     importpath = "github.com/GoogleContainerTools/container-structure-test",
     pure = "on",
-    x_defs = {"github.com/GoogleContainerTools/container-structure-test/pkg/version.version": "1.2.1"},
+    x_defs = {"github.com/GoogleContainerTools/container-structure-test/pkg/version.version": "1.2.2"},
     deps = [
         "//cmd:go_default_library",
         "//pkg/drivers:go_default_library",
