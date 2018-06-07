@@ -15,6 +15,8 @@
 package v2
 
 import (
+	"fmt"
+
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
@@ -57,22 +59,28 @@ func (st *StructureTest) runAll(channel chan interface{}, fileProcessed chan boo
 
 func (st *StructureTest) RunCommandTests(channel chan interface{}) {
 	for _, test := range st.CommandTests {
-		if err := test.Validate(); err != nil {
-			ctc_lib.Log.Error(err.Error())
+		if !test.Validate(channel) {
 			continue
+		}
+		res := &types.TestResult{
+			Name: test.Name,
+			Pass: false,
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Error(err.Error())
+			res.Errorf("error creating driver: %s", err.Error())
+			channel <- res
 			continue
 		}
 		defer driver.Destroy()
 		if err = driver.SetEnv(st.GlobalEnvVars); err != nil {
-			ctc_lib.Log.Error(err.Error())
+			res.Errorf("error setting env vars: %s", err.Error())
+			channel <- res
 			continue
 		}
 		if err = driver.Setup(test.EnvVars, test.Setup); err != nil {
-			ctc_lib.Log.Error(err.Error())
+			res.Errorf("error in setup: %s", err.Error())
+			channel <- res
 			continue
 		}
 		defer func() {
@@ -86,16 +94,22 @@ func (st *StructureTest) RunCommandTests(channel chan interface{}) {
 
 func (st *StructureTest) RunFileExistenceTests(channel chan interface{}) {
 	for _, test := range st.FileExistenceTests {
-		if err := test.Validate(); err != nil {
-			ctc_lib.Log.Error(err.Error())
+		if !test.Validate(channel) {
 			continue
+		}
+		res := &types.TestResult{
+			Name: test.Name,
+			Pass: false,
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Fatalf(err.Error())
+			res.Errorf("error creating driver: %s", err.Error())
+			channel <- res
+			continue
 		}
 		if err = driver.SetEnv(st.GlobalEnvVars); err != nil {
-			ctc_lib.Log.Error(err.Error())
+			res.Errorf("error setting env vars: %s", err.Error())
+			channel <- res
 			continue
 		}
 		channel <- test.Run(driver)
@@ -105,16 +119,22 @@ func (st *StructureTest) RunFileExistenceTests(channel chan interface{}) {
 
 func (st *StructureTest) RunFileContentTests(channel chan interface{}) {
 	for _, test := range st.FileContentTests {
-		if err := test.Validate(); err != nil {
-			ctc_lib.Log.Error(err.Error())
+		if !test.Validate(channel) {
 			continue
+		}
+		res := &types.TestResult{
+			Name: test.Name,
+			Pass: false,
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Fatal(err.Error())
+			res.Errorf("error creating driver: %s", err.Error())
+			channel <- res
+			continue
 		}
 		if err = driver.SetEnv(st.GlobalEnvVars); err != nil {
-			ctc_lib.Log.Error(err.Error())
+			res.Errorf("error setting env vars: %s", err.Error())
+			channel <- res
 			continue
 		}
 		channel <- test.Run(driver)
@@ -127,12 +147,18 @@ func (st *StructureTest) RunMetadataTests(channel chan interface{}) {
 		ctc_lib.Log.Debug("Skipping empty metadata test")
 		return
 	}
-	if err := st.MetadataTest.Validate(); err != nil {
+	if !st.MetadataTest.Validate(channel) {
 		return
 	}
 	driver, err := st.NewDriver()
 	if err != nil {
-		ctc_lib.Log.Fatal(err.Error())
+		channel <- &types.TestResult{
+			Name: st.MetadataTest.LogName(),
+			Errors: []string{
+				fmt.Sprintf("error creating driver: %s", err.Error()),
+			},
+		}
+		return
 	}
 	channel <- st.MetadataTest.Run(driver)
 	driver.Destroy()

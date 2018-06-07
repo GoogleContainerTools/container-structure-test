@@ -15,8 +15,6 @@
 package v2
 
 import (
-	"fmt"
-
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
@@ -47,28 +45,35 @@ func (mt MetadataTest) LogName() string {
 	return "Metadata Test"
 }
 
-func (mt MetadataTest) Validate() error {
+func (mt MetadataTest) Validate(channel chan interface{}) bool {
+	res := &types.TestResult{
+		Name: mt.LogName(),
+	}
 	for _, envVar := range mt.Env {
 		if envVar.Key == "" {
-			return fmt.Errorf("Environment variable key cannot be empty")
+			res.Error("Environment variable key cannot be empty")
 		}
 	}
 	for _, label := range mt.Labels {
 		if label.Key == "" {
-			return fmt.Errorf("Label key cannot be empty")
+			res.Error("Label key cannot be empty")
 		}
 	}
 	for _, port := range mt.ExposedPorts {
 		if port == "" {
-			return fmt.Errorf("Port cannot be empty")
+			res.Error("Port cannot be empty")
 		}
 	}
 	for _, volume := range mt.Volumes {
 		if volume == "" {
-			return fmt.Errorf("Volume cannot be empty")
+			res.Error("Volume cannot be empty")
 		}
 	}
-	return nil
+	if len(res.Errors) > 0 {
+		channel <- res
+		return false
+	}
+	return true
 }
 
 func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
