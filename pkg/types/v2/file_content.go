@@ -31,14 +31,20 @@ type FileContentTest struct {
 	ExcludedContents []string `yaml:"excludedContents"` // list of excluded contents of file
 }
 
-func (ft FileContentTest) Validate() error {
+func (ft FileContentTest) Validate(channel chan interface{}) bool {
+	res := &types.TestResult{}
 	if ft.Name == "" {
-		return fmt.Errorf("Please provide a valid name for every test")
+		res.Error("Please provide a valid name for every test")
 	}
+	res.Name = ft.Name
 	if ft.Path == "" {
-		return fmt.Errorf("Please provide a valid file path for test %s", ft.Name)
+		res.Errorf("Please provide a valid file path for test %s", ft.Name)
 	}
-	return nil
+	if len(res.Errors) > 0 {
+		channel <- res
+		return false
+	}
+	return true
 }
 
 func (ft FileContentTest) LogName() string {

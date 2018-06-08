@@ -38,35 +38,41 @@ type CommandTest struct {
 	ExcludedError  []string       `yaml:"excludedError"` // excluded error from running command
 }
 
-func (ct *CommandTest) Validate() error {
+func (ct *CommandTest) Validate(channel chan interface{}) bool {
+	res := &types.TestResult{}
 	if ct.Name == "" {
-		return fmt.Errorf("Please provide a valid name for every test")
+		res.Error("Please provide a valid name for every test")
 	}
+	res.Name = ct.Name
 	if ct.Command == "" {
-		return fmt.Errorf("Please provide a valid Command to run for test %s", ct.Name)
+		res.Errorf("Please provide a valid command to run for test %s", ct.Name)
 	}
 	if ct.Setup != nil {
 		for _, c := range ct.Setup {
 			if len(c) == 0 {
-				return fmt.Errorf("Error in setup command configuration encountered; please check formatting and remove all empty setup commands")
+				res.Error("Error in setup command configuration encountered; please check formatting and remove all empty setup commands")
 			}
 		}
 	}
 	if ct.Teardown != nil {
 		for _, c := range ct.Teardown {
 			if len(c) == 0 {
-				return fmt.Errorf("Error in teardown command configuration encountered; please check formatting and remove all empty teardown commands")
+				res.Error("Error in teardown command configuration encountered; please check formatting and remove all empty teardown commands")
 			}
 		}
 	}
 	if ct.EnvVars != nil {
 		for _, envVar := range ct.EnvVars {
 			if envVar.Key == "" || envVar.Value == "" {
-				return fmt.Errorf("Please provide non-empty keys and values for all specified env vars")
+				res.Error("Please provide non-empty keys and values for all specified env vars")
 			}
 		}
 	}
-	return nil
+	if len(res.Errors) > 0 {
+		channel <- res
+		return false
+	}
+	return true
 }
 
 func (ct *CommandTest) LogName() string {
