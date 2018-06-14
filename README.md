@@ -204,7 +204,7 @@ metadataTest:
   volumes: ["/test"]
   entrypoint: []
   cmd: ["/bin/bash"]
-  workdir: ["/app"]
+  workdir: "/app"
 ```
 
 ## License Tests
