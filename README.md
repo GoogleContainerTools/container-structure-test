@@ -140,6 +140,10 @@ are checked. These tests can also be used to ensure a file or directory is
 directory should exist in the file system
 - Permissions (`string`, *optional*): The expected Unix permission string (e.g.
   drwxrwxrwx) of the files or directory.
+- Uid (`int`, *optional*): The expected Unix user ID that has access to the file
+  or directory.
+- Gid (`int`, *optional*): The expected Unix group ID that has access to the
+  file or directory.
 
 Example:
 ```yaml
@@ -148,6 +152,8 @@ fileExistenceTests:
   path: '/'
   shouldExist: true
   permissions: '-rw-r--r--'
+  uid: 1000
+  gid: 1000
 ```
 
 ## File Content Tests
