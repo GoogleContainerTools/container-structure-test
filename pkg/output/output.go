@@ -49,7 +49,7 @@ func Banner(filename string) string {
 	var strBuffer bytes.Buffer
 	fileStr := fmt.Sprintf("====== Test file: %s ======", filepath.Base(filename))
 	bannerLength = len(fileStr)
-	strBuffer.WriteString(strings.Repeat("=", bannerLength) + "\n")
+	strBuffer.WriteString("\n" + strings.Repeat("=", bannerLength) + "\n")
 	strBuffer.WriteString(fileStr + "\n")
 	strBuffer.WriteString(strings.Repeat("=", bannerLength) + "\n")
 	return purple(strBuffer.String())
@@ -73,9 +73,9 @@ func FinalResults(result types.SummaryObject) string {
 	strBuffer.WriteString(lightRed(fmt.Sprintf("Failures:    %d\n", result.Fail)))
 	strBuffer.WriteString(cyan(fmt.Sprintf("Total tests: %d\n", result.Total)))
 	if result.Fail == 0 {
-		strBuffer.WriteString(green("\nPASS\n"))
+		strBuffer.WriteString(green("\nPASS"))
 	} else {
-		strBuffer.WriteString(red("\nFAIL\n"))
+		strBuffer.WriteString(red("\nFAIL"))
 	}
 	return strBuffer.String()
 }
