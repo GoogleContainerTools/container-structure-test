@@ -129,7 +129,11 @@ func RunTests() {
 		Channel <- output.Banner(file)
 		tests, err := Parse(file)
 		if err != nil {
-			ctc_lib.Log.Errorf("Error parsing config file: %s", err)
+			Channel <- &unversioned.TestResult{
+				Errors: []string{
+					fmt.Sprintf("error parsing config file: %s", err),
+				},
+			}
 			continue // Continue with other config files
 		}
 		tests.RunAll(Channel, file)
