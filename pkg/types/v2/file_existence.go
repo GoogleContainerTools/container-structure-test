@@ -38,17 +38,17 @@ func (fe FileExistenceTest) MarshalYAML() (interface{}, error) {
 }
 
 func (fe *FileExistenceTest) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	// Create a type Alias and call unmarshal on this type to unmarshal the yaml text into
-	// struct. Else, calling unmarshal on FileExistence will result in to infinite recursive loop.
-	type feAlias FileExistenceTest
-	feTest := feAlias{
+	// Create a type alias and call unmarshal on this type to unmarshal the yaml text into
+	// struct, since calling unmarshal on FileExistenceTest will result in an infinite loop.
+	type FileExistenceTestHolder FileExistenceTest
+	holder := FileExistenceTestHolder{
 		ShouldExist: true,
 	}
-	err := unmarshal(&feTest)
+	err := unmarshal(&holder)
 	if err != nil {
 		return err
 	}
-	*fe = FileExistenceTest(feTest)
+	*fe = FileExistenceTest(holder)
 	return nil
 }
 

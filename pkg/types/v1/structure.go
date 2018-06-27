@@ -24,6 +24,7 @@ import (
 type StructureTest struct {
 	DriverImpl         func(drivers.DriverConfig) (drivers.Driver, error)
 	DriverArgs         drivers.DriverConfig
+	SchemaVersion      string              `yaml:"schemaVersion"`
 	GlobalEnvVars      []types.EnvVar      `yaml:"globalEnvVars"`
 	CommandTests       []CommandTest       `yaml:"commandTests"`
 	FileExistenceTests []FileExistenceTest `yaml:"fileExistenceTests"`

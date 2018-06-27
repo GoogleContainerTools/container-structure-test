@@ -179,7 +179,9 @@ func Parse(fp string) (types.StructureTest, error) {
 		return nil, errors.New("Unsupported schema version: " + version)
 	}
 
-	strictUnmarshal(testContents, st)
+	if err = strictUnmarshal(testContents, st); err != nil {
+		return nil, errors.New("error unmarshalling config: " + err.Error())
+	}
 
 	tests, _ := st.(types.StructureTest) //type assertion
 	tests.SetDriverImpl(driverImpl, *args)
