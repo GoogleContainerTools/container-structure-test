@@ -40,6 +40,7 @@ func NewTarDriver(args DriverConfig) (Driver, error) {
 		prepper = &pkgutil.TarPrepper{
 			Source: imageName,
 		}
+		image, err = prepper.GetImage()
 	} else {
 		// see if image exists locally first.
 		prepper = &pkgutil.DaemonPrepper{
