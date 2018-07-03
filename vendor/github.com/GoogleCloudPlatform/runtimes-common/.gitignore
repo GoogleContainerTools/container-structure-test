@@ -1,8 +1,0 @@
-*~
-*.project
-*.pyc
-*.pydevproject
-config/*
-.cfg/
-**/bazel-*
-.vscode

@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
@@ -12,21 +12,7 @@ go_library(
         "properties.go",
         "rangecheck.go",
     ],
+    importmap = "vendor/github.com/magiconair/properties",
     importpath = "github.com/magiconair/properties",
     visibility = ["//visibility:public"],
-)
-
-go_test(
-    name = "go_default_test",
-    srcs = [
-        "benchmark_test.go",
-        "decode_test.go",
-        "example_test.go",
-        "integrate_test.go",
-        "load_test.go",
-        "properties_test.go",
-    ],
-    embed = [":go_default_library"],
-    importpath = "github.com/magiconair/properties",
-    deps = ["//vendor/github.com/magiconair/properties/assert:go_default_library"],
 )

@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
@@ -13,6 +13,7 @@ go_library(
         "update_check.go",
         "version.go",
     ],
+    importmap = "vendor/github.com/GoogleCloudPlatform/runtimes-common/ctc_lib",
     importpath = "github.com/GoogleCloudPlatform/runtimes-common/ctc_lib",
     visibility = ["//visibility:public"],
     deps = [
@@ -27,22 +28,5 @@ go_library(
         "//vendor/github.com/sirupsen/logrus:go_default_library",
         "//vendor/github.com/spf13/cobra:go_default_library",
         "//vendor/github.com/spf13/viper:go_default_library",
-    ],
-)
-
-go_test(
-    name = "go_default_test",
-    srcs = [
-        "config_command_test.go",
-        "container_tool_command_test.go",
-        "container_tool_list_command_test.go",
-        "template_test.go",
-    ],
-    data = glob(["testdata/**"]),
-    embed = [":go_default_library"],
-    importpath = "github.com/GoogleCloudPlatform/runtimes-common/ctc_lib",
-    deps = [
-        "//vendor/github.com/sirupsen/logrus/hooks/test:go_default_library",
-        "//vendor/github.com/spf13/cobra:go_default_library",
     ],
 )

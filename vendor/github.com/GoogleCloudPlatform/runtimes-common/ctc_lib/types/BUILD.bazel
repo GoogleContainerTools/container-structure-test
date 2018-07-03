@@ -3,6 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["loglevel.go"],
+    importmap = "vendor/github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/types",
     importpath = "github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/types",
     visibility = ["//visibility:public"],
     deps = ["//vendor/github.com/sirupsen/logrus:go_default_library"],

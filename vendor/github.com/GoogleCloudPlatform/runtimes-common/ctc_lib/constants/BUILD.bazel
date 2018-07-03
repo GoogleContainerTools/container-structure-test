@@ -3,6 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["constants.go"],
+    importmap = "vendor/github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/constants",
     importpath = "github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/constants",
     visibility = ["//visibility:public"],
 )

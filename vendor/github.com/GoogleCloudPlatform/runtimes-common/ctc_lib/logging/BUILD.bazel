@@ -7,6 +7,7 @@ go_library(
         "log_manager.go",
         "shutdown_hook.go",
     ],
+    importmap = "vendor/github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/logging",
     importpath = "github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/logging",
     visibility = ["//visibility:public"],
     deps = [

@@ -12,6 +12,7 @@ go_library(
         "tar_prepper.go",
         "tar_utils.go",
     ],
+    importmap = "vendor/github.com/GoogleContainerTools/container-diff/pkg/util",
     importpath = "github.com/GoogleContainerTools/container-diff/pkg/util",
     visibility = ["//visibility:public"],
     deps = [
