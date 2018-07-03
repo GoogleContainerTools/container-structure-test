@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
@@ -8,19 +8,8 @@ go_library(
         "reference.go",
         "regexp.go",
     ],
+    importmap = "vendor/github.com/containers/image/docker/reference",
     importpath = "github.com/containers/image/docker/reference",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/github.com/opencontainers/go-digest:go_default_library"],
-)
-
-go_test(
-    name = "go_default_test",
-    srcs = [
-        "normalize_test.go",
-        "reference_test.go",
-        "regexp_test.go",
-    ],
-    embed = [":go_default_library"],
-    importpath = "github.com/containers/image/docker/reference",
     deps = ["//vendor/github.com/opencontainers/go-digest:go_default_library"],
 )

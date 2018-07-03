@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
@@ -8,17 +8,7 @@ go_library(
         "jsonlogbytes.go",
         "time_marshalling.go",
     ],
+    importmap = "vendor/github.com/docker/docker/pkg/jsonlog",
     importpath = "github.com/docker/docker/pkg/jsonlog",
     visibility = ["//visibility:public"],
-)
-
-go_test(
-    name = "go_default_test",
-    srcs = [
-        "jsonlog_marshalling_test.go",
-        "jsonlogbytes_test.go",
-        "time_marshalling_test.go",
-    ],
-    embed = [":go_default_library"],
-    importpath = "github.com/docker/docker/pkg/jsonlog",
 )

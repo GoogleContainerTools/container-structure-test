@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
@@ -8,6 +8,7 @@ go_library(
         "manifest.go",
         "oci.go",
     ],
+    importmap = "vendor/github.com/containers/image/manifest",
     importpath = "github.com/containers/image/manifest",
     visibility = ["//visibility:public"],
     deps = [
@@ -20,22 +21,5 @@ go_library(
         "//vendor/github.com/opencontainers/image-spec/specs-go:go_default_library",
         "//vendor/github.com/opencontainers/image-spec/specs-go/v1:go_default_library",
         "//vendor/github.com/pkg/errors:go_default_library",
-    ],
-)
-
-go_test(
-    name = "go_default_test",
-    srcs = [
-        "fixtures_info_test.go",
-        "manifest_test.go",
-    ],
-    embed = [":go_default_library"],
-    importpath = "github.com/containers/image/manifest",
-    deps = [
-        "//vendor/github.com/docker/libtrust:go_default_library",
-        "//vendor/github.com/opencontainers/go-digest:go_default_library",
-        "//vendor/github.com/opencontainers/image-spec/specs-go/v1:go_default_library",
-        "//vendor/github.com/stretchr/testify/assert:go_default_library",
-        "//vendor/github.com/stretchr/testify/require:go_default_library",
     ],
 )

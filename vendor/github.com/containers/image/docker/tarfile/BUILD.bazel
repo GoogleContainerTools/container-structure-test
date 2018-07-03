@@ -8,6 +8,7 @@ go_library(
         "src.go",
         "types.go",
     ],
+    importmap = "vendor/github.com/containers/image/docker/tarfile",
     importpath = "github.com/containers/image/docker/tarfile",
     visibility = ["//visibility:public"],
     deps = [

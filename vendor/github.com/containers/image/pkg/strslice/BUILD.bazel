@@ -1,15 +1,9 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
     srcs = ["strslice.go"],
+    importmap = "vendor/github.com/containers/image/pkg/strslice",
     importpath = "github.com/containers/image/pkg/strslice",
     visibility = ["//visibility:public"],
-)
-
-go_test(
-    name = "go_default_test",
-    srcs = ["strslice_test.go"],
-    embed = [":go_default_library"],
-    importpath = "github.com/containers/image/pkg/strslice",
 )

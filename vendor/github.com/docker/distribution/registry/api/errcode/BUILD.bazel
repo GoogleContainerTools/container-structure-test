@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
@@ -7,13 +7,7 @@ go_library(
         "handler.go",
         "register.go",
     ],
+    importmap = "vendor/github.com/docker/distribution/registry/api/errcode",
     importpath = "github.com/docker/distribution/registry/api/errcode",
     visibility = ["//visibility:public"],
-)
-
-go_test(
-    name = "go_default_test",
-    srcs = ["errors_test.go"],
-    embed = [":go_default_library"],
-    importpath = "github.com/docker/distribution/registry/api/errcode",
 )
