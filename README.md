@@ -41,8 +41,8 @@ be provided to force a pull of a remote image before running the tests.
 ## Example Run
 An example run of the test framework:
 ```shell
-./structure-test -test.v -image gcr.io/google-appengine/python \
-python_test_config.yaml
+./structure-test test --image gcr.io/google-appengine/python \
+--config python_test_config.yaml
 ```
 This command will run the tests on the Google App Engine Python image, with verbose logging,
 using the `python_test_config.yaml` test config.
