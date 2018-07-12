@@ -25,6 +25,8 @@ fileExistenceTests:
 - name: 'Root'
   path: '/'
   shouldExist: true
+  uid: 0
+  gid: 0
 - name: 'Netbase'
   path: '/etc/protocols'
   shouldExist: true

@@ -15,6 +15,7 @@
 package v2
 
 import (
+	"archive/tar"
 	"fmt"
 	"os"
 
@@ -26,11 +27,15 @@ import (
 	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
 )
 
+var defaultOwnership = -1
+
 type FileExistenceTest struct {
 	Name        string `yaml:"name"`        // name of test
 	Path        string `yaml:"path"`        // file to check existence of
 	ShouldExist bool   `yaml:"shouldExist"` // whether or not the file should exist
 	Permissions string `yaml:"permissions"` // expected Unix permission string of the file, e.g. drwxrwxrwx
+	Uid         int    `yaml:"uid"`         // ID of the owner of the file
+	Gid         int    `yaml:"gid"`         // ID of the group of the file
 }
 
 func (fe FileExistenceTest) MarshalYAML() (interface{}, error) {
@@ -43,6 +48,8 @@ func (fe *FileExistenceTest) UnmarshalYAML(unmarshal func(interface{}) error) er
 	type FileExistenceTestHolder FileExistenceTest
 	holder := FileExistenceTestHolder{
 		ShouldExist: true,
+		Uid:         defaultOwnership,
+		Gid:         defaultOwnership,
 	}
 	err := unmarshal(&holder)
 	if err != nil {
@@ -101,6 +108,22 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 		perms := info.Mode()
 		if perms.String() != ft.Permissions {
 			result.Errorf("%s has incorrect permissions. Expected: %s, Actual: %s", ft.Path, ft.Permissions, perms.String())
+			result.Fail()
+		}
+	}
+	if ft.Uid != defaultOwnership || ft.Gid != defaultOwnership {
+		header, ok := info.Sys().(*tar.Header)
+		if ok {
+			if ft.Uid != defaultOwnership && header.Uid != ft.Uid {
+				result.Errorf("%s has incorrect user ownership. Expected: %d, Actual: %d", ft.Path, ft.Uid, header.Uid)
+				result.Fail()
+			}
+			if ft.Gid != defaultOwnership && header.Gid != ft.Gid {
+				result.Errorf("%s has incorrect group ownership. Expected: %d, Actual: %d", ft.Path, ft.Gid, header.Gid)
+				result.Fail()
+			}
+		} else {
+			result.Errorf("Error checking ownership of file %s", ft.Path)
 			result.Fail()
 		}
 	}
