@@ -10,18 +10,7 @@ go_import_path: github.com/GoogleContainerTools/container-structure-test
 jdk:
   - oraclejdk8
 
-addons:
-  apt:
-    sources:
-    - sourceline: 'deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8'
-      key_url: 'https://storage.googleapis.com/bazel-apt/doc/apt-key.pub.gpg'
-    - debian-sid
-
-    packages:
-    - bazel
-
 script:
   - ./.gofmt.sh
   - make
-  - bazel test tests:go_default_test
   - ./tests/structure_test_tests.sh
