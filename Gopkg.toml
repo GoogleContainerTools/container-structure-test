@@ -32,3 +32,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/GoogleCloudPlatform/runtimes-common"
+
+[[override]]
+  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
+  name = "github.com/spf13/pflag"
