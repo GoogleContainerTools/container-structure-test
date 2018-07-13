@@ -39,7 +39,7 @@ var VersionPrefix = ""
 
 var UpdateCheck bool
 
-var Log *log.Logger
+var Log = &log.Logger{}
 
 func SetExitOnError(value bool) {
 	exitOnError = value

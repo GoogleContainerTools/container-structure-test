@@ -24,6 +24,7 @@ import (
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/flags"
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/logging"
 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/types"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -40,7 +41,9 @@ func (ctb *ContainerToolCommandBase) getCommand() *cobra.Command {
 }
 
 func (ctb *ContainerToolCommandBase) setRunE(cobraRunE func(c *cobra.Command, args []string) error) {
-	ctb.RunE = cobraRunE
+	if ctb.Run == nil && ctb.RunE == nil {
+		ctb.RunE = cobraRunE
+	}
 }
 
 func (ctb *ContainerToolCommandBase) toolName() string {
@@ -48,9 +51,23 @@ func (ctb *ContainerToolCommandBase) toolName() string {
 }
 
 func (ctb *ContainerToolCommandBase) Init() {
-	cobra.OnInitialize(initConfig, ctb.initLogging)
+	// Init Logging with info level with colors disabled since initLogging gets called
+	// only after arguments are parsed correctly.
+	Log = logging.NewLogger(
+		viper.GetString(config.LogDirConfigKey),
+		ctb.Name(),
+		log.InfoLevel,
+		false,
+	)
+	cobra.OnInitialize(initConfig, ctb.initLogging, ctb.SetSilenceUsage)
 	ctb.AddFlags()
 	ctb.AddSubCommands()
+}
+
+func (ctb *ContainerToolCommandBase) SetSilenceUsage() {
+	// Do not display usage when using RunE after args are parsed.
+	// See https://github.com/spf13/cobra/issues/340 for more information.
+	ctb.SilenceUsage = true
 }
 
 func (ctb *ContainerToolCommandBase) initLogging() {
@@ -74,10 +91,6 @@ func (ctb *ContainerToolCommandBase) AddSubCommands() {
 
 	// Set up Root Command
 	ctb.Command.SetHelpTemplate(HelpTemplate)
-
-	// Donot display usage when using RunE.
-	// See https://github.com/spf13/cobra/issues/340 for more information.
-	ctb.SilenceUsage = true
 }
 
 func (ctb *ContainerToolCommandBase) AddCommand(command CLIInterface) {

@@ -23,7 +23,7 @@
     "ctc_lib/types",
     "ctc_lib/util"
   ]
-  revision = "9828ee5659320cebbfd8d34707c36648ca087888"
+  revision = "163729a385110fc87bdfcb780576c12f8352c940"
 
 [[projects]]
   name = "github.com/GoogleContainerTools/container-diff"
@@ -293,10 +293,10 @@
   version = "v1.2.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/spf13/cobra"
   packages = ["."]
-  revision = "7b2c5ac9fc04fc5efafb60700713d4fa609b777b"
-  version = "v0.0.1"
+  revision = "a114f312e075f65bf30d6d9a1430113f857e543b"
 
 [[projects]]
   branch = "master"
@@ -307,8 +307,7 @@
 [[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
-  version = "v1.0.0"
+  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
 
 [[projects]]
   name = "github.com/spf13/viper"
@@ -359,6 +358,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "652acdd72351b253e41ad775c095cc6c2092503d30062f470f67ab33f72622e6"
+  inputs-digest = "055dcd4bb9d0e72918d625ac19110d0b91d8fd0c752284bc47393ce63076919a"
   solver-name = "gps-cdcl"
   solver-version = 1
