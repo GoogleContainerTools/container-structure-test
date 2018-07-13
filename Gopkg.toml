@@ -20,13 +20,14 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+[prune]
+  unused-packages = true
+  non-go = true
+  go-tests = true
 
 [[constraint]]
   name = "github.com/GoogleContainerTools/container-diff"
   revision = "b2e2f7ef8897f29306877618f16f0d67d8a89094"
-
-[[constraint]]
-  name = "github.com/fsouza/go-dockerclient"
 
 [[constraint]]
   branch = "master"
