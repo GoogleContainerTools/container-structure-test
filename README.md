@@ -144,8 +144,8 @@ directory should exist in the file system
   or directory.
 - Gid (`int`, *optional*): The expected Unix group ID that has access to the
   file or directory.
-- IsExectuableBy (`string`, *optional*): Checks if file is executable by a given
-  user. One of `owner`, `group`, `other` or `any`
+- IsExecutableBy (`string`, *optional*): Name of group that file should be executable by.
+  One of `owner`, `group`, `other` or `any`
 
 Example:
 ```yaml
@@ -156,7 +156,7 @@ fileExistenceTests:
   permissions: '-rw-r--r--'
   uid: 1000
   gid: 1000
-  isExectuableBy: 'group'
+  isExecutableBy: 'group'
 ```
 
 ## File Content Tests
