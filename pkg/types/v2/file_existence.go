@@ -30,12 +30,13 @@ import (
 var defaultOwnership = -1
 
 type FileExistenceTest struct {
-	Name        string `yaml:"name"`        // name of test
-	Path        string `yaml:"path"`        // file to check existence of
-	ShouldExist bool   `yaml:"shouldExist"` // whether or not the file should exist
-	Permissions string `yaml:"permissions"` // expected Unix permission string of the file, e.g. drwxrwxrwx
-	Uid         int    `yaml:"uid"`         // ID of the owner of the file
-	Gid         int    `yaml:"gid"`         // ID of the group of the file
+	Name           string `yaml:"name"`           // name of test
+	Path           string `yaml:"path"`           // file to check existence of
+	ShouldExist    bool   `yaml:"shouldExist"`    // whether or not the file should exist
+	Permissions    string `yaml:"permissions"`    // expected Unix permission string of the file, e.g. drwxrwxrwx
+	Uid            int    `yaml:"uid"`            // ID of the owner of the file
+	Gid            int    `yaml:"gid"`            // ID of the group of the file
+	IsExecutableBy string `yaml:"isExecutableBy"` // whether file should be executable
 }
 
 func (fe FileExistenceTest) MarshalYAML() (interface{}, error) {
@@ -108,6 +109,34 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 		perms := info.Mode()
 		if perms.String() != ft.Permissions {
 			result.Errorf("%s has incorrect permissions. Expected: %s, Actual: %s", ft.Path, ft.Permissions, perms.String())
+			result.Fail()
+		}
+	}
+	if ft.IsExecutableBy != "" {
+		perms := info.Mode()
+		switch ft.IsExecutableBy {
+		case "any":
+			if perms&0111 == 0 {
+				result.Errorf("%s has incorrect executable bit. Expected to be executable by any, Actual: %s", ft.Path, perms.String())
+				result.Fail()
+			}
+		case "owner":
+			if perms&0100 == 0 {
+				result.Errorf("%s has incorrect executable bit. Expected to be executable by owner, Actual: %s", ft.Path, perms.String())
+				result.Fail()
+			}
+		case "group":
+			if perms&0010 == 0 {
+				result.Errorf("%s has incorrect executable bit. Expected to be executable by group, Actual: %s", ft.Path, perms.String())
+				result.Fail()
+			}
+		case "other":
+			if perms&0001 == 0 {
+				result.Errorf("%s has incorrect executable bit. Expected to be executable by other, Actual: %s", ft.Path, perms.String())
+				result.Fail()
+			}
+		default:
+			result.Errorf("%s not recognised as a valid option", ft.IsExecutableBy)
 			result.Fail()
 		}
 	}
