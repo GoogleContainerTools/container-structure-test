@@ -10,6 +10,6 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     args: ['cp', '-r', 'out/*', 'gs://container-structure-test/builds/$COMMIT_SHA/']
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build'. '-t', 'gcr.io/gcb-runtimes/container-structure-test:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'gcr.io/gcp-runtimes/container-structure-test:$COMMIT_SHA', '.']
 images:
 - 'gcr.io/gcp-runtimes/container-structure-test:$COMMIT_SHA'
