@@ -144,7 +144,7 @@ directory should exist in the file system
   or directory.
 - Gid (`int`, *optional*): The expected Unix group ID that has access to the
   file or directory.
-- IsExecutableBy (`string`, *optional*): Name of group that file should be executable by.
+- IsExecutableBy (`string`, *optional*): Checks if file is executable by a given user.
   One of `owner`, `group`, `other` or `any`
 
 Example:

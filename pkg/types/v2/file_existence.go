@@ -36,7 +36,7 @@ type FileExistenceTest struct {
 	Permissions    string `yaml:"permissions"`    // expected Unix permission string of the file, e.g. drwxrwxrwx
 	Uid            int    `yaml:"uid"`            // ID of the owner of the file
 	Gid            int    `yaml:"gid"`            // ID of the group of the file
-	IsExecutableBy string `yaml:"isExecutableBy"` // whether file should be executable
+	IsExecutableBy string `yaml:"isExecutableBy"` // name of group that file should be executable by
 }
 
 func (fe FileExistenceTest) MarshalYAML() (interface{}, error) {
