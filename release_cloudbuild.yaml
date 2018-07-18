@@ -14,9 +14,9 @@ steps:
     args: ['cp', '-r', 'gs://container-structure-test/$TAG_NAME/*', 'gs://container-structure-test/latest/']
 
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build'. '-t', 'gcr.io/gcb-runtimes/container-structure-test:$TAG_NAME', '.']
+    args: ['build', '-t', 'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME', '.']
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build'. '-t', 'gcr.io/gcb-runtimes/container-structure-test:latest', '.']    
+    args: ['build', '-t', 'gcr.io/gcp-runtimes/container-structure-test:latest', '.']    
 
 images:
 - 'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME'
