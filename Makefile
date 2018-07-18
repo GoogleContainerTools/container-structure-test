@@ -15,7 +15,7 @@
 # Bump these on release
 # These are only used for local builds, all released builds are done with Bazel
 VERSION_MAJOR ?= 1
-VERSION_MINOR ?= 3
+VERSION_MINOR ?= 4
 VERSION_BUILD ?= 0
 
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
