@@ -27,6 +27,9 @@ fileExistenceTests:
   shouldExist: true
   uid: 0
   gid: 0
+- name: 'Date'
+  path: '/bin/date'
+  isExecutableBy: 'owner'
 - name: 'Netbase'
   path: '/etc/protocols'
   shouldExist: true
