@@ -120,7 +120,7 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		} else if len(*mt.Cmd) > 0 {
 			for i := range *mt.Cmd {
 				if (*mt.Cmd)[i] != imageConfig.Cmd[i] {
-					result.Errorf("Image config Cmd does not match expected value: %s", *mt.Cmd)
+					result.Errorf("Image config Cmd %v does not match expected value: %s", imageConfig.Cmd, *mt.Cmd)
 					result.Fail()
 				}
 			}
@@ -134,7 +134,7 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		} else {
 			for i := range *mt.Entrypoint {
 				if (*mt.Entrypoint)[i] != imageConfig.Entrypoint[i] {
-					result.Errorf("Image config entrypoint does not match expected value: %s", *mt.Entrypoint)
+					result.Errorf("Image config entrypoint %v does not match expected value: %s", imageConfig.Entrypoint, *mt.Entrypoint)
 					result.Fail()
 				}
 			}

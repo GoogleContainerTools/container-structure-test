@@ -107,25 +107,25 @@ func (ct *CommandTest) Run(driver drivers.Driver) *types.TestResult {
 func (ct *CommandTest) CheckOutput(result *types.TestResult, stdout string, stderr string, exitCode int) {
 	for _, errStr := range ct.ExpectedError {
 		if !utils.CompileAndRunRegex(errStr, stderr, true) {
-			result.Errorf("Expected string '%s' not found in error", errStr)
+			result.Errorf("Expected string '%s' not found in error '%s'", errStr, stderr)
 			result.Fail()
 		}
 	}
 	for _, errStr := range ct.ExcludedError {
 		if !utils.CompileAndRunRegex(errStr, stderr, false) {
-			result.Errorf("Excluded string '%s' found in error", errStr)
+			result.Errorf("Excluded string '%s' found in error '%s'", errStr, stderr)
 			result.Fail()
 		}
 	}
 	for _, outStr := range ct.ExpectedOutput {
 		if !utils.CompileAndRunRegex(outStr, stdout, true) {
-			result.Errorf("Expected string '%s' not found in output", outStr)
+			result.Errorf("Expected string '%s' not found in output '%s'", outStr, stdout)
 			result.Fail()
 		}
 	}
 	for _, outStr := range ct.ExcludedOutput {
 		if !utils.CompileAndRunRegex(outStr, stdout, false) {
-			result.Errorf("Excluded string '%s' found in output", outStr)
+			result.Errorf("Excluded string '%s' found in output '%s'", outStr, stdout)
 			result.Fail()
 		}
 	}
