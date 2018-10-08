@@ -13,7 +13,6 @@
 # limitations under the License.
 
 # Bump these on release
-# These are only used for local builds, all released builds are done with Bazel
 VERSION_MAJOR ?= 1
 VERSION_MINOR ?= 5
 VERSION_BUILD ?= 0
@@ -41,6 +40,7 @@ BUCKET ?= structure-test
 UPLOAD_LOCATION := gs://${BUCKET}
 
 BUILD_PACKAGE = $(REPOPATH)/cmd/container-structure-test
+GO_FILES := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 $(BUILD_DIR)/$(PROJECT): $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH)
 	cp $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH) $@

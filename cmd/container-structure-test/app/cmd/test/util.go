@@ -112,6 +112,7 @@ func ProcessResults(out io.Writer, c chan interface{}) error {
 		return errors.Wrap(err, "reading results from channel")
 	}
 	for _, r := range results {
+		fmt.Fprintln(out, r)
 		// value, ok := r.(*unversioned.TestResult)
 		// if !ok {
 		// 	errStrings = append(errStrings, fmt.Sprintf("unexpected value %v in list", value))
@@ -142,6 +143,14 @@ func ProcessResults(out io.Writer, c chan interface{}) error {
 	return err
 }
 
-func channelToSlice(c chan interface{}) ([]unversioned.TestResult, error) {
-	return nil, nil
+func channelToSlice(c chan interface{}) ([]*unversioned.TestResult, error) {
+	results := []*unversioned.TestResult{}
+	for elem := range c {
+		elem, ok := elem.(*unversioned.TestResult)
+		if !ok {
+			return nil, fmt.Errorf("unexpected value found in channel: %v", elem)
+		}
+		results = append(results, elem)
+	}
+	return results, nil
 }

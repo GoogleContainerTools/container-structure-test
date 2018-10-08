@@ -14,8 +14,6 @@
 
 package config
 
-// var imagePath, driver, metadata, testReport string
-
 type StructureTestOptions struct {
 	ImagePath   string
 	Driver      string

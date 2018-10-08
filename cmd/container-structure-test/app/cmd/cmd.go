@@ -18,10 +18,15 @@ import (
 	"io"
 	// "os"
 
+	"github.com/GoogleContainerTools/container-structure-test/pkg/version"
+
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var (
+	v          string
 	testReport string
 )
 
@@ -49,9 +54,30 @@ func NewRootCommand(out, err io.Writer) *cobra.Command {
 	// 	return nil
 	// }
 
+	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, _ []string) error {
+		if err := SetUpLogs(err, v); err != nil {
+			return err
+		}
+		rootCmd.SilenceUsage = true
+		logrus.Infof("container-structure-test %+v", version.GetVersion())
+		return nil
+	}
+
 	rootCmd.SilenceErrors = true
 	rootCmd.AddCommand(NewCmdVersion(out))
 	rootCmd.AddCommand(NewCmdTest(out))
 
+	rootCmd.PersistentFlags().StringVarP(&v, "verbosity", "v", logrus.WarnLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
+
 	return rootCmd
+}
+
+func SetUpLogs(out io.Writer, level string) error {
+	logrus.SetOutput(out)
+	lvl, err := logrus.ParseLevel(v)
+	if err != nil {
+		return errors.Wrap(err, "parsing log level")
+	}
+	logrus.SetLevel(lvl)
+	return nil
 }

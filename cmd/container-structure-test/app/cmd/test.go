@@ -134,6 +134,7 @@ func runTests(out io.Writer, args *drivers.DriverConfig, driverImpl func(drivers
 
 func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&opts.ImagePath, "image", "", "path to test image")
+	cmd.MarkFlagRequired("image")
 	cmd.Flags().StringVar(&opts.Driver, "driver", "docker", "driver to use when running tests")
 	cmd.Flags().StringVar(&opts.Metadata, "metadata", "", "path to image metadata file")
 
@@ -143,5 +144,6 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&opts.Force, "force", false, "force run of host driver (without user prompt)")
 
 	cmd.Flags().StringArrayVar(&opts.ConfigFiles, "config", []string{}, "test config files")
+	cmd.MarkFlagRequired("config")
 	cmd.Flags().StringVar(&opts.TestReport, "test-report", "", "Generate JSON test report and write it to specified file.")
 }
