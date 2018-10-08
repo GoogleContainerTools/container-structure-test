@@ -14,44 +14,44 @@
 
 package cmd
 
-import (
-	"os"
+// import (
+// 	"os"
 
-	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
-	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/flags"
-	"github.com/spf13/cobra"
-)
+// 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
+// 	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib/flags"
+// 	"github.com/spf13/cobra"
+// )
 
-var logLevel string
-var imagePath, driver, metadata, testReport string
-var save, pull, force, quiet bool
+// var logLevel string
+// var imagePath, driver, metadata, testReport string
+// var save, pull, force, quiet bool
 
-var configFiles []string
+// var configFiles []string
 
-var RootCmd = &ctc_lib.ContainerToolListCommand{
-	ContainerToolCommandBase: &ctc_lib.ContainerToolCommandBase{
-		Command: &cobra.Command{
-			Use:   "container-structure-test",
-			Short: "container-structure-test provides a framework to test the structure of a container image",
-			Long: `container-structure-test provides a powerful framework to validate
-the structure of a container image.
-These tests can be used to check the output of commands in an image,
-as well as verify metadata and contents of the filesystem.`,
-			SilenceErrors: true,
-			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-				if testReport != "" {
-					// Force JsonOutput
-					flags.JsonOutput = true
-					testReportFile, err := os.Create(testReport)
-					if err != nil {
-						return err
-					}
-					TestCmd.SetOutput(testReportFile)
-				}
-				return nil
-			},
-		},
-		Phase:           "stable",
-		DefaultTemplate: "{{.}}",
-	},
-}
+// var RootCmd = &ctc_lib.ContainerToolListCommand{
+// 	ContainerToolCommandBase: &ctc_lib.ContainerToolCommandBase{
+// 		Command: &cobra.Command{
+// 			Use:   "container-structure-test",
+// 			Short: "container-structure-test provides a framework to test the structure of a container image",
+// 			Long: `container-structure-test provides a powerful framework to validate
+// the structure of a container image.
+// These tests can be used to check the output of commands in an image,
+// as well as verify metadata and contents of the filesystem.`,
+// 			SilenceErrors: true,
+// 			PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+// 				if testReport != "" {
+// 					// Force JsonOutput
+// 					flags.JsonOutput = true
+// 					testReportFile, err := os.Create(testReport)
+// 					if err != nil {
+// 						return err
+// 					}
+// 					TestCmd.SetOutput(testReportFile)
+// 				}
+// 				return nil
+// 			},
+// 		},
+// 		Phase:           "stable",
+// 		DefaultTemplate: "{{.}}",
+// 	},
+// }

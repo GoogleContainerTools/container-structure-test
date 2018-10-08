@@ -27,7 +27,12 @@ PROJECT := container-structure-test
 REPOPATH ?= $(ORG)/$(PROJECT)
 RELEASE_BUCKET ?= gcp-container-tools/structure-test
 
-LD_FLAGS := -X github.com/GoogleContainerTools/container-structure-test/pkg/version.version=$(VERSION)
+VERSION_PACKAGE = $(REPOPATH)/pkg/version
+
+GO_LDFLAGS :="
+GO_LDFLAGS += -X $(VERSION_PACKAGE).version=$(VERSION)
+GO_LDFLAGS += -X $(VERSION_PACKAGE).buildDate=$(shell date +'%Y-%m-%dT%H:%M:%SZ')
+GO_LDFLAGS +="
 
 SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH)
 
@@ -35,13 +40,13 @@ BUILD_DIR ?= ./out
 BUCKET ?= structure-test
 UPLOAD_LOCATION := gs://${BUCKET}
 
-BUILD_PACKAGE = $(REPOPATH)
+BUILD_PACKAGE = $(REPOPATH)/cmd/container-structure-test
 
 $(BUILD_DIR)/$(PROJECT): $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH)
 	cp $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH) $@
 
 $(BUILD_DIR)/$(PROJECT)-%-$(GOARCH): $(GO_FILES) $(BUILD_DIR)
-	GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 go build -ldflags="$(LD_FLAGS)" -o $@ $(BUILD_PACKAGE)
+	GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 go build -ldflags $(GO_LDFLAGS) -o $@ $(BUILD_PACKAGE)
 
 %.sha256: %
 	shasum -a 256 $< &> $@
@@ -49,10 +54,15 @@ $(BUILD_DIR)/$(PROJECT)-%-$(GOARCH): $(GO_FILES) $(BUILD_DIR)
 %.exe: %
 	cp $< $@
 
+.PHONY: $(BUILD_DIR)/VERSION
+$(BUILD_DIR)/VERSION: $(BUILD_DIR)
+	@ echo $(VERSION) > $@
+
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 .PRECIOUS: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform))
+
 .PHONY: cross
 cross: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform).sha256)
 

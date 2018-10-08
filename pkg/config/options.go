@@ -12,15 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package config
 
-import (
-	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
-	"github.com/GoogleContainerTools/container-structure-test/cmd"
-	"github.com/GoogleContainerTools/container-structure-test/pkg/version"
-)
+// var imagePath, driver, metadata, testReport string
 
-func main() {
-	ctc_lib.Version = version.GetVersion()
-	ctc_lib.Execute(cmd.RootCmd)
+type StructureTestOptions struct {
+	ImagePath   string
+	Driver      string
+	Metadata    string
+	TestReport  string
+	ConfigFiles []string
+
+	Pull  bool
+	Save  bool
+	Quiet bool
+	Force bool
 }
