@@ -23,10 +23,10 @@ import (
 	"syscall"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"bytes"
 
-	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
@@ -88,7 +88,7 @@ func SetEnvVars(envVars []unversioned.EnvVar) []unversioned.EnvVar {
 	for _, envVar := range envVars {
 		originalVars = append(originalVars, unversioned.EnvVar{envVar.Key, os.Getenv(envVar.Key), envVar.IsRegex})
 		if err := os.Setenv(envVar.Key, os.ExpandEnv(envVar.Value)); err != nil {
-			ctc_lib.Log.Errorf("Error setting env var: %s", err)
+			logrus.Errorf("Error setting env var: %s", err)
 		}
 	}
 	return originalVars
@@ -106,7 +106,7 @@ func ResetEnvVars(envVars []unversioned.EnvVar) {
 			err = os.Setenv(envVar.Key, envVar.Value)
 		}
 		if err != nil {
-			ctc_lib.Log.Errorf("error resetting env var: %s", err)
+			logrus.Errorf("error resetting env var: %s", err)
 		}
 	}
 }
@@ -122,7 +122,7 @@ func (d *HostDriver) ProcessCommand(envVars []unversioned.EnvVar, fullCommand []
 	exitCode := 0
 
 	if err := cmd.Start(); err != nil {
-		ctc_lib.Log.Fatalf("error starting command: %v", err)
+		logrus.Fatalf("error starting command: %v", err)
 	}
 
 	if err := cmd.Wait(); err != nil {
@@ -134,7 +134,7 @@ func (d *HostDriver) ProcessCommand(envVars []unversioned.EnvVar, fullCommand []
 			return "", "", -1, errors.Wrap(err, "Error when retrieving exit code")
 		}
 	}
-	ctc_lib.Log.Debugf("command output: %s", stdout.String())
+	logrus.Debugf("command output: %s", stdout.String())
 	return stdout.String(), stderr.String(), exitCode, nil
 }
 

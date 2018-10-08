@@ -16,7 +16,7 @@ package cmd
 
 import (
 	"io"
-	// "os"
+	"os"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/version"
 
@@ -40,24 +40,24 @@ as well as verify metadata and contents of the filesystem.`,
 }
 
 func NewRootCommand(out, err io.Writer) *cobra.Command {
-	// rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-	// 	if testReport != "" {
-	// 		// Force JsonOutput
-	// 		flags.JsonOutput = true
-	// 		testReportFile, err := os.Create(testReport)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 		rootCmd.SetOutput(testReportFile)
-	// 		// TestCmd.SetOutput(testReportFile)
-	// 	}
-	// 	return nil
-	// }
-
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, _ []string) error {
 		if err := SetUpLogs(err, v); err != nil {
 			return err
 		}
+
+		if opts.TestReport != "" {
+			// Force JsonOutput
+			// flags.JsonOutput = true
+			// TODO(nkubala): probably need to do something with this JSON output flag
+			// most likely select a JSON template and execute that when printing results
+			testReportFile, err := os.Create(opts.TestReport)
+			if err != nil {
+				return err
+			}
+			rootCmd.SetOutput(testReportFile)
+			out = testReportFile // override writer
+		}
+
 		rootCmd.SilenceUsage = true
 		logrus.Infof("container-structure-test %+v", version.GetVersion())
 		return nil

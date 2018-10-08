@@ -13,8 +13,8 @@
 # limitations under the License.
 
 # Bump these on release
-VERSION_MAJOR ?= 1
-VERSION_MINOR ?= 5
+VERSION_MAJOR ?= 2
+VERSION_MINOR ?= 0
 VERSION_BUILD ?= 0
 
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
@@ -33,7 +33,7 @@ GO_LDFLAGS += -X $(VERSION_PACKAGE).version=$(VERSION)
 GO_LDFLAGS += -X $(VERSION_PACKAGE).buildDate=$(shell date +'%Y-%m-%dT%H:%M:%SZ')
 GO_LDFLAGS +="
 
-SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH)
+SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH) windows-$(GOARCH).exe
 
 BUILD_DIR ?= ./out
 BUCKET ?= structure-test

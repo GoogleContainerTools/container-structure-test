@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
@@ -86,11 +86,11 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 		Pass:   true,
 		Errors: make([]string, 0),
 	}
-	ctc_lib.Log.Info(ft.LogName())
+	logrus.Info(ft.LogName())
 	var info os.FileInfo
 	config, err := driver.GetConfig()
 	if err != nil {
-		ctc_lib.Log.Errorf("error retrieving image config: %s", err.Error())
+		logrus.Errorf("error retrieving image config: %s", err.Error())
 	}
 	info, err = driver.StatFile(utils.SubstituteEnvVar(ft.Path, config.Env))
 	if info == nil && ft.ShouldExist {

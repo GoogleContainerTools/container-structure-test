@@ -78,7 +78,7 @@ package cmd
 // 			value, ok := r.(*unversioned.TestResult)
 // 			if !ok {
 // 				errStrings = append(errStrings, fmt.Sprintf("unexpected value %v in list", value))
-// 				ctc_lib.Log.Errorf("unexpected value %v in list", value)
+// 				logrus.Errorf("unexpected value %v in list", value)
 // 				continue
 // 			}
 // 			if value.IsPass() {

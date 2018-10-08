@@ -17,7 +17,7 @@ package v2
 import (
 	"fmt"
 
-	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
+	"github.com/sirupsen/logrus"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
@@ -80,10 +80,10 @@ func (ct *CommandTest) LogName() string {
 }
 
 func (ct *CommandTest) Run(driver drivers.Driver) *types.TestResult {
-	ctc_lib.Log.Debug(ct.LogName())
+	logrus.Debug(ct.LogName())
 	config, err := driver.GetConfig()
 	if err != nil {
-		ctc_lib.Log.Errorf("error retrieving image config: %s", err.Error())
+		logrus.Errorf("error retrieving image config: %s", err.Error())
 	}
 	fullCommand := utils.SubstituteEnvVars(append([]string{ct.Command}, ct.Args...), config.Env)
 	stdout, stderr, exitcode, err := driver.ProcessCommand(ct.EnvVars, fullCommand)

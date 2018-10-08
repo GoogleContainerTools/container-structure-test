@@ -25,7 +25,7 @@ import (
 
 var bannerLength = 27 // default banner length
 
-func OutputResult(result *types.TestResult, isQuiet bool) string {
+func OutputResult(result *types.TestResult, quiet bool) string {
 	var strBuffer bytes.Buffer
 	strBuffer.WriteString(fmt.Sprintf("=== RUN: %s\n", result.Name))
 	if result.Pass {
@@ -33,10 +33,10 @@ func OutputResult(result *types.TestResult, isQuiet bool) string {
 	} else {
 		strBuffer.WriteString(red("--- FAIL\n"))
 	}
-	if result.Stdout != "" && !isQuiet {
+	if result.Stdout != "" && !quiet {
 		strBuffer.WriteString(blue(fmt.Sprintf("stdout: %s", result.Stdout)))
 	}
-	if result.Stderr != "" && !isQuiet {
+	if result.Stderr != "" && !quiet {
 		strBuffer.WriteString(blue(fmt.Sprintf("stderr: %s", result.Stderr)))
 	}
 	for _, s := range result.Errors {

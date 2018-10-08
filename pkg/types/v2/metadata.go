@@ -15,7 +15,8 @@
 package v2
 
 import (
-	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
+	"github.com/sirupsen/logrus"
+
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
@@ -81,7 +82,7 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		Name: mt.LogName(),
 		Pass: true,
 	}
-	ctc_lib.Log.Debug(mt.LogName())
+	logrus.Debug(mt.LogName())
 	imageConfig, err := driver.GetConfig()
 	if err != nil {
 		result.Errorf("Error retrieving image config: %s", err.Error())

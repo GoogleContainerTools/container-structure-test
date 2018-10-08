@@ -23,6 +23,7 @@ import (
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/config"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
+	"github.com/GoogleContainerTools/container-structure-test/pkg/output"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 
@@ -103,7 +104,7 @@ func Parse(fp string, args *drivers.DriverConfig, driverImpl func(drivers.Driver
 	return tests, nil
 }
 
-func ProcessResults(out io.Writer, c chan interface{}) error {
+func ProcessResults(out io.Writer, c chan interface{}, quiet bool) error {
 	totalPass := 0
 	totalFail := 0
 	errStrings := make([]string, 0)
@@ -112,7 +113,8 @@ func ProcessResults(out io.Writer, c chan interface{}) error {
 		return errors.Wrap(err, "reading results from channel")
 	}
 	for _, r := range results {
-		fmt.Fprintln(out, r)
+		fmt.Fprintln(out, output.OutputResult(r, quiet))
+		// fmt.Fprintln(out, r)
 		// value, ok := r.(*unversioned.TestResult)
 		// if !ok {
 		// 	errStrings = append(errStrings, fmt.Sprintf("unexpected value %v in list", value))

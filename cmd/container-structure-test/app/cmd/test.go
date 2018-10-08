@@ -79,12 +79,12 @@ func run(out io.Writer) error {
 
 	if opts.Pull {
 		if opts.Driver != drivers.Docker {
-			logrus.Fatal("Image pull not supported when not using Docker driver")
+			logrus.Fatal("image pull not supported when not using Docker driver")
 		}
 		var repository, tag string
 		parts := strings.Split(opts.ImagePath, ":")
 		if len(parts) < 2 {
-			logrus.Fatal("Please provide specific tag for image")
+			logrus.Fatal("no tag specified for provided image")
 		}
 		repository = parts[0]
 		tag = parts[1]
@@ -94,24 +94,24 @@ func run(out io.Writer) error {
 			Tag:          tag,
 			OutputStream: os.Stdout,
 		}, docker.AuthConfiguration{}); err != nil {
-			logrus.Fatalf("Error pulling remote image %s: %s", opts.ImagePath, err.Error())
+			logrus.Fatalf("error pulling remote image %s: %s", opts.ImagePath, err.Error())
 		}
 	}
 
 	if opts.Driver == drivers.Host && !utils.UserConfirmation(warnMessage, opts.Force) {
-		logrus.Fatalf("User Aborted")
+		logrus.Fatalf("aborted by user")
 	}
 
 	driverImpl = drivers.InitDriverImpl(opts.Driver)
 	if driverImpl == nil {
-		logrus.Fatalf("Unsupported driver type: %s", opts.Driver)
+		logrus.Fatalf("unsupported driver type: %s", opts.Driver)
 	}
 	if err != nil {
 		logrus.Fatal(err.Error())
 	}
 	go runTests(out, args, driverImpl)
 	// TODO(nkubala): put a sync.WaitGroup here
-	return test.ProcessResults(out, channel)
+	return test.ProcessResults(out, channel, opts.Quiet)
 }
 
 func runTests(out io.Writer, args *drivers.DriverConfig, driverImpl func(drivers.DriverConfig) (drivers.Driver, error)) {
@@ -133,17 +133,17 @@ func runTests(out io.Writer, args *drivers.DriverConfig, driverImpl func(drivers
 }
 
 func AddTestFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&opts.ImagePath, "image", "", "path to test image")
+	cmd.Flags().StringVarP(&opts.ImagePath, "image", "i", "", "path to test image")
 	cmd.MarkFlagRequired("image")
-	cmd.Flags().StringVar(&opts.Driver, "driver", "docker", "driver to use when running tests")
+	cmd.Flags().StringVarP(&opts.Driver, "driver", "d", "docker", "driver to use when running tests")
 	cmd.Flags().StringVar(&opts.Metadata, "metadata", "", "path to image metadata file")
 
 	cmd.Flags().BoolVar(&opts.Pull, "pull", false, "force a pull of the image before running tests")
 	cmd.Flags().BoolVar(&opts.Save, "save", false, "preserve created containers after test run")
-	cmd.Flags().BoolVar(&opts.Quiet, "quiet", false, "flag to suppress output")
-	cmd.Flags().BoolVar(&opts.Force, "force", false, "force run of host driver (without user prompt)")
+	cmd.Flags().BoolVarP(&opts.Quiet, "quiet", "q", false, "flag to suppress output")
+	cmd.Flags().BoolVarP(&opts.Force, "force", "f", false, "force run of host driver (without user prompt)")
 
-	cmd.Flags().StringArrayVar(&opts.ConfigFiles, "config", []string{}, "test config files")
+	cmd.Flags().StringArrayVarP(&opts.ConfigFiles, "config", "c", []string{}, "test config files")
 	cmd.MarkFlagRequired("config")
-	cmd.Flags().StringVar(&opts.TestReport, "test-report", "", "Generate JSON test report and write it to specified file.")
+	cmd.Flags().StringVar(&opts.TestReport, "test-report", "", "generate JSON test report and write it to specified file.")
 }
