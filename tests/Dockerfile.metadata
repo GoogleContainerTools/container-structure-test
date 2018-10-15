@@ -2,7 +2,8 @@ FROM gcr.io/google-appengine/debian8:latest
 
 ENV SOME_KEY="SOME_VAL" \
     EMPTY_VAR="" \
-    FOO_BAR="FOO\:BAR"
+    FOO_BAR="FOO\:BAR" \
+    REGEX_VAR="test-2.1.8"
 
 LABEL localnet.localdomain.commit_hash="0123456789abcdef0123456789abcdef01234567" \
       localnet.my-domain.my-label="my test label" \

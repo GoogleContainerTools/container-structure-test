@@ -20,13 +20,15 @@ import (
 )
 
 type EnvVar struct {
-	Key   string
-	Value string
+	Key     string
+	Value   string
+	IsRegex bool `yaml:"isRegex"`
 }
 
 type Label struct {
-	Key   string
-	Value string
+	Key     string
+	Value   string
+	IsRegex bool `yaml:"isRegex"`
 }
 
 type Config struct {
