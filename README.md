@@ -285,7 +285,7 @@ in the tests, with the `-driver` flag.
 
 An example test run with a different driver looks like:
 ```shell
-./structure-test -driver tar -image gcr.io/google-appengine/python \
+./structure-test test -driver tar -image gcr.io/google-appengine/python \
 python_test_config.yaml
 ```
 
