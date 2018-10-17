@@ -29,29 +29,27 @@ Additionally, a container image for running tests through Google Cloud Builder c
 at `gcr.io/gcp-runtimes/container-structure-test:latest`.
 
 ## Setup
-To use container structure tests to validate your containers, you need the following:
+To use container structure tests to validate your containers, you'll need the following:
 - The container structure test binary or docker image
 - A container image to test against
 - A test `.yaml` or `.json` file with user defined structure tests to run inside of the specified container image
 
 Note that the test framework looks for the provided image in the local Docker
-daemon (if it is not provided as a tar). The `-pull` flag can optionally
+daemon (if it is not provided as a tar). The `--pull` flag can optionally
 be provided to force a pull of a remote image before running the tests.
 
 ## Example Run
 An example run of the test framework:
 ```shell
-./structure-test test --image gcr.io/google-appengine/python \
---config python_test_config.yaml
+container-structure-test test --image gcr.io/registry/image:latest \
+--config config.yaml
 ```
-This command will run the tests on the Google App Engine Python image, with verbose logging,
-using the `python_test_config.yaml` test config.
 
 Tests within this framework are specified through a YAML or JSON config file,
-which is provided to the test driver as the last positional argument of the
-command. Multiple config files may be specified in a single test run. The
-config file will be loaded in by the test driver, which will execute the tests
-in order. Within this config file, four types of tests can be written:
+which is provided to the test driver via a CLI flag. Multiple config files may
+be specified in a single test run. The config file will be loaded in by the
+test driver, which will execute the tests in order. Within this config file,
+four types of tests can be written:
 
 - Command Tests (testing output/error of a specific command issued)
 - File Existence Tests (making sure a file is, or isn't, present in the
@@ -122,7 +120,7 @@ commandTests:
 ### Intermediate Artifacts
 Each command test run creates either a container (with the `docker` driver) or
 tar artifact (with the `tar` driver). By default, these are deleted after the
-test run finishes, but the `-save` flag can optionally be passed to keep
+test run finishes, but the `--save` flag can optionally be passed to keep
 these around. This would normally be used for debugging purposes.
 
 
@@ -251,7 +249,7 @@ globalEnvVars:
     value: "/env/bin:$PATH"
 ```
 
-## Running File Tests On [Google Cloud Container Builder](https://cloud.google.com/container-builder/docs)
+## Running Tests On [Google Cloud Build](https://cloud.google.com/cloud-build/docs/)
 
 This tool is released as a builder image, tagged as
 `gcr.io/gcp-runtimes/container-structure-test`, so you can specify tests in your
@@ -265,7 +263,7 @@ steps:
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/image', '.']
 # Test the image.
 - name: 'gcr.io/gcp-runtimes/container-structure-test'
-  args: ['-image', 'gcr.io/$PROJECT_ID/image', 'test_config.yaml']
+  args: ['--image', 'gcr.io/$PROJECT_ID/image', '--config', 'test_config.yaml']
 
 # Push the image.
 images: ['gcr.io/$PROJECT_ID/image']
@@ -277,23 +275,26 @@ Container images can be represented in multiple formats, and the Docker image
 is just one of them. At their core, images are just a series of layers, each
 of which is a tarball, and so can be interacted with without a working Docker
 daemon. While running command tests currently requires a functioning Docker
-daemon on the host machine, File Existence/Content tests do not. This can be
-particularly useful when dealing with images which have been `docker export`ed
-or saved in a different image format than the Docker format. To run tests
-without using a Docker daemon, a user can specify a different "driver" to use
-in the tests, with the `-driver` flag.
+daemon on the host machine, File Existence/Content tests do not. This can be 
+useful when dealing with images which have been `docker export`ed
+or saved in a different image format than the Docker format, or when you're simply
+trying to run structure tests in an environment where Docker can't be installed.
+
+To run tests without using a Docker daemon, users can specify a different 
+"driver" to use in the tests, with the `--driver` flag.
 
 An example test run with a different driver looks like:
 ```shell
-./structure-test test -driver tar -image gcr.io/google-appengine/python \
-python_test_config.yaml
+container-structure-test test --driver tar --image gcr.io/registry/image:latest \
+--config config.yaml
 ```
 
 The currently supported drivers in the framework are:
 - `docker`: the default driver.
 Supports all tests, and uses the Docker daemon on the host to run them.
-- `tar`: a tar driver, which converts an image to a single tarball before
-interacting with it. Does *not* support command tests.
+- `tar`: a tar driver, which extracts an image filesystem to wherever tests are
+running, and runs file/metadata tests against it.
+Does *not* support command tests.
 
 
 ### Running Structure Tests Through Bazel
