@@ -91,7 +91,7 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 
 	for _, pair := range mt.Env {
 		if val, ok := imageConfig.Env[pair.Key]; ok {
-			match := false
+			var match bool
 			if pair.IsRegex {
 				match = utils.CompileAndRunRegex(pair.Value, val, true)
 			} else {
@@ -109,7 +109,7 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 
 	for _, pair := range mt.Labels {
 		if val, ok := imageConfig.Labels[pair.Key]; ok {
-			match := false
+			var match bool
 			if pair.IsRegex {
 				match = utils.CompileAndRunRegex(pair.Value, val, true)
 			} else {
