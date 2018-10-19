@@ -91,7 +91,13 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 
 	for _, pair := range mt.Env {
 		if val, ok := imageConfig.Env[pair.Key]; ok {
-			if pair.Value != val {
+			var match bool
+			if pair.IsRegex {
+				match = utils.CompileAndRunRegex(pair.Value, val, true)
+			} else {
+				match = (pair.Value == val)
+			}
+			if !match {
 				result.Errorf("env var %s value %s does not match expected value: %s", pair.Key, val, pair.Value)
 				result.Fail()
 			}
@@ -103,7 +109,13 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 
 	for _, pair := range mt.Labels {
 		if val, ok := imageConfig.Labels[pair.Key]; ok {
-			if pair.Value != val {
+			var match bool
+			if pair.IsRegex {
+				match = utils.CompileAndRunRegex(pair.Value, val, true)
+			} else {
+				match = (pair.Value == val)
+			}
+			if !match {
 				result.Errorf("label %s value %s does not match expected value: %s", pair.Key, val, pair.Value)
 				result.Fail()
 			}
