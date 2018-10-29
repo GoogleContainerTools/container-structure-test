@@ -178,7 +178,7 @@ Example:
 fileContentTests:
 - name: 'Debian Sources'
   path: '/etc/apt/sources.list'
-  expectedContents: ['.*httpredir\\.debian\\.org.*']
+  expectedContents: ['.*httpredir\.debian\.org.*']
   excludedContents: ['.*gce_debian_mirror.*']
 ```
 
