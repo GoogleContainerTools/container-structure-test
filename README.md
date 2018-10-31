@@ -263,7 +263,7 @@ steps:
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/image', '.']
 # Test the image.
 - name: 'gcr.io/gcp-runtimes/container-structure-test'
-  args: ['--image', 'gcr.io/$PROJECT_ID/image', '--config', 'test_config.yaml']
+  args: ['test', '--image', 'gcr.io/$PROJECT_ID/image', '--config', 'test_config.yaml']
 
 # Push the image.
 images: ['gcr.io/$PROJECT_ID/image']
