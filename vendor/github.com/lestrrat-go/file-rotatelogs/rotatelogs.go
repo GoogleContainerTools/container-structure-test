@@ -6,6 +6,7 @@ package rotatelogs
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -13,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	strftime "github.com/lestrrat/go-strftime"
+	strftime "github.com/lestrrat-go/strftime"
 	"github.com/pkg/errors"
 )
 
@@ -21,97 +22,88 @@ func (c clockFn) Now() time.Time {
 	return c()
 }
 
-func (o OptionFn) Configure(rl *RotateLogs) error {
-	return o(rl)
-}
-
-// WithClock creates a new Option that sets a clock
-// that the RotateLogs object will use to determine
-// the current time.
-//
-// By default rotatelogs.Local, which returns the
-// current time in the local time zone, is used. If you
-// would rather use UTC, use rotatelogs.UTC as the argument
-// to this option, and pass it to the constructor.
-func WithClock(c Clock) Option {
-	return OptionFn(func(rl *RotateLogs) error {
-		rl.clock = c
-		return nil
-	})
-}
-
-// WithLocation creates a new Option that sets up a
-// "Clock" interface that the RotateLogs object will use
-// to determine the current time.
-//
-// This optin works by always returning the in the given
-// location.
-func WithLocation(loc *time.Location) Option {
-	return WithClock(clockFn(func() time.Time {
-		return time.Now().In(loc)
-	}))
-}
-
-// WithLinkName creates a new Option that sets the
-// symbolic link name that gets linked to the current
-// file name being used.
-func WithLinkName(s string) Option {
-	return OptionFn(func(rl *RotateLogs) error {
-		rl.linkName = s
-		return nil
-	})
-}
-
-// WithMaxAge creates a new Option that sets the
-// max age of a log file before it gets purged from
-// the file system.
-func WithMaxAge(d time.Duration) Option {
-	return OptionFn(func(rl *RotateLogs) error {
-		rl.maxAge = d
-		return nil
-	})
-}
-
-// WithRotationTime creates a new Option that sets the
-// time between rotation.
-func WithRotationTime(d time.Duration) Option {
-	return OptionFn(func(rl *RotateLogs) error {
-		rl.rotationTime = d
-		return nil
-	})
-}
-
 // New creates a new RotateLogs object. A log filename pattern
 // must be passed. Optional `Option` parameters may be passed
-func New(pattern string, options ...Option) (*RotateLogs, error) {
-	globPattern := pattern
+func New(p string, options ...Option) (*RotateLogs, error) {
+	globPattern := p
 	for _, re := range patternConversionRegexps {
 		globPattern = re.ReplaceAllString(globPattern, "*")
 	}
 
-	strfobj, err := strftime.New(pattern)
+	pattern, err := strftime.New(p)
 	if err != nil {
 		return nil, errors.Wrap(err, `invalid strftime pattern`)
 	}
 
-	var rl RotateLogs
-	rl.clock = Local
-	rl.globPattern = globPattern
-	rl.pattern = strfobj
-	rl.rotationTime = 24 * time.Hour
-	rl.maxAge = 7 * 24 * time.Hour
-	for _, opt := range options {
-		opt.Configure(&rl)
+	var clock Clock = Local
+	rotationTime := 24 * time.Hour
+	var rotationCount uint
+	var linkName string
+	var maxAge time.Duration
+
+	for _, o := range options {
+		switch o.Name() {
+		case optkeyClock:
+			clock = o.Value().(Clock)
+		case optkeyLinkName:
+			linkName = o.Value().(string)
+		case optkeyMaxAge:
+			maxAge = o.Value().(time.Duration)
+			if maxAge < 0 {
+				maxAge = 0
+			}
+		case optkeyRotationTime:
+			rotationTime = o.Value().(time.Duration)
+			if rotationTime < 0 {
+				rotationTime = 0
+			}
+		case optkeyRotationCount:
+			rotationCount = o.Value().(uint)
+		}
 	}
 
-	return &rl, nil
+	if maxAge > 0 && rotationCount > 0 {
+		return nil, errors.New("options MaxAge and RotationCount cannot be both set")
+	}
+
+	if maxAge == 0 && rotationCount == 0 {
+		// if both are 0, give maxAge a sane default
+		maxAge = 7 * 24 * time.Hour
+	}
+
+	return &RotateLogs{
+		clock:         clock,
+		globPattern:   globPattern,
+		linkName:      linkName,
+		maxAge:        maxAge,
+		pattern:       pattern,
+		rotationTime:  rotationTime,
+		rotationCount: rotationCount,
+	}, nil
 }
 
 func (rl *RotateLogs) genFilename() string {
 	now := rl.clock.Now()
-	diff := time.Duration(now.UnixNano()) % rl.rotationTime
-	t := now.Add(time.Duration(-1 * diff))
-	return rl.pattern.FormatString(t)
+
+	// XXX HACK: Truncate only happens in UTC semantics, apparently.
+	// observed values for truncating given time with 86400 secs:
+	//
+	// before truncation: 2018/06/01 03:54:54 2018-06-01T03:18:00+09:00
+	// after  truncation: 2018/06/01 03:54:54 2018-05-31T09:00:00+09:00
+	//
+	// This is really annoying when we want to truncate in local time
+	// so we hack: we take the apparent local time in the local zone,
+	// and pretend that it's in UTC. do our math, and put it back to
+	// the local zone
+	var base time.Time
+	if now.Location() != time.UTC {
+		base = time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC)
+		base = base.Truncate(time.Duration(rl.rotationTime))
+		base = time.Date(base.Year(), base.Month(), base.Day(), base.Hour(), base.Minute(), base.Second(), base.Nanosecond(), base.Location())
+	} else {
+		base = now.Truncate(time.Duration(rl.rotationTime))
+	}
+	return rl.pattern.FormatString(base)
 }
 
 // Write satisfies the io.Writer interface. It writes to the
@@ -123,58 +115,66 @@ func (rl *RotateLogs) Write(p []byte) (n int, err error) {
 	rl.mutex.Lock()
 	defer rl.mutex.Unlock()
 
+	out, err := rl.getWriter_nolock(false, false)
+	if err != nil {
+		return 0, errors.Wrap(err, `failed to acquite target io.Writer`)
+	}
+
+	return out.Write(p)
+}
+
+// must be locked during this operation
+func (rl *RotateLogs) getWriter_nolock(bailOnRotateFail, useGenerationalNames bool) (io.Writer, error) {
+	generation := rl.generation
+
 	// This filename contains the name of the "NEW" filename
 	// to log to, which may be newer than rl.currentFilename
 	filename := rl.genFilename()
-
-	var out *os.File
-	if filename == rl.curFn { // Match!
-		out = rl.outFh // use old one
-	}
-
-	var isNew bool
-
-	if out == nil {
-		isNew = true
-
-		_, err := os.Stat(filename)
-		if err == nil {
-			if rl.linkName != "" {
-				_, err = os.Lstat(rl.linkName)
-				if err == nil {
-					isNew = false
-				}
-			}
+	if rl.curFn != filename {
+		generation = 0
+	} else {
+		if !useGenerationalNames {
+			// nothing to do
+			return rl.outFh, nil
 		}
-
-		fh, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-		if err != nil {
-			return 0, fmt.Errorf("error: Failed to open file %s: %s", rl.pattern, err)
-		}
-
-		out = fh
-		if isNew {
-			if err := rl.rotate(filename); err != nil {
-				// Failure to rotate is a problem, but it's really not a great
-				// idea to stop your application just because you couldn't rename
-				// your log. For now, we're just going to punt it and write to
-				// os.Stderr
-				fmt.Fprintf(os.Stderr, "failed to rotate: %s\n", err)
+		// This is used when we *REALLY* want to rotate a log.
+		// instead of just using the regular strftime pattern, we
+		// create a new file name using generational names such as
+		// "foo.1", "foo.2", "foo.3", etc
+		for {
+			generation++
+			name := fmt.Sprintf("%s.%d", filename, generation)
+			if _, err := os.Stat(name); err != nil {
+				filename = name
+				break
 			}
 		}
 	}
 
-	n, err = out.Write(p)
-
-	if rl.outFh == nil {
-		rl.outFh = out
-	} else if isNew {
-		rl.outFh.Close()
-		rl.outFh = out
+	// if we got here, then we need to create a file
+	fh, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil, errors.Errorf("failed to open file %s: %s", rl.pattern, err)
 	}
+
+	if err := rl.rotate_nolock(filename); err != nil {
+		err = errors.Wrap(err, "failed to rotate")
+		if bailOnRotateFail {
+			// Failure to rotate is a problem, but it's really not a great
+			// idea to stop your application just because you couldn't rename
+			// your log.
+			// We only return this error when explicitly needed.
+			return nil, err
+		}
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+	}
+
+	rl.outFh.Close()
+	rl.outFh = fh
 	rl.curFn = filename
+	rl.generation = generation
 
-	return n, err
+	return fh, nil
 }
 
 // CurrentFileName returns the current file name that
@@ -205,9 +205,24 @@ func (g *cleanupGuard) Run() {
 	g.fn()
 }
 
-func (rl *RotateLogs) rotate(filename string) error {
-	lockfn := fmt.Sprintf("%s_lock", filename)
+// Rotate forcefully rotates the log files. If the generated file name
+// clash because file already exists, a numeric suffix of the form
+// ".1", ".2", ".3" and so forth are appended to the end of the log file
+//
+// Thie method can be used in conjunction with a signal handler so to
+// emulate servers that generate new log files when they receive a
+// SIGHUP
+func (rl *RotateLogs) Rotate() error {
+	rl.mutex.Lock()
+	defer rl.mutex.Unlock()
+	if _, err := rl.getWriter_nolock(true, true); err != nil {
+		return err
+	}
+	return nil
+}
 
+func (rl *RotateLogs) rotate_nolock(filename string) error {
+	lockfn := filename + `_lock`
 	fh, err := os.OpenFile(lockfn, os.O_CREATE|os.O_EXCL, 0644)
 	if err != nil {
 		// Can't lock, just return
@@ -222,20 +237,18 @@ func (rl *RotateLogs) rotate(filename string) error {
 	defer guard.Run()
 
 	if rl.linkName != "" {
-		tmpLinkName := fmt.Sprintf("%s_symlink", filename)
-		err = os.Symlink(filename, tmpLinkName)
-		if err != nil {
-			return err
+		tmpLinkName := filename + `_symlink`
+		if err := os.Symlink(filename, tmpLinkName); err != nil {
+			return errors.Wrap(err, `failed to create new symlink`)
 		}
 
-		err = os.Rename(tmpLinkName, rl.linkName)
-		if err != nil {
-			return err
+		if err := os.Rename(tmpLinkName, rl.linkName); err != nil {
+			return errors.Wrap(err, `failed to rename new symlink`)
 		}
 	}
 
-	if rl.maxAge <= 0 {
-		return errors.New("maxAge not set, not rotating")
+	if rl.maxAge <= 0 && rl.rotationCount <= 0 {
+		return errors.New("panic: maxAge and rotationCount are both set")
 	}
 
 	matches, err := filepath.Glob(rl.globPattern)
@@ -256,10 +269,28 @@ func (rl *RotateLogs) rotate(filename string) error {
 			continue
 		}
 
-		if fi.ModTime().After(cutoff) {
+		fl, err := os.Lstat(path)
+		if err != nil {
+			continue
+		}
+
+		if rl.maxAge > 0 && fi.ModTime().After(cutoff) {
+			continue
+		}
+
+		if rl.rotationCount > 0 && fl.Mode()&os.ModeSymlink == os.ModeSymlink {
 			continue
 		}
 		toUnlink = append(toUnlink, path)
+	}
+
+	if rl.rotationCount > 0 {
+		// Only delete if we have more than rotationCount
+		if rl.rotationCount >= uint(len(toUnlink)) {
+			return nil
+		}
+
+		toUnlink = toUnlink[:len(toUnlink)-int(rl.rotationCount)]
 	}
 
 	if len(toUnlink) <= 0 {

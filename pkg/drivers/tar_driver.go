@@ -35,8 +35,18 @@ type TarDriver struct {
 }
 
 func NewTarDriver(args DriverConfig) (Driver, error) {
-	// TODO(nkubala): figure out how to make this work for tars
-	// might just want to use IsTar()
+	if pkgutil.IsTar(args.Image) {
+		// tar provided, so don't provide any prefix. container-diff can figure this out.
+		image, err := pkgutil.GetImageForName(args.Image)
+		if err != nil {
+			return nil, errors.Wrap(err, "processing tar image reference")
+		}
+		return &TarDriver{
+			Image: image,
+			Save:  args.Save,
+		}, nil
+	}
+	// try the local docker daemon first
 	image, err := pkgutil.GetImageForName("daemon://" + args.Image)
 	if err == nil {
 		logrus.Debugf("image found in local docker daemon")
@@ -45,7 +55,9 @@ func NewTarDriver(args DriverConfig) (Driver, error) {
 			Save:  args.Save,
 		}, nil
 	}
-	logrus.Infof("unable to retrieve image locally; trying from remote")
+
+	// image not found in local daemon, so try remote.
+	logrus.Infof("unable to retrieve image locally: %s", err)
 	image, err = pkgutil.GetImageForName("remote://" + args.Image)
 	if err != nil {
 		return nil, errors.Wrap(err, "retrieving image")

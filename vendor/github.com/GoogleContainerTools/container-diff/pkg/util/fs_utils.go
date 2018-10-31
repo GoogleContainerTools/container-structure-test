@@ -18,6 +18,7 @@ package util
 
 import (
 	"bytes"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -130,6 +131,18 @@ func CreateDirectoryEntries(root string, entryNames []string) (entries []Directo
 	return entries
 }
 
+func CheckSameSymlink(f1name, f2name string) (bool, error) {
+	link1, err := os.Readlink(f1name)
+	if err != nil {
+		return false, err
+	}
+	link2, err := os.Readlink(f2name)
+	if err != nil {
+		return false, err
+	}
+	return (link1 == link2), nil
+}
+
 func CheckSameFile(f1name, f2name string) (bool, error) {
 	// Check first if files differ in size and immediately return
 	f1stat, err := os.Stat(f1name)
@@ -178,4 +191,19 @@ func HasFilepathPrefix(path, prefix string) bool {
 		return false
 	}
 	return true
+}
+
+// given a path to a directory, check if it has any contents
+func DirIsEmpty(path string) (bool, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	_, err = f.Readdir(1)
+	if err == io.EOF {
+		return true, nil
+	}
+	return false, err
 }
