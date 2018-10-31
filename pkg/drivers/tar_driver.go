@@ -21,9 +21,12 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	pkgutil "github.com/GoogleContainerTools/container-diff/pkg/util"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/google/go-containerregistry/pkg/v1"
+	"github.com/google/go-containerregistry/pkg/v1/mutate"
 )
 
 type TarDriver struct {
@@ -32,33 +35,32 @@ type TarDriver struct {
 }
 
 func NewTarDriver(args DriverConfig) (Driver, error) {
-	var prepper pkgutil.Prepper
-	var image pkgutil.Image
-	var err error
-	imageName := args.Image
-	if pkgutil.IsTar(imageName) {
-		prepper = &pkgutil.TarPrepper{
-			Source: imageName,
-		}
-		image, err = prepper.GetImage()
-	} else {
-		// see if image exists locally first.
-		prepper = &pkgutil.DaemonPrepper{
-			Source: imageName,
-		}
-		image, err = prepper.GetImage()
+	if pkgutil.IsTar(args.Image) {
+		// tar provided, so don't provide any prefix. container-diff can figure this out.
+		image, err := pkgutil.GetImageForName(args.Image)
 		if err != nil {
-			// didn't find locally, try to pull from remote.
-			prepper = &pkgutil.CloudPrepper{
-				Source: imageName,
-			}
-			image, err = prepper.GetImage()
+			return nil, errors.Wrap(err, "processing tar image reference")
 		}
+		return &TarDriver{
+			Image: image,
+			Save:  args.Save,
+		}, nil
+	}
+	// try the local docker daemon first
+	image, err := pkgutil.GetImageForName("daemon://" + args.Image)
+	if err == nil {
+		logrus.Debugf("image found in local docker daemon")
+		return &TarDriver{
+			Image: image,
+			Save:  args.Save,
+		}, nil
 	}
 
+	// image not found in local daemon, so try remote.
+	logrus.Infof("unable to retrieve image locally: %s", err)
+	image, err = pkgutil.GetImageForName("remote://" + args.Image)
 	if err != nil {
-		// didn't find image anywhere; exit
-		return nil, err
+		return nil, errors.Wrap(err, "retrieving image")
 	}
 	return &TarDriver{
 		Image: image,
@@ -73,31 +75,50 @@ func (d *TarDriver) Destroy() {
 }
 
 func (d *TarDriver) SetEnv(envVars []unversioned.EnvVar) error {
-	config, err := d.GetConfig()
+	configFile, err := d.Image.Image.ConfigFile()
 	if err != nil {
-		return errors.Wrapf(err, "getting image config")
+		return errors.Wrap(err, "retrieving image config")
 	}
-	env := config.Env
+	config := configFile.Config
+	env := convertSliceToMap(config.Env)
 	for _, envVar := range envVars {
 		env[envVar.Key] = envVar.Value
 	}
-	newConfig := pkgutil.ConfigObject{
-		Entrypoint:   config.Entrypoint,
-		Cmd:          config.Cmd,
-		Volumes:      d.Image.Config.Config.Volumes,
-		Workdir:      config.Workdir,
-		ExposedPorts: d.Image.Config.Config.ExposedPorts,
-		Labels:       config.Labels,
-		Env:          convertMapToSlice(env),
+	newConfig := v1.Config{
+		AttachStderr:    config.AttachStderr,
+		AttachStdin:     config.AttachStdin,
+		AttachStdout:    config.AttachStdout,
+		Cmd:             config.Cmd,
+		Domainname:      config.Domainname,
+		Entrypoint:      config.Entrypoint,
+		Env:             convertMapToSlice(env),
+		Hostname:        config.Hostname,
+		Image:           config.Image,
+		Labels:          config.Labels,
+		OnBuild:         config.OnBuild,
+		OpenStdin:       config.OpenStdin,
+		StdinOnce:       config.StdinOnce,
+		Tty:             config.Tty,
+		User:            config.User,
+		Volumes:         config.Volumes,
+		WorkingDir:      config.WorkingDir,
+		ExposedPorts:    config.ExposedPorts,
+		ArgsEscaped:     config.ArgsEscaped,
+		NetworkDisabled: config.NetworkDisabled,
+		MacAddress:      config.MacAddress,
+		StopSignal:      config.StopSignal,
+		Shell:           config.Shell,
+	}
+	newImg, err := mutate.Config(d.Image.Image, newConfig)
+	if err != nil {
+		return errors.Wrap(err, "setting new config on image")
 	}
 	newImage := pkgutil.Image{
+		Image:  newImg,
 		Source: d.Image.Source,
 		FSPath: d.Image.FSPath,
-		Type:   d.Image.Type,
-		Config: pkgutil.ConfigSchema{
-			History: d.Image.Config.History,
-			Config:  newConfig,
-		},
+		Digest: d.Image.Digest,
+		Layers: d.Image.Layers,
 	}
 	d.Image = newImage
 	return nil
@@ -130,26 +151,32 @@ func (d *TarDriver) ReadDir(path string) ([]os.FileInfo, error) {
 }
 
 func (d *TarDriver) GetConfig() (unversioned.Config, error) {
+	configFile, err := d.Image.Image.ConfigFile()
+	if err != nil {
+		return unversioned.Config{}, errors.Wrap(err, "retrieving config file")
+	}
+	config := configFile.Config
+
 	// docker provides these as maps (since they can be mapped in docker run commands)
 	// since this will never be the case when built through a dockerfile, we convert to list of strings
 	volumes := []string{}
-	for v := range d.Image.Config.Config.Volumes {
+	for v := range config.Volumes {
 		volumes = append(volumes, v)
 	}
 
 	ports := []string{}
-	for p := range d.Image.Config.Config.ExposedPorts {
+	for p := range config.ExposedPorts {
 		// docker always appends the protocol to the port, so this is safe
 		ports = append(ports, strings.Split(p, "/")[0])
 	}
 
 	return unversioned.Config{
-		Env:          convertSliceToMap(d.Image.Config.Config.Env),
-		Entrypoint:   d.Image.Config.Config.Entrypoint,
-		Cmd:          d.Image.Config.Config.Cmd,
+		Env:          convertSliceToMap(config.Env),
+		Entrypoint:   config.Entrypoint,
+		Cmd:          config.Cmd,
 		Volumes:      volumes,
-		Workdir:      d.Image.Config.Config.Workdir,
+		Workdir:      config.WorkingDir,
 		ExposedPorts: ports,
-		Labels:       d.Image.Config.Config.Labels,
+		Labels:       config.Labels,
 	}, nil
 }
