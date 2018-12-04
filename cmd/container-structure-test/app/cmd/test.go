@@ -17,6 +17,8 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
+
 	"os"
 	"strings"
 
@@ -47,8 +49,6 @@ var (
 
 	args       *drivers.DriverConfig
 	driverImpl func(drivers.DriverConfig) (drivers.Driver, error)
-
-	channel = make(chan interface{}, 1)
 )
 
 func NewCmdTest(out io.Writer) *cobra.Command {
@@ -60,6 +60,23 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 			return test.ValidateArgs(opts)
 		},
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			if opts.TestReport != "" {
+				// Force JsonOutput
+				opts.JSON = true
+				// TODO(nkubala): need to do something with this JSON output flag
+				// most likely select a JSON template and execute that when printing results
+				testReportFile, err := os.Create(opts.TestReport)
+				if err != nil {
+					return err
+				}
+				rootCmd.SetOutput(testReportFile)
+				out = testReportFile // override writer
+			}
+
+			if opts.Quiet {
+				out = ioutil.Discard
+			}
+
 			return run(out)
 		},
 	}
@@ -92,7 +109,7 @@ func run(out io.Writer) error {
 		if err = client.PullImage(docker.PullImageOptions{
 			Repository:   repository,
 			Tag:          tag,
-			OutputStream: os.Stdout,
+			OutputStream: out,
 		}, docker.AuthConfiguration{}); err != nil {
 			logrus.Fatalf("error pulling remote image %s: %s", opts.ImagePath, err.Error())
 		}
@@ -109,15 +126,15 @@ func run(out io.Writer) error {
 	if err != nil {
 		logrus.Fatal(err.Error())
 	}
-	go runTests(out, args, driverImpl)
+	channel := make(chan interface{}, 1)
+	go runTests(out, channel, args, driverImpl)
 	// TODO(nkubala): put a sync.WaitGroup here
-	return test.ProcessResults(out, channel, opts.Quiet)
+	return test.ProcessResults(out, channel)
 }
 
-func runTests(out io.Writer, args *drivers.DriverConfig, driverImpl func(drivers.DriverConfig) (drivers.Driver, error)) {
+func runTests(out io.Writer, channel chan interface{}, args *drivers.DriverConfig, driverImpl func(drivers.DriverConfig) (drivers.Driver, error)) {
 	for _, file := range opts.ConfigFiles {
-		fmt.Fprintln(out, output.Banner(file))
-		// channel <- output.Banner(file)
+		output.Banner(out, file)
 		tests, err := test.Parse(file, args, driverImpl)
 		if err != nil {
 			channel <- &unversioned.TestResult{

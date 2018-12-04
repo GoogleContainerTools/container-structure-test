@@ -104,7 +104,7 @@ func Parse(fp string, args *drivers.DriverConfig, driverImpl func(drivers.Driver
 	return tests, nil
 }
 
-func ProcessResults(out io.Writer, c chan interface{}, quiet bool) error {
+func ProcessResults(out io.Writer, c chan interface{}) error {
 	totalPass := 0
 	totalFail := 0
 	errStrings := make([]string, 0)
@@ -113,14 +113,7 @@ func ProcessResults(out io.Writer, c chan interface{}, quiet bool) error {
 		return errors.Wrap(err, "reading results from channel")
 	}
 	for _, r := range results {
-		fmt.Fprintln(out, output.OutputResult(r, quiet))
-		// fmt.Fprintln(out, r)
-		// value, ok := r.(*unversioned.TestResult)
-		// if !ok {
-		// 	errStrings = append(errStrings, fmt.Sprintf("unexpected value %v in list", value))
-		// 	logrus.Errorf("unexpected value %v in list", value)
-		// 	continue
-		// }
+		output.OutputResult(out, r)
 		if r.IsPass() {
 			totalPass++
 		} else {
@@ -134,13 +127,12 @@ func ProcessResults(out io.Writer, c chan interface{}, quiet bool) error {
 		err = fmt.Errorf(strings.Join(errStrings, "\n"))
 	}
 
-	// TODO(nkubala): feed summary object to template, write to writer
-
-	// summary := unversioned.SummaryObject{
-	// 	Total: totalFail + totalPass,
-	// 	Pass:  totalPass,
-	// 	Fail:  totalFail,
-	// }
+	summary := unversioned.SummaryObject{
+		Total: totalFail + totalPass,
+		Pass:  totalPass,
+		Fail:  totalFail,
+	}
+	output.FinalResults(out, summary)
 
 	return err
 }
