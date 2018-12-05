@@ -104,7 +104,7 @@ func Parse(fp string, args *drivers.DriverConfig, driverImpl func(drivers.Driver
 	return tests, nil
 }
 
-func ProcessResults(out io.Writer, c chan interface{}) error {
+func ProcessResults(out io.Writer, json bool, c chan interface{}) error {
 	totalPass := 0
 	totalFail := 0
 	errStrings := make([]string, 0)
@@ -113,7 +113,10 @@ func ProcessResults(out io.Writer, c chan interface{}) error {
 		return errors.Wrap(err, "reading results from channel")
 	}
 	for _, r := range results {
-		output.OutputResult(out, r)
+		if !json {
+			// output individual results if we're not in json mode
+			output.OutputResult(out, r)
+		}
 		if r.IsPass() {
 			totalPass++
 		} else {
@@ -132,7 +135,11 @@ func ProcessResults(out io.Writer, c chan interface{}) error {
 		Pass:  totalPass,
 		Fail:  totalFail,
 	}
-	output.FinalResults(out, summary)
+	if json {
+		// only output results here if we're in json mode
+		summary.Results = results
+	}
+	output.FinalResults(out, json, summary)
 
 	return err
 }

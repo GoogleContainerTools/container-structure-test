@@ -16,10 +16,13 @@ package output
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
@@ -60,7 +63,16 @@ func Banner(out io.Writer, filename string) error {
 	return err
 }
 
-func FinalResults(out io.Writer, result types.SummaryObject) error {
+func FinalResults(out io.Writer, jsonOut bool, result types.SummaryObject) error {
+	if jsonOut {
+		res, err := json.Marshal(result)
+		if err != nil {
+			return errors.Wrap(err, "marshalling json")
+		}
+		res = append(res, []byte("\n")...)
+		_, err = out.Write(res)
+		return err
+	}
 	if bannerLength%2 == 0 {
 		bannerLength++
 	}

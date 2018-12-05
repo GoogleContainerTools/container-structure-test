@@ -13,8 +13,8 @@
 # limitations under the License.
 
 # Bump these on release
-VERSION_MAJOR ?= 2
-VERSION_MINOR ?= 0
+VERSION_MAJOR ?= 1
+VERSION_MINOR ?= 6
 VERSION_BUILD ?= 0
 
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)

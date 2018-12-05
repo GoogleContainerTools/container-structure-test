@@ -44,23 +44,6 @@ func NewRootCommand(out, err io.Writer) *cobra.Command {
 			return err
 		}
 
-		// if opts.TestReport != "" {
-		// 	// Force JsonOutput
-		// 	// flags.JsonOutput = true
-		// 	// TODO(nkubala): probably need to do something with this JSON output flag
-		// 	// most likely select a JSON template and execute that when printing results
-		// 	testReportFile, err := os.Create(opts.TestReport)
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// 	rootCmd.SetOutput(testReportFile)
-		// 	out = testReportFile // override writer
-		// }
-
-		// if opts.Quiet {
-		// 	out = ioutil.Discard
-		// }
-
 		rootCmd.SilenceUsage = true
 		logrus.Infof("container-structure-test %+v", version.GetVersion())
 		return nil

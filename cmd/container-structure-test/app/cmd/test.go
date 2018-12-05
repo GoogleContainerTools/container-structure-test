@@ -63,8 +63,6 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 			if opts.TestReport != "" {
 				// Force JsonOutput
 				opts.JSON = true
-				// TODO(nkubala): need to do something with this JSON output flag
-				// most likely select a JSON template and execute that when printing results
 				testReportFile, err := os.Create(opts.TestReport)
 				if err != nil {
 					return err
@@ -129,12 +127,14 @@ func run(out io.Writer) error {
 	channel := make(chan interface{}, 1)
 	go runTests(out, channel, args, driverImpl)
 	// TODO(nkubala): put a sync.WaitGroup here
-	return test.ProcessResults(out, channel)
+	return test.ProcessResults(out, opts.JSON, channel)
 }
 
 func runTests(out io.Writer, channel chan interface{}, args *drivers.DriverConfig, driverImpl func(drivers.DriverConfig) (drivers.Driver, error)) {
 	for _, file := range opts.ConfigFiles {
-		output.Banner(out, file)
+		if !opts.JSON {
+			output.Banner(out, file)
+		}
 		tests, err := test.Parse(file, args, driverImpl)
 		if err != nil {
 			channel <- &unversioned.TestResult{
@@ -159,6 +159,7 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&opts.Save, "save", false, "preserve created containers after test run")
 	cmd.Flags().BoolVarP(&opts.Quiet, "quiet", "q", false, "flag to suppress output")
 	cmd.Flags().BoolVarP(&opts.Force, "force", "f", false, "force run of host driver (without user prompt)")
+	cmd.Flags().BoolVarP(&opts.JSON, "json", "j", false, "output test results in json format")
 
 	cmd.Flags().StringArrayVarP(&opts.ConfigFiles, "config", "c", []string{}, "test config files")
 	cmd.MarkFlagRequired("config")
