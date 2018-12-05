@@ -21,23 +21,18 @@ VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
 
 GOOS ?= $(shell go env GOOS)
 GOARCH = amd64
+BUILD_DIR ?= ./out
 ORG := github.com/GoogleContainerTools
 PROJECT := container-structure-test
 REPOPATH ?= $(ORG)/$(PROJECT)
-RELEASE_BUCKET ?= gcp-container-tools/structure-test
+RELEASE_BUCKET ?= $(PROJECT)
 
-VERSION_PACKAGE = $(REPOPATH)/pkg/version
+SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH) windows-$(GOARCH).exe
 
 GO_LDFLAGS :="
 GO_LDFLAGS += -X $(VERSION_PACKAGE).version=$(VERSION)
 GO_LDFLAGS += -X $(VERSION_PACKAGE).buildDate=$(shell date +'%Y-%m-%dT%H:%M:%SZ')
 GO_LDFLAGS +="
-
-SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH) windows-$(GOARCH).exe
-
-BUILD_DIR ?= ./out
-BUCKET ?= structure-test
-UPLOAD_LOCATION := gs://${BUCKET}
 
 BUILD_PACKAGE = $(REPOPATH)/cmd/container-structure-test
 GO_FILES := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
@@ -54,17 +49,17 @@ $(BUILD_DIR)/$(PROJECT)-%-$(GOARCH): $(GO_FILES) $(BUILD_DIR)
 %.exe: %
 	cp $< $@
 
+.PRECIOUS: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform))
+
+.PHONY: cross
+cross: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform).sha256)
+
 .PHONY: $(BUILD_DIR)/VERSION
 $(BUILD_DIR)/VERSION: $(BUILD_DIR)
 	@ echo $(VERSION) > $@
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
-
-.PRECIOUS: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform))
-
-.PHONY: cross
-cross: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform).sha256)
 
 .PHONY: release
 release: cross
