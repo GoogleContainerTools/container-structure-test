@@ -17,7 +17,7 @@ package v2
 import (
 	"fmt"
 
-	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
+	"github.com/sirupsen/logrus"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
@@ -57,7 +57,7 @@ func (ft FileContentTest) Run(driver drivers.Driver) *types.TestResult {
 		Pass:   true,
 		Errors: make([]string, 0),
 	}
-	ctc_lib.Log.Info(ft.LogName())
+	logrus.Info(ft.LogName())
 	actualContents, err := driver.ReadFile(ft.Path)
 	if err != nil {
 		result.Errorf("Failed to open %s. Error: %s", ft.Path, err)

@@ -1,16 +1,12 @@
 sudo: required
 dist: trusty
 
-language: java
 language: go
 go:
   - 1.10.x
 go_import_path: github.com/GoogleContainerTools/container-structure-test
 
-jdk:
-  - oraclejdk8
-
 script:
-  - ./.gofmt.sh
+  - ./hack/.gofmt.sh
   - make
   - ./tests/structure_test_tests.sh

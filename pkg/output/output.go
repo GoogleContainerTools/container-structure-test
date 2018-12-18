@@ -16,16 +16,20 @@ package output
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
 var bannerLength = 27 // default banner length
 
-func OutputResult(result *types.TestResult, isQuiet bool) string {
+func OutputResult(out io.Writer, result *types.TestResult) error {
 	var strBuffer bytes.Buffer
 	strBuffer.WriteString(fmt.Sprintf("=== RUN: %s\n", result.Name))
 	if result.Pass {
@@ -33,36 +37,50 @@ func OutputResult(result *types.TestResult, isQuiet bool) string {
 	} else {
 		strBuffer.WriteString(red("--- FAIL\n"))
 	}
-	if result.Stdout != "" && !isQuiet {
+	if result.Stdout != "" {
 		strBuffer.WriteString(blue(fmt.Sprintf("stdout: %s", result.Stdout)))
 	}
-	if result.Stderr != "" && !isQuiet {
+	if result.Stderr != "" {
 		strBuffer.WriteString(blue(fmt.Sprintf("stderr: %s", result.Stderr)))
 	}
 	for _, s := range result.Errors {
 		strBuffer.WriteString(orange(fmt.Sprintf("Error: %s\n", s)))
 	}
-	return strBuffer.String()
+	strBuffer.WriteString("\n")
+	_, err := out.Write(strBuffer.Bytes())
+	return err
 }
 
-func Banner(filename string) string {
+func Banner(out io.Writer, filename string) error {
 	var strBuffer bytes.Buffer
 	fileStr := fmt.Sprintf("====== Test file: %s ======", filepath.Base(filename))
 	bannerLength = len(fileStr)
 	strBuffer.WriteString("\n" + strings.Repeat("=", bannerLength) + "\n")
 	strBuffer.WriteString(fileStr + "\n")
 	strBuffer.WriteString(strings.Repeat("=", bannerLength) + "\n")
-	return purple(strBuffer.String())
+
+	_, err := out.Write([]byte(purple(strBuffer.String())))
+	return err
 }
 
-func FinalResults(result types.SummaryObject) string {
+func FinalResults(out io.Writer, jsonOut bool, result types.SummaryObject) error {
+	if jsonOut {
+		res, err := json.Marshal(result)
+		if err != nil {
+			return errors.Wrap(err, "marshalling json")
+		}
+		res = append(res, []byte("\n")...)
+		_, err = out.Write(res)
+		return err
+	}
 	if bannerLength%2 == 0 {
 		bannerLength++
 	}
 	var strBuffer bytes.Buffer
 	if result.Total == 0 {
 		strBuffer.WriteString(red("No tests run! Check config file format."))
-		return strBuffer.String()
+		_, err := out.Write(strBuffer.Bytes())
+		return err
 	}
 	strBuffer.WriteString("\n" + strings.Repeat("=", bannerLength) + "\n")
 	strBuffer.WriteString(strings.Repeat("=", (bannerLength-9)/2))
@@ -77,5 +95,7 @@ func FinalResults(result types.SummaryObject) string {
 	} else {
 		strBuffer.WriteString(red("\nFAIL"))
 	}
-	return strBuffer.String()
+	strBuffer.WriteString("\n")
+	_, err := out.Write(strBuffer.Bytes())
+	return err
 }

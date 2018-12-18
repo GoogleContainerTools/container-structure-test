@@ -17,7 +17,8 @@ package v2
 import (
 	"fmt"
 
-	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
+	"github.com/sirupsen/logrus"
+
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
@@ -86,7 +87,7 @@ func (st *StructureTest) RunCommandTests(channel chan interface{}) {
 		}
 		defer func() {
 			if err := driver.Teardown(test.Teardown); err != nil {
-				ctc_lib.Log.Error(err.Error())
+				logrus.Error(err.Error())
 			}
 		}()
 		channel <- test.Run(driver)
@@ -145,7 +146,7 @@ func (st *StructureTest) RunFileContentTests(channel chan interface{}) {
 
 func (st *StructureTest) RunMetadataTests(channel chan interface{}) {
 	if st.MetadataTest.IsEmpty() {
-		ctc_lib.Log.Debug("Skipping empty metadata test")
+		logrus.Debug("Skipping empty metadata test")
 		return
 	}
 	if !st.MetadataTest.Validate(channel) {
@@ -169,7 +170,7 @@ func (st *StructureTest) RunLicenseTests(channel chan interface{}) {
 	for _, test := range st.LicenseTests {
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Fatal(err.Error())
+			logrus.Fatal(err.Error())
 		}
 		channel <- test.Run(driver)
 		driver.Destroy()

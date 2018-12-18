@@ -15,7 +15,7 @@
 package v1
 
 import (
-	"github.com/GoogleCloudPlatform/runtimes-common/ctc_lib"
+	"github.com/sirupsen/logrus"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
@@ -59,22 +59,22 @@ func (st *StructureTest) runAll(channel chan interface{}, fileProcessed chan boo
 func (st *StructureTest) RunCommandTests(channel chan interface{}) {
 	for _, test := range st.CommandTests {
 		if err := test.Validate(); err != nil {
-			ctc_lib.Log.Error(err.Error())
+			logrus.Error(err.Error())
 			continue
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Fatal(err.Error())
+			logrus.Fatal(err.Error())
 		}
 		vars := append(st.GlobalEnvVars, test.EnvVars...)
 		if err = driver.Setup(vars, test.Setup); err != nil {
-			ctc_lib.Log.Error(err.Error())
+			logrus.Error(err.Error())
 			driver.Destroy()
 			continue
 		}
 		defer func() {
 			if err := driver.Teardown(test.Teardown); err != nil {
-				ctc_lib.Log.Error(err.Error())
+				logrus.Error(err.Error())
 			}
 			driver.Destroy()
 		}()
@@ -85,12 +85,12 @@ func (st *StructureTest) RunCommandTests(channel chan interface{}) {
 func (st *StructureTest) RunFileExistenceTests(channel chan interface{}) {
 	for _, test := range st.FileExistenceTests {
 		if err := test.Validate(); err != nil {
-			ctc_lib.Log.Error(err.Error())
+			logrus.Error(err.Error())
 			continue
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Fatal(err.Error())
+			logrus.Fatal(err.Error())
 		}
 		channel <- test.Run(driver)
 		driver.Destroy()
@@ -100,12 +100,12 @@ func (st *StructureTest) RunFileExistenceTests(channel chan interface{}) {
 func (st *StructureTest) RunFileContentTests(channel chan interface{}) {
 	for _, test := range st.FileContentTests {
 		if err := test.Validate(); err != nil {
-			ctc_lib.Log.Error(err.Error())
+			logrus.Error(err.Error())
 			continue
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Fatal(err.Error())
+			logrus.Fatal(err.Error())
 		}
 		channel <- test.Run(driver)
 		driver.Destroy()
@@ -116,7 +116,7 @@ func (st *StructureTest) RunLicenseTests(channel chan interface{}) {
 	for _, test := range st.LicenseTests {
 		driver, err := st.NewDriver()
 		if err != nil {
-			ctc_lib.Log.Fatal(err.Error())
+			logrus.Fatal(err.Error())
 		}
 		channel <- test.Run(driver)
 		driver.Destroy()

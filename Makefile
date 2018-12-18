@@ -13,35 +13,35 @@
 # limitations under the License.
 
 # Bump these on release
-# These are only used for local builds, all released builds are done with Bazel
 VERSION_MAJOR ?= 1
-VERSION_MINOR ?= 5
+VERSION_MINOR ?= 6
 VERSION_BUILD ?= 0
 
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
 
 GOOS ?= $(shell go env GOOS)
 GOARCH = amd64
+BUILD_DIR ?= ./out
 ORG := github.com/GoogleContainerTools
 PROJECT := container-structure-test
 REPOPATH ?= $(ORG)/$(PROJECT)
-RELEASE_BUCKET ?= gcp-container-tools/structure-test
+RELEASE_BUCKET ?= $(PROJECT)
 
-LD_FLAGS := -X github.com/GoogleContainerTools/container-structure-test/pkg/version.version=$(VERSION)
+SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH) windows-$(GOARCH).exe
 
-SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH)
+GO_LDFLAGS :="
+GO_LDFLAGS += -X $(VERSION_PACKAGE).version=$(VERSION)
+GO_LDFLAGS += -X $(VERSION_PACKAGE).buildDate=$(shell date +'%Y-%m-%dT%H:%M:%SZ')
+GO_LDFLAGS +="
 
-BUILD_DIR ?= ./out
-BUCKET ?= structure-test
-UPLOAD_LOCATION := gs://${BUCKET}
-
-BUILD_PACKAGE = $(REPOPATH)
+BUILD_PACKAGE = $(REPOPATH)/cmd/container-structure-test
+GO_FILES := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 $(BUILD_DIR)/$(PROJECT): $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH)
 	cp $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH) $@
 
 $(BUILD_DIR)/$(PROJECT)-%-$(GOARCH): $(GO_FILES) $(BUILD_DIR)
-	GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 go build -ldflags="$(LD_FLAGS)" -o $@ $(BUILD_PACKAGE)
+	GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 go build -ldflags $(GO_LDFLAGS) -o $@ $(BUILD_PACKAGE)
 
 %.sha256: %
 	shasum -a 256 $< &> $@
@@ -49,12 +49,17 @@ $(BUILD_DIR)/$(PROJECT)-%-$(GOARCH): $(GO_FILES) $(BUILD_DIR)
 %.exe: %
 	cp $< $@
 
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-
 .PRECIOUS: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform))
+
 .PHONY: cross
 cross: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform).sha256)
+
+.PHONY: $(BUILD_DIR)/VERSION
+$(BUILD_DIR)/VERSION: $(BUILD_DIR)
+	@ echo $(VERSION) > $@
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
 .PHONY: release
 release: cross

@@ -58,9 +58,9 @@ type FlattenedMetadata struct {
 type TestResult struct {
 	Name   string
 	Pass   bool
-	Stdout string
-	Stderr string
-	Errors []string
+	Stdout string   `json:",omitempty"`
+	Stderr string   `json:",omitempty"`
+	Errors []string `json:",omitempty"`
 }
 
 func (t *TestResult) String() string {
@@ -97,7 +97,8 @@ func (t *TestResult) IsPass() bool {
 }
 
 type SummaryObject struct {
-	Pass  int
-	Fail  int
-	Total int
+	Pass    int
+	Fail    int
+	Total   int
+	Results []*TestResult `json:",omitempty"`
 }

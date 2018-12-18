@@ -1,3 +1,2 @@
 vendor/github.com/docker/docker/hack
 vendor/github.com/docker/docker/project
-vendor/github.com/containers/image/**/fixtures
