@@ -6,7 +6,7 @@ metadataTest:
   - key: 'EMPTY_VAR'
     value: ''
   - key: 'FOO_BAR'
-    value: 'FOO\:BAR'
+    value: 'FOO\:BAR=BAZ'
   - key: 'REGEX_VAR'
     value: '[a-z]+-2\.1\.*'
     isRegex: true
