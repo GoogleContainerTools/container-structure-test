@@ -19,7 +19,6 @@
 
 #End to end tests to make sure the structure tests do what we expect them
 #to do on a known quantity, the latest debian docker image.
-
 failures=0
 # build newest structure test binary
 make cross
@@ -45,16 +44,43 @@ run_metadata_tests=true
 if $run_metadata_tests ;
 then
   test_metadata_image=debian8-with-metadata:latest
+  test_metadata_tar=debian8-with-metadata.tar
+  test_metadata_dir=debian8-with-metadata
   docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_dir"
   res=$(./out/container-structure-test test --image "$test_metadata_image" --config "$test_dir"/debian_metadata_test.yaml)
   code=$?
 
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
-    echo "Metadata success case test failed"
+    echo "Metadata success case test failed for docker driver"
     echo "$res"
     failures=$((failures +1))
   fi
+
+  docker save "$test_metadata_image" -o "$test_metadata_tar"
+  res=$(./out/container-structure-test test --driver tar --image "$test_metadata_tar" --config "$test_dir"/debian_metadata_test.yaml)
+  code=$?
+  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+  then
+    echo "Metadata success case test failed for tar driver"
+    echo "$res"
+    failures=$((failures +1))
+  fi
+
+  mkdir -p "$test_metadata_dir"
+  tar -C "$test_metadata_dir" -xvf "$test_metadata_tar"
+  test_metadata_json=$(grep 'Config":"\K[^"]+' -Po "$test_metadata_dir/manifest.json")
+  res=$(./out/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "$test_dir"/debian_metadata_test.yaml)
+  code=$?
+  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+  then
+    echo "Metadata success case test failed for host driver"
+    echo "$res"
+    failures=$((failures +1))
+  fi
+
+  rm -rf "$test_metadata_dir"
+  rm "$test_metadata_tar"
   docker rmi "$test_metadata_image"
 fi
 
