@@ -151,7 +151,6 @@ func runTests(out io.Writer, channel chan interface{}, args *drivers.DriverConfi
 
 func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&opts.ImagePath, "image", "i", "", "path to test image")
-	cmd.MarkFlagRequired("image")
 	cmd.Flags().StringVarP(&opts.Driver, "driver", "d", "docker", "driver to use when running tests")
 	cmd.Flags().StringVar(&opts.Metadata, "metadata", "", "path to image metadata file")
 

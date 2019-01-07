@@ -28,6 +28,7 @@ import (
 	"bytes"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/google/go-containerregistry/pkg/v1"
 )
 
 type HostDriver struct {
@@ -156,13 +157,13 @@ func (d *HostDriver) GetConfig() (unversioned.Config, error) {
 		return unversioned.Config{}, errors.Wrap(err, "Error retrieving config")
 	}
 
-	var metadata unversioned.FlattenedMetadata
+	var metadata v1.ConfigFile
 
 	json.Unmarshal(file, &metadata)
 	config := metadata.Config
 
-	// // docker provides these as maps (since they can be mapped in docker run commands)
-	// // since this will never be the case when built through a dockerfile, we convert to list of strings
+	// docker provides these as maps (since they can be mapped in docker run commands)
+	// since this will never be the case when built through a dockerfile, we convert to list of strings
 	volumes := []string{}
 	for v := range config.Volumes {
 		volumes = append(volumes, v)
@@ -179,8 +180,8 @@ func (d *HostDriver) GetConfig() (unversioned.Config, error) {
 		Entrypoint:   config.Entrypoint,
 		Cmd:          config.Cmd,
 		Volumes:      volumes,
-		Workdir:      config.Workdir,
+		Workdir:      config.WorkingDir,
 		ExposedPorts: ports,
-		Labels:       convertSliceToMap(config.Labels),
+		Labels:       config.Labels,
 	}, nil
 }

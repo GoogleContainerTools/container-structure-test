@@ -41,20 +41,6 @@ type Config struct {
 	Labels       map[string]string
 }
 
-type FlattenedConfig struct {
-	Env          []string            `json:"Env"`
-	Entrypoint   []string            `json:"Entrypoint"`
-	Cmd          []string            `json:"Cmd"`
-	Volumes      map[string]string   `json:"Volumes"`
-	Workdir      string              `json:"WorkingDir"`
-	ExposedPorts map[string][]string `json:"ExposedPorts"`
-	Labels       []string            `json:"Labels"`
-}
-
-type FlattenedMetadata struct {
-	Config FlattenedConfig `json:"config"`
-}
-
 type TestResult struct {
 	Name   string
 	Pass   bool
