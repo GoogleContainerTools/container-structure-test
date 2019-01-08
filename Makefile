@@ -27,6 +27,8 @@ PROJECT := container-structure-test
 REPOPATH ?= $(ORG)/$(PROJECT)
 RELEASE_BUCKET ?= $(PROJECT)
 
+VERSION_PACKAGE := $(REPOPATH)/pkg/version
+
 SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH) windows-$(GOARCH).exe
 
 GO_LDFLAGS :="
