@@ -98,7 +98,7 @@ func run(out io.Writer) error {
 			logrus.Fatal("image pull not supported when not using Docker driver")
 		}
 		var repository, tag string
-		parts := strings.Split(opts.ImagePath, ":")
+		parts := splitImagePath(opts.ImagePath)
 		if len(parts) < 2 {
 			logrus.Fatal("no tag specified for provided image")
 		}
