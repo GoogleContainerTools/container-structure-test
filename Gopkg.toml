@@ -5,11 +5,11 @@
 
 [[constraint]]
   name = "github.com/GoogleContainerTools/container-diff"
-  revision = "392203e26a619b83149a9f7deb32498ee550af43"
+  revision = "3f6b025c016c15fcd1fc8ad330e8fda56574c4d9"
 
 [[constraint]]
   name = "github.com/google/go-containerregistry"
-  revision = "eb57122f1bf944d0584c387c62c1a759c953684d"
+  revision = "bada66e31e55b96029f4e456f8eb107f58319629"
 
 [[override]]
   name = "github.com/spf13/pflag"
