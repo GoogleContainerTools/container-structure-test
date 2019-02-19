@@ -105,7 +105,7 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 		result.Errorf("File %s should not exist but does", ft.Path)
 		result.Fail()
 	}
-	if ft.Permissions != "" {
+	if ft.Permissions != "" && info != nil {
 		perms := info.Mode()
 		if perms.String() != ft.Permissions {
 			result.Errorf("%s has incorrect permissions. Expected: %s, Actual: %s", ft.Path, ft.Permissions, perms.String())
