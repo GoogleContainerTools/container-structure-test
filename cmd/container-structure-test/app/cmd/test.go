@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test"
@@ -97,7 +98,7 @@ func run(out io.Writer) error {
 			logrus.Fatal("image pull not supported when not using Docker driver")
 		}
 		var repository, tag string
-		parts := strings.Split(opts.ImagePath, ":")
+		parts := splitImagePath(opts.ImagePath)
 		if len(parts) < 2 {
 			logrus.Fatal("no tag specified for provided image")
 		}
@@ -147,6 +148,31 @@ func runTests(out io.Writer, channel chan interface{}, args *drivers.DriverConfi
 		tests.RunAll(channel, file)
 	}
 	close(channel)
+}
+
+func splitImagePath(imagePath string) []string {
+	var parts []string
+	if strings.Contains(imagePath, "@") {
+		parts = strings.Split(imagePath, "@")
+	} else {
+		switch countColons := strings.Count(imagePath, ":"); countColons {
+		case 0:
+			parts = []string{imagePath}
+		case 1:
+			match, _ := regexp.MatchString(`:\d{1,5}\/`, imagePath)
+			if match {
+				//colon is part of a registry port and no tag available
+				parts = []string{imagePath}
+			} else {
+				//colon separates image name and tag
+				parts = strings.Split(imagePath, ":")
+			}
+		default:
+			imageTagRegex, _ := regexp.Compile("(.*):(.*)")
+			parts = imageTagRegex.FindStringSubmatch(imagePath)[1:]
+		}
+	}
+	return parts
 }
 
 func AddTestFlags(cmd *cobra.Command) {
