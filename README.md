@@ -66,7 +66,7 @@ as normal.
 
 #### Supported Fields:
 
-This is the current schema version (v2.0.0).
+**NOTE: `schemaVersion` must be specified in all container-structure-test yamls. The current version is `v2.0.0`.**
 
 - Name (`string`, **required**): The name of the test
 - Setup (`[][]string`, *optional*): A list of commands
