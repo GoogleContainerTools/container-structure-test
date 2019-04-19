@@ -17,6 +17,7 @@ package config
 type StructureTestOptions struct {
 	ImagePath   string
 	Driver      string
+	Runtime     string
 	Metadata    string
 	TestReport  string
 	ConfigFiles []string

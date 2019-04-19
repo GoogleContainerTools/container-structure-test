@@ -40,6 +40,7 @@ type DockerDriver struct {
 	cli           docker.Client
 	env           map[string]string
 	save          bool
+	runtime       string
 }
 
 func NewDockerDriver(args DriverConfig) (Driver, error) {
@@ -53,7 +54,17 @@ func NewDockerDriver(args DriverConfig) (Driver, error) {
 		cli:           *newCli,
 		env:           nil,
 		save:          args.Save,
+		runtime:       args.Runtime,
 	}, nil
+}
+
+func (d *DockerDriver) hostConfig() *docker.HostConfig {
+	if d.runtime != "" {
+		return &docker.HostConfig{
+			Runtime: d.runtime,
+		}
+	}
+	return nil
 }
 
 func (d *DockerDriver) Destroy() {
@@ -77,7 +88,7 @@ func (d *DockerDriver) SetEnv(envVars []unversioned.EnvVar) error {
 			AttachStdout: true,
 			AttachStderr: true,
 		},
-		HostConfig:       nil,
+		HostConfig:       d.hostConfig(),
 		NetworkingConfig: nil,
 	})
 	if err != nil {
@@ -180,7 +191,7 @@ func (d *DockerDriver) retrieveTar(path string) (*tar.Reader, error) {
 			Image: d.currentImage,
 			Cmd:   []string{utils.NoopCommand},
 		},
-		HostConfig:       nil,
+		HostConfig:       d.hostConfig(),
 		NetworkingConfig: nil,
 	})
 	if err != nil {
@@ -295,7 +306,7 @@ func (d *DockerDriver) runAndCommit(env []string, command []string) (string, err
 			AttachStdout: true,
 			AttachStderr: true,
 		},
-		HostConfig:       nil,
+		HostConfig:       d.hostConfig(),
 		NetworkingConfig: nil,
 	})
 	if err != nil {
@@ -341,7 +352,7 @@ func (d *DockerDriver) exec(env []string, command []string) (string, string, int
 			AttachStdout: true,
 			AttachStderr: true,
 		},
-		HostConfig:       nil,
+		HostConfig:       d.hostConfig(),
 		NetworkingConfig: nil,
 	})
 	if err != nil {
