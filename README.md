@@ -291,7 +291,9 @@ container-structure-test test --driver tar --image gcr.io/registry/image:latest 
 
 The currently supported drivers in the framework are:
 - `docker`: the default driver.
-Supports all tests, and uses the Docker daemon on the host to run them.
+Supports all tests, and uses the Docker daemon on the host to run them. You can
+set the runtime to use (by example `runsc` to run with gVisor) using `--runtime`
+flag.
 - `tar`: a tar driver, which extracts an image filesystem to wherever tests are
 running, and runs file/metadata tests against it.
 Does *not* support command tests.
