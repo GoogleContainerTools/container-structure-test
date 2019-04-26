@@ -25,9 +25,16 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// IsTerminal will check if the specified output stream is a terminal. This can be changed
-// for testing to an arbitrary method.
-var IsTerminal = isTerminal
+var (
+	// ColoredOutput will check if color escape codes should be printed. This can be changed
+	// for testing to an arbitrary method.
+	ColoredOutput = coloredOutput
+	// IsTerminal will check if the specified output stream is a terminal. This can be changed
+	// for testing to an arbitrary method.
+	IsTerminal = isTerminal
+	// NoColor allow to force to not output colors.
+	NoColor = false
+)
 
 // Color can be used to format text using ANSI escape codes so it can be printed to
 // the terminal in color.
@@ -58,7 +65,7 @@ var (
 // out. If out is not a terminal, the escape codes will not be added.
 // It returns the number of bytes written and any errors encountered.
 func (c Color) Fprint(out io.Writer, a ...interface{}) (n int, err error) {
-	if IsTerminal(out) {
+	if ColoredOutput(out) {
 		return fmt.Fprintf(out, "\033[%dm%s\033[0m", c, fmt.Sprint(a...))
 	}
 	return fmt.Fprint(out, a...)
@@ -68,7 +75,7 @@ func (c Color) Fprint(out io.Writer, a ...interface{}) (n int, err error) {
 // out, followed by a newline. If out is not a terminal, the escape codes will not be added.
 // It returns the number of bytes written and any errors encountered.
 func (c Color) Fprintln(out io.Writer, a ...interface{}) (n int, err error) {
-	if IsTerminal(out) {
+	if ColoredOutput(out) {
 		return fmt.Fprintf(out, "\033[%dm%s\033[0m\n", c, strings.TrimSuffix(fmt.Sprintln(a...), "\n"))
 	}
 	return fmt.Fprintln(out, a...)
@@ -79,7 +86,7 @@ func (c Color) Fprintln(out io.Writer, a ...interface{}) (n int, err error) {
 // out, followed by a newline. If out is not a terminal, the escape codes will not be added.
 // It returns the number of bytes written and any errors encountered.
 func (c Color) Fprintf(out io.Writer, format string, a ...interface{}) (n int, err error) {
-	if IsTerminal(out) {
+	if ColoredOutput(out) {
 		return fmt.Fprintf(out, "\033[%dm%s\033[0m", c, fmt.Sprintf(format, a...))
 	}
 	return fmt.Fprintf(out, format, a...)
@@ -98,6 +105,13 @@ type ColoredWriter struct {
 // OverwriteDefault overwrites default color
 func OverwriteDefault(color Color) {
 	Default = color
+}
+
+func coloredOutput(w io.Writer) bool {
+	if NoColor {
+		return false
+	}
+	return IsTerminal(w)
 }
 
 // This implementation comes from logrus (https://github.com/sirupsen/logrus/blob/master/terminal_check_notappengine.go),

@@ -38,8 +38,8 @@ func compareText(t *testing.T, expected, actual string, expectedN int, actualN i
 }
 
 func TestFprint(t *testing.T) {
-	defer func(f func(io.Writer) bool) { IsTerminal = f }(IsTerminal)
-	IsTerminal = func(io.Writer) bool { return true }
+	defer func(f func(io.Writer) bool) { ColoredOutput = f }(ColoredOutput)
+	ColoredOutput = func(io.Writer) bool { return true }
 
 	var b bytes.Buffer
 	n, err := Green.Fprint(&b, "It's not easy being")
@@ -48,8 +48,8 @@ func TestFprint(t *testing.T) {
 }
 
 func TestFprintln(t *testing.T) {
-	defer func(f func(io.Writer) bool) { IsTerminal = f }(IsTerminal)
-	IsTerminal = func(io.Writer) bool { return true }
+	defer func(f func(io.Writer) bool) { ColoredOutput = f }(ColoredOutput)
+	ColoredOutput = func(io.Writer) bool { return true }
 
 	var b bytes.Buffer
 	n, err := Green.Fprintln(&b, "2", "less", "chars!")
@@ -58,8 +58,8 @@ func TestFprintln(t *testing.T) {
 }
 
 func TestFprintf(t *testing.T) {
-	defer func(f func(io.Writer) bool) { IsTerminal = f }(IsTerminal)
-	IsTerminal = func(io.Writer) bool { return true }
+	defer func(f func(io.Writer) bool) { ColoredOutput = f }(ColoredOutput)
+	ColoredOutput = func(io.Writer) bool { return true }
 
 	var b bytes.Buffer
 	n, err := Green.Fprintf(&b, "It's been %d %s", 1, "week")
@@ -82,6 +82,42 @@ func TestFprintlnNoTTY(t *testing.T) {
 }
 
 func TestFprintfNoTTY(t *testing.T) {
+	var b bytes.Buffer
+	n, err := Green.Fprintf(&b, "It's been %d %s", 1, "week")
+	expected := "It's been 1 week"
+	compareText(t, expected, b.String(), 16, n, err)
+}
+
+func TestFprintTTYNoColor(t *testing.T) {
+	defer func(f func(io.Writer) bool) { IsTerminal = f }(IsTerminal)
+	IsTerminal = func(io.Writer) bool { return true }
+	defer func() { NoColor = false }()
+	NoColor = true
+
+	var b bytes.Buffer
+	expected := "It's not easy being"
+	n, err := Green.Fprint(&b, expected)
+	compareText(t, expected, b.String(), 19, n, err)
+}
+
+func TestFprintlnTTYNoColor(t *testing.T) {
+	defer func(f func(io.Writer) bool) { IsTerminal = f }(IsTerminal)
+	IsTerminal = func(io.Writer) bool { return true }
+	defer func() { NoColor = false }()
+	NoColor = true
+
+	var b bytes.Buffer
+	n, err := Green.Fprintln(&b, "2", "less", "chars!")
+	expected := "2 less chars!\n"
+	compareText(t, expected, b.String(), 14, n, err)
+}
+
+func TestFprintfTTYNoColor(t *testing.T) {
+	defer func(f func(io.Writer) bool) { IsTerminal = f }(IsTerminal)
+	IsTerminal = func(io.Writer) bool { return true }
+	defer func() { NoColor = false }()
+	NoColor = true
+
 	var b bytes.Buffer
 	n, err := Green.Fprintf(&b, "It's been %d %s", 1, "week")
 	expected := "It's been 1 week"

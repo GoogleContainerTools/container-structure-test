@@ -22,9 +22,10 @@ type StructureTestOptions struct {
 	TestReport  string
 	ConfigFiles []string
 
-	JSON  bool
-	Pull  bool
-	Save  bool
-	Quiet bool
-	Force bool
+	JSON    bool
+	Pull    bool
+	Save    bool
+	Quiet   bool
+	Force   bool
+	NoColor bool
 }

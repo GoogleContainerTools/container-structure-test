@@ -25,6 +25,7 @@ import (
 
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test"
 
+	"github.com/GoogleContainerTools/container-structure-test/pkg/color"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/config"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/output"
@@ -75,6 +76,8 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 			if opts.Quiet {
 				out = ioutil.Discard
 			}
+
+			color.NoColor = opts.NoColor
 
 			return run(out)
 		},
@@ -187,6 +190,7 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&opts.Quiet, "quiet", "q", false, "flag to suppress output")
 	cmd.Flags().BoolVarP(&opts.Force, "force", "f", false, "force run of host driver (without user prompt)")
 	cmd.Flags().BoolVarP(&opts.JSON, "json", "j", false, "output test results in json format")
+	cmd.Flags().BoolVar(&opts.NoColor, "no-color", false, "no color in the output")
 
 	cmd.Flags().StringArrayVarP(&opts.ConfigFiles, "config", "c", []string{}, "test config files")
 	cmd.MarkFlagRequired("config")
