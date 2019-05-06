@@ -195,7 +195,9 @@ container.
 - Entrypoint (`[]string`): The entrypoint of the container
 - Cmd (`[]string`): The CMD specified in the container.
 - Exposed Ports (`[]string`): The ports exposed in the container.
+- Unexposed Ports (`[]string`): The ports **NOT** exposed in the container.
 - Volumes (`[]string`): The volumes exposed in the container.
+- UnmountedVolumes (`[]string`): The volumes **NOT** exposed in the container.
 - Workdir (`string`): The default working directory of the container.
 
 Example:
