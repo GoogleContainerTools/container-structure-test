@@ -74,13 +74,17 @@ func (ct *CommandTest) Run(driver drivers.Driver) *types.TestResult {
 	if err != nil {
 		logrus.Errorf("error retrieving image config: %s", err.Error())
 	}
+	start := time.Now()
 	stdout, stderr, exitcode, err := driver.ProcessCommand(ct.EnvVars, utils.SubstituteEnvVars(ct.Command, config.Env))
+	end := time.Now()
+	duration := end.Sub(start)
 	result := &types.TestResult{
-		Name:   ct.LogName(),
-		Pass:   true,
-		Errors: make([]string, 0),
-		Stderr: stderr,
-		Stdout: stdout,
+		Name:     ct.LogName(),
+		Pass:     true,
+		Errors:   make([]string, 0),
+		Stderr:   stderr,
+		Stdout:   stdout,
+		Duration: duration,
 	}
 	if err != nil {
 		result.Fail()

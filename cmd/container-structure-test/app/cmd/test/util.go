@@ -20,6 +20,7 @@ import (
 	"io"
 	"io/ioutil"
 	"strings"
+	"time"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/config"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
@@ -107,6 +108,7 @@ func Parse(fp string, args *drivers.DriverConfig, driverImpl func(drivers.Driver
 func ProcessResults(out io.Writer, json bool, c chan interface{}) error {
 	totalPass := 0
 	totalFail := 0
+	totalDuration := time.Duration(0)
 	errStrings := make([]string, 0)
 	results, err := channelToSlice(c)
 	if err != nil {
@@ -122,6 +124,7 @@ func ProcessResults(out io.Writer, json bool, c chan interface{}) error {
 		} else {
 			totalFail++
 		}
+		totalDuration += r.Duration
 	}
 	if totalPass+totalFail == 0 || totalFail > 0 {
 		errStrings = append(errStrings, "FAIL")
@@ -131,9 +134,10 @@ func ProcessResults(out io.Writer, json bool, c chan interface{}) error {
 	}
 
 	summary := unversioned.SummaryObject{
-		Total: totalFail + totalPass,
-		Pass:  totalPass,
-		Fail:  totalFail,
+		Total:    totalFail + totalPass,
+		Pass:     totalPass,
+		Fail:     totalFail,
+		Duration: totalDuration,
 	}
 	if json {
 		// only output results here if we're in json mode
