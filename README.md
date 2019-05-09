@@ -62,7 +62,8 @@ contain, or do not contain, specific contents)
 Command tests ensure that certain commands run properly in the target image.
 Regexes can be used to check for expected or excluded strings in both `stdout`
 and `stderr`. Additionally, any number of flags can be passed to the argument
-as normal.
+as normal. Each command in the setup section will run in a separate container
+and then commits a modified image to be the new base image for the test run.
 
 #### Supported Fields:
 
