@@ -23,7 +23,7 @@ steps:
 
 # Tag the image as latest
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['tag', gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME',
+    args: ['tag', 'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME',
            'gcr.io/gcp-runtimes/container-structure-test:latest']
   
 images:

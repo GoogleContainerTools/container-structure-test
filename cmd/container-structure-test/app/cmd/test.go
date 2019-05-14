@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test"
@@ -88,6 +89,7 @@ func run(out io.Writer) error {
 		Image:    opts.ImagePath,
 		Save:     opts.Save,
 		Metadata: opts.Metadata,
+		Runtime:  opts.Runtime,
 	}
 
 	var err error
@@ -97,7 +99,7 @@ func run(out io.Writer) error {
 			logrus.Fatal("image pull not supported when not using Docker driver")
 		}
 		var repository, tag string
-		parts := strings.Split(opts.ImagePath, ":")
+		parts := splitImagePath(opts.ImagePath)
 		if len(parts) < 2 {
 			logrus.Fatal("no tag specified for provided image")
 		}
@@ -149,10 +151,36 @@ func runTests(out io.Writer, channel chan interface{}, args *drivers.DriverConfi
 	close(channel)
 }
 
+func splitImagePath(imagePath string) []string {
+	var parts []string
+	if strings.Contains(imagePath, "@") {
+		parts = strings.Split(imagePath, "@")
+	} else {
+		switch countColons := strings.Count(imagePath, ":"); countColons {
+		case 0:
+			parts = []string{imagePath}
+		case 1:
+			match, _ := regexp.MatchString(`:\d{1,5}\/`, imagePath)
+			if match {
+				//colon is part of a registry port and no tag available
+				parts = []string{imagePath}
+			} else {
+				//colon separates image name and tag
+				parts = strings.Split(imagePath, ":")
+			}
+		default:
+			imageTagRegex, _ := regexp.Compile("(.*):(.*)")
+			parts = imageTagRegex.FindStringSubmatch(imagePath)[1:]
+		}
+	}
+	return parts
+}
+
 func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&opts.ImagePath, "image", "i", "", "path to test image")
 	cmd.Flags().StringVarP(&opts.Driver, "driver", "d", "docker", "driver to use when running tests")
 	cmd.Flags().StringVar(&opts.Metadata, "metadata", "", "path to image metadata file")
+	cmd.Flags().StringVar(&opts.Runtime, "runtime", "", "runtime to use with docker driver")
 
 	cmd.Flags().BoolVar(&opts.Pull, "pull", false, "force a pull of the image before running tests")
 	cmd.Flags().BoolVar(&opts.Save, "save", false, "preserve created containers after test run")
