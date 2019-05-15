@@ -95,11 +95,11 @@ commandTests:
     command: "which"
     args: ["gunicorn"]
     expectedOutput: ["/env/bin/gunicorn"]
-- name:  "apt-get upgrade"
-  command: "apt-get"
-  args: ["-qqs", "upgrade"]
-  excludedOutput: [".*Inst.*Security.* | .*Security.*Inst.*"]
-  excludedError: [".*Inst.*Security.* | .*Security.*Inst.*"]
+  - name:  "apt-get upgrade"
+    command: "apt-get"
+    args: ["-qqs", "upgrade"]
+    excludedOutput: [".*Inst.*Security.* | .*Security.*Inst.*"]
+    excludedError: [".*Inst.*Security.* | .*Security.*Inst.*"]
 ```
 
 ### Image Entrypoint
