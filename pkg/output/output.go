@@ -15,7 +15,6 @@
 package output
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,43 +23,36 @@ import (
 
 	"github.com/pkg/errors"
 
+	color "github.com/GoogleContainerTools/container-structure-test/pkg/color"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 )
 
 var bannerLength = 27 // default banner length
 
-func OutputResult(out io.Writer, result *types.TestResult) error {
-	var strBuffer bytes.Buffer
-	strBuffer.WriteString(fmt.Sprintf("=== RUN: %s\n", result.Name))
+func OutputResult(out io.Writer, result *types.TestResult) {
+	color.Default.Fprintf(out, "=== RUN: %s\n", result.Name)
 	if result.Pass {
-		strBuffer.WriteString(green("--- PASS\n"))
+		color.Green.Fprintln(out, "--- PASS")
 	} else {
-		strBuffer.WriteString(red("--- FAIL\n"))
+		color.Red.Fprintln(out, "--- FAIL")
 	}
 	if result.Stdout != "" {
-		strBuffer.WriteString(blue(fmt.Sprintf("stdout: %s", result.Stdout)))
+		color.Blue.Fprintf(out, "stdout: %s\n", result.Stdout)
 	}
 	if result.Stderr != "" {
-		strBuffer.WriteString(blue(fmt.Sprintf("stderr: %s", result.Stderr)))
+		color.Blue.Fprintf(out, "stderr: %s\n", result.Stderr)
 	}
 	for _, s := range result.Errors {
-		strBuffer.WriteString(orange(fmt.Sprintf("Error: %s\n", s)))
+		color.Yellow.Fprintf(out, "Error: %s\n", s)
 	}
-	strBuffer.WriteString("\n")
-	_, err := out.Write(strBuffer.Bytes())
-	return err
 }
 
-func Banner(out io.Writer, filename string) error {
-	var strBuffer bytes.Buffer
+func Banner(out io.Writer, filename string) {
 	fileStr := fmt.Sprintf("====== Test file: %s ======", filepath.Base(filename))
 	bannerLength = len(fileStr)
-	strBuffer.WriteString("\n" + strings.Repeat("=", bannerLength) + "\n")
-	strBuffer.WriteString(fileStr + "\n")
-	strBuffer.WriteString(strings.Repeat("=", bannerLength) + "\n")
-
-	_, err := out.Write([]byte(purple(strBuffer.String())))
-	return err
+	color.Purple.Fprintln(out, "\n"+strings.Repeat("=", bannerLength))
+	color.Purple.Fprintln(out, fileStr)
+	color.Purple.Fprintln(out, strings.Repeat("=", bannerLength))
 }
 
 func FinalResults(out io.Writer, jsonOut bool, result types.SummaryObject) error {
@@ -76,26 +68,22 @@ func FinalResults(out io.Writer, jsonOut bool, result types.SummaryObject) error
 	if bannerLength%2 == 0 {
 		bannerLength++
 	}
-	var strBuffer bytes.Buffer
 	if result.Total == 0 {
-		strBuffer.WriteString(red("No tests run! Check config file format."))
-		_, err := out.Write(strBuffer.Bytes())
-		return err
+		color.Red.Fprintln(out, "No tests run! Check config file format.")
+		return nil
 	}
-	strBuffer.WriteString("\n" + strings.Repeat("=", bannerLength) + "\n")
-	strBuffer.WriteString(strings.Repeat("=", (bannerLength-9)/2))
-	strBuffer.WriteString(" RESULTS ")
-	strBuffer.WriteString(strings.Repeat("=", (bannerLength-9)/2))
-	strBuffer.WriteString("\n" + strings.Repeat("=", bannerLength) + "\n")
-	strBuffer.WriteString(lightGreen(fmt.Sprintf("Passes:      %d\n", result.Pass)))
-	strBuffer.WriteString(lightRed(fmt.Sprintf("Failures:    %d\n", result.Fail)))
-	strBuffer.WriteString(cyan(fmt.Sprintf("Total tests: %d\n", result.Total)))
+	color.Default.Fprintln(out, "")
+	color.Default.Fprintln(out, strings.Repeat("=", bannerLength))
+	color.Default.Fprintf(out, "%s RESULTS %s\n", strings.Repeat("=", (bannerLength-9)/2), strings.Repeat("=", (bannerLength-9)/2))
+	color.Default.Fprintln(out, strings.Repeat("=", bannerLength))
+	color.LightGreen.Fprintf(out, "Passes:      %d\n", result.Pass)
+	color.LightRed.Fprintf(out, "Failures:    %d\n", result.Fail)
+	color.Cyan.Fprintf(out, "Total tests: %d\n", result.Total)
+	color.Default.Fprintln(out, "")
 	if result.Fail == 0 {
-		strBuffer.WriteString(green("\nPASS"))
+		color.Green.Fprintln(out, "PASS")
 	} else {
-		strBuffer.WriteString(red("\nFAIL"))
+		color.Red.Fprintln(out, "FAIL")
 	}
-	strBuffer.WriteString("\n")
-	_, err := out.Write(strBuffer.Bytes())
-	return err
+	return nil
 }
