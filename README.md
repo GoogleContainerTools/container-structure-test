@@ -138,10 +138,9 @@ are checked. These tests can also be used to ensure a file or directory is
 directory should exist in the file system
 - Permissions (`string`, *optional*): The expected Unix permission string (e.g.
   drwxrwxrwx) of the files or directory.
-- Uid (`int`, *optional*): The expected Unix user ID that has access to the file
+- Uid (`int`, *optional*): The expected Unix user ID of the owner of the file
   or directory.
-- Gid (`int`, *optional*): The expected Unix group ID that has access to the
-  file or directory.
+- Gid (`int`, *optional*): The expected Unix group ID of the owner of the file or directory.
 - IsExecutableBy (`string`, *optional*): Checks if file is executable by a given user.
   One of `owner`, `group`, `other` or `any`
 
