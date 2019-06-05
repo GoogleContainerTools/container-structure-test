@@ -25,7 +25,13 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['tag', 'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME',
            'gcr.io/gcp-runtimes/container-structure-test:latest']
-  
+
+# Build the debug image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/gcp-runtimes/container-structure-test:debug',
+           '-f', 'deploy/Dockerfile_debug', '.']
+ 
 images:
 - 'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME'
 - 'gcr.io/gcp-runtimes/container-structure-test:latest'
+- 'gcr.io/gcp-runtimes/container-structure-test:debug'
