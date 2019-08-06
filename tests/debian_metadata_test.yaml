@@ -18,3 +18,5 @@ metadataTest:
     isRegex: true
   - key: 'label-with-empty-val'
     value: ''
+  unexposedPorts: ['80']
+  unmountedVolumes: ['/root']

@@ -23,22 +23,26 @@ import (
 )
 
 type MetadataTest struct {
-	Env          []types.EnvVar `yaml:"env"`
-	ExposedPorts []string       `yaml:"exposedPorts"`
-	Entrypoint   *[]string      `yaml:"entrypoint"`
-	Cmd          *[]string      `yaml:"cmd"`
-	Workdir      string         `yaml:"workdir"`
-	Volumes      []string       `yaml:"volumes"`
-	Labels       []types.Label  `yaml:"labels"`
+	Env              []types.EnvVar `yaml:"env"`
+	ExposedPorts     []string       `yaml:"exposedPorts"`
+	UnexposedPorts   []string       `yaml:"unexposedPorts"`
+	Entrypoint       *[]string      `yaml:"entrypoint"`
+	Cmd              *[]string      `yaml:"cmd"`
+	Workdir          string         `yaml:"workdir"`
+	Volumes          []string       `yaml:"volumes"`
+	UnmountedVolumes []string       `yaml:"unmountedVolumes"`
+	Labels           []types.Label  `yaml:"labels"`
 }
 
 func (mt MetadataTest) IsEmpty() bool {
 	return len(mt.Env) == 0 &&
 		len(mt.ExposedPorts) == 0 &&
+		len(mt.UnexposedPorts) == 0 &&
 		mt.Entrypoint == nil &&
 		mt.Cmd == nil &&
 		mt.Workdir == "" &&
 		len(mt.Volumes) == 0 &&
+		len(mt.UnmountedVolumes) == 0 &&
 		len(mt.Labels) == 0
 }
 
@@ -166,9 +170,23 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		}
 	}
 
+	for _, port := range mt.UnexposedPorts {
+		if utils.ValueInList(port, imageConfig.ExposedPorts) {
+			result.Errorf("Port %s should not be exposed", port)
+			result.Fail()
+		}
+	}
+
 	for _, volume := range mt.Volumes {
 		if !utils.ValueInList(volume, imageConfig.Volumes) {
 			result.Errorf("Volume %s not found in config", volume)
+			result.Fail()
+		}
+	}
+
+	for _, volume := range mt.UnmountedVolumes {
+		if utils.ValueInList(volume, imageConfig.Volumes) {
+			result.Errorf("Volume %s should not be mounted", volume)
 			result.Fail()
 		}
 	}
