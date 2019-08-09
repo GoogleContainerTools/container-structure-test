@@ -17,6 +17,7 @@ package unversioned
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 type EnvVar struct {
@@ -42,11 +43,12 @@ type Config struct {
 }
 
 type TestResult struct {
-	Name   string
-	Pass   bool
-	Stdout string   `json:",omitempty"`
-	Stderr string   `json:",omitempty"`
-	Errors []string `json:",omitempty"`
+	Name     string
+	Pass     bool
+	Stdout   string   `json:",omitempty"`
+	Stderr   string   `json:",omitempty"`
+	Errors   []string `json:",omitempty"`
+	Duration time.Duration
 }
 
 func (t *TestResult) String() string {
@@ -63,6 +65,7 @@ func (t *TestResult) String() string {
 		strRepr += fmt.Sprintf("\nStderr:%s", t.Stderr)
 	}
 	strRepr += fmt.Sprintf("\nErrors:%s\n", strings.Join(t.Errors, ","))
+	strRepr += fmt.Sprintf("\nDuration:%s\n", t.Duration.String())
 	return strRepr
 }
 
@@ -83,8 +86,9 @@ func (t *TestResult) IsPass() bool {
 }
 
 type SummaryObject struct {
-	Pass    int
-	Fail    int
-	Total   int
-	Results []*TestResult `json:",omitempty"`
+	Pass     int
+	Fail     int
+	Total    int
+	Duration time.Duration
+	Results  []*TestResult `json:",omitempty"`
 }

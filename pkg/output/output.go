@@ -36,6 +36,7 @@ func OutputResult(out io.Writer, result *types.TestResult) {
 	} else {
 		color.Red.Fprintln(out, "--- FAIL")
 	}
+	color.Default.Fprintf(out, "duration: %s\n", result.Duration.String())
 	if result.Stdout != "" {
 		color.Blue.Fprintf(out, "stdout: %s\n", result.Stdout)
 	}
@@ -78,6 +79,7 @@ func FinalResults(out io.Writer, jsonOut bool, result types.SummaryObject) error
 	color.Default.Fprintln(out, strings.Repeat("=", bannerLength))
 	color.LightGreen.Fprintf(out, "Passes:      %d\n", result.Pass)
 	color.LightRed.Fprintf(out, "Failures:    %d\n", result.Fail)
+	color.Default.Fprintf(out, "Duration:    %s\n", result.Duration.String())
 	color.Cyan.Fprintf(out, "Total tests: %d\n", result.Total)
 	color.Default.Fprintln(out, "")
 	if result.Fail == 0 {

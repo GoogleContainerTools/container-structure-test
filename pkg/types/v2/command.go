@@ -16,6 +16,7 @@ package v2
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -86,13 +87,17 @@ func (ct *CommandTest) Run(driver drivers.Driver) *types.TestResult {
 		logrus.Errorf("error retrieving image config: %s", err.Error())
 	}
 	fullCommand := utils.SubstituteEnvVars(append([]string{ct.Command}, ct.Args...), config.Env)
+	start := time.Now()
 	stdout, stderr, exitcode, err := driver.ProcessCommand(ct.EnvVars, fullCommand)
+	end := time.Now()
+	duration := end.Sub(start)
 	result := &types.TestResult{
-		Name:   ct.LogName(),
-		Pass:   true,
-		Errors: make([]string, 0),
-		Stderr: stderr,
-		Stdout: stdout,
+		Name:     ct.LogName(),
+		Pass:     true,
+		Errors:   make([]string, 0),
+		Stderr:   stderr,
+		Stdout:   stdout,
+		Duration: duration,
 	}
 	if err != nil {
 		result.Fail()
