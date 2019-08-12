@@ -103,6 +103,21 @@ commandTests:
     excludedError: [".*Inst.*Security.* | .*Security.*Inst.*"]
 ```
 
+Depending on your command the argument section can get quite long. Thus, you
+can make use of YAML's list style option for separation of arguments and the
+literal style option to preserve newlines like so:
+
+```shell
+commandTests:
+  - name: "say hello world"
+    command: "bash"
+    args:
+      - -c
+      - |
+         echo hello &&
+         echo world
+```
+
 ### Image Entrypoint
 
 To avoid unexpected behavior and output when running commands in the
