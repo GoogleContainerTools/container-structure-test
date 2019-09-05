@@ -374,5 +374,20 @@ container_test(
     image = ":hello",
 )
 ```
-
+### Flags:
+`container-structure-test test -h`
+```
+  -c, --config stringArray   test config files
+  -d, --driver string        driver to use when running tests (default "docker")
+  -f, --force                force run of host driver (without user prompt)
+  -h, --help                 help for test
+  -i, --image string         path to test image
+  -j, --json                 output test results in json format
+      --metadata string      path to image metadata file
+      --pull                 force a pull of the image before running tests
+  -q, --quiet                flag to suppress output
+      --save                 preserve created containers after test run
+      --test-report string   generate JSON test report and write it to specified file.
+      
+ ```   
 See this [example repo](https://github.com/nkubala/structure-test-examples) for a full working example.
