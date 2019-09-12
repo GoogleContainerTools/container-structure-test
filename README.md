@@ -204,9 +204,11 @@ of these checks are optional.
 #### Supported Fields:
 
 - Env (`[]EnvVar`): A list of environment variable key/value pairs that should be set
-in the container.
+in the container. 
+    - If RegEx is used in the `value` field, set the `isRegex` flag to `true`.
 - Labels (`[]Label`): A list of image labels key/value pairs that should be set on the
 container.
+    - If RegEx is used in the `value` field, set the `isRegex` flag to `true`.
 - Entrypoint (`[]string`): The entrypoint of the container
 - Cmd (`[]string`): The CMD specified in the container.
 - Exposed Ports (`[]string`): The ports exposed in the container.
@@ -221,9 +223,15 @@ metadataTest:
   env:
     - key: foo
       value: baz
+    - key: eg_test_url
+      value: http[s]?://.
+      isRegex: true
   labels:
     - key: 'com.example.vendor'
       value: 'ACME Incorporated'
+    - key: eg_test_url
+      value: http[s]?://.
+      isRegex: true
   exposedPorts: ["8080", "2345"]
   volumes: ["/test"]
   entrypoint: []
