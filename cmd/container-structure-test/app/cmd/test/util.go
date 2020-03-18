@@ -86,7 +86,7 @@ func Parse(fp string, args *drivers.DriverConfig, driverImpl func(drivers.Driver
 
 	version := versionHolder.SchemaVersion
 	if version == "" {
-		return nil, errors.New("Please provide JSON schema version")
+		return nil, errors.New("Please provide schema version")
 	}
 
 	var st types.StructureTest
