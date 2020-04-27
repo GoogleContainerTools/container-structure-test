@@ -79,6 +79,10 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 
 			color.NoColor = opts.NoColor
 
+			if opts.JSON {
+				opts.Output = unversioned.Json
+			}
+
 			return run(out)
 		},
 	}
@@ -132,12 +136,12 @@ func run(out io.Writer) error {
 	channel := make(chan interface{}, 1)
 	go runTests(out, channel, args, driverImpl)
 	// TODO(nkubala): put a sync.WaitGroup here
-	return test.ProcessResults(out, opts.JSON, channel)
+	return test.ProcessResults(out, opts.Output, channel)
 }
 
 func runTests(out io.Writer, channel chan interface{}, args *drivers.DriverConfig, driverImpl func(drivers.DriverConfig) (drivers.Driver, error)) {
 	for _, file := range opts.ConfigFiles {
-		if !opts.JSON {
+		if opts.Output == unversioned.Text {
 			output.Banner(out, file)
 		}
 		tests, err := test.Parse(file, args, driverImpl)
@@ -190,6 +194,8 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&opts.Quiet, "quiet", "q", false, "flag to suppress output")
 	cmd.Flags().BoolVarP(&opts.Force, "force", "f", false, "force run of host driver (without user prompt)")
 	cmd.Flags().BoolVarP(&opts.JSON, "json", "j", false, "output test results in json format")
+	cmd.Flags().MarkDeprecated("json", "please use --output instead")
+	cmd.Flags().VarP(&opts.Output, "output", "o", "output format for the test report (available formats: text, json)")
 	cmd.Flags().BoolVar(&opts.NoColor, "no-color", false, "no color in the output")
 
 	cmd.Flags().StringArrayVarP(&opts.ConfigFiles, "config", "c", []string{}, "test config files")

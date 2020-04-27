@@ -16,6 +16,7 @@ package output
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -56,8 +57,8 @@ func Banner(out io.Writer, filename string) {
 	color.Purple.Fprintln(out, strings.Repeat("=", bannerLength))
 }
 
-func FinalResults(out io.Writer, jsonOut bool, result types.SummaryObject) error {
-	if jsonOut {
+func FinalResults(out io.Writer, format types.OutputValue, result types.SummaryObject) error {
+	if format == types.Json {
 		res, err := json.Marshal(result)
 		if err != nil {
 			return errors.Wrap(err, "marshalling json")
@@ -66,6 +67,17 @@ func FinalResults(out io.Writer, jsonOut bool, result types.SummaryObject) error
 		_, err = out.Write(res)
 		return err
 	}
+
+	if format == types.Junit {
+		res, err := xml.Marshal(result)
+		if err != nil {
+			return errors.Wrap(err, "marshalling xml")
+		}
+		res = append(res, []byte("\n")...)
+		_, err = out.Write(res)
+		return err
+	}
+
 	if bannerLength%2 == 0 {
 		bannerLength++
 	}

@@ -14,6 +14,8 @@
 
 package config
 
+import "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+
 type StructureTestOptions struct {
 	ImagePath   string
 	Driver      string
@@ -23,6 +25,7 @@ type StructureTestOptions struct {
 	ConfigFiles []string
 
 	JSON    bool
+	Output  unversioned.OutputValue
 	Pull    bool
 	Save    bool
 	Quiet   bool
