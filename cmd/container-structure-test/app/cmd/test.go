@@ -64,7 +64,12 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if opts.TestReport != "" {
 				// Force JsonOutput
-				opts.JSON = true
+				if opts.Output == unversioned.Text {
+					opts.JSON = true
+					opts.Output = unversioned.Json
+
+					logrus.Warn("Unsupported format text, using json as default.")
+				}
 				testReportFile, err := os.Create(opts.TestReport)
 				if err != nil {
 					return err
@@ -195,10 +200,10 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&opts.Force, "force", "f", false, "force run of host driver (without user prompt)")
 	cmd.Flags().BoolVarP(&opts.JSON, "json", "j", false, "output test results in json format")
 	cmd.Flags().MarkDeprecated("json", "please use --output instead")
-	cmd.Flags().VarP(&opts.Output, "output", "o", "output format for the test report (available formats: text, json)")
+	cmd.Flags().VarP(&opts.Output, "output", "o", "output format for the test report (available format: text, json)")
 	cmd.Flags().BoolVar(&opts.NoColor, "no-color", false, "no color in the output")
 
 	cmd.Flags().StringArrayVarP(&opts.ConfigFiles, "config", "c", []string{}, "test config files")
 	cmd.MarkFlagRequired("config")
-	cmd.Flags().StringVar(&opts.TestReport, "test-report", "", "generate JSON test report and write it to specified file.")
+	cmd.Flags().StringVar(&opts.TestReport, "test-report", "", "generate test report and write it to specified file (supported format: json, junit; default: json")
 }
