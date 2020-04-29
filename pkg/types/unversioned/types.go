@@ -45,10 +45,10 @@ type Config struct {
 }
 
 type TestResult struct {
-	Name     string `xml:"name,attr"`
-	Pass     bool
-	Stdout   string        `json:",omitempty"`
-	Stderr   string        `json:",omitempty"`
+	Name     string        `xml:"name,attr"`
+	Pass     bool          `xml:"-"`
+	Stdout   string        `json:",omitempty" xml:"-"`
+	Stderr   string        `json:",omitempty" xml:"-"`
 	Errors   []string      `json:",omitempty" xml:"failure"`
 	Duration time.Duration `xml:"time,attr"`
 }

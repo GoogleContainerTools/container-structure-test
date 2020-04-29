@@ -139,7 +139,7 @@ func ProcessResults(out io.Writer, format unversioned.OutputValue, c chan interf
 		Fail:     totalFail,
 		Duration: totalDuration,
 	}
-	if format == unversioned.Json {
+	if format == unversioned.Json || format == unversioned.Junit {
 		// only output results here if we're in json mode
 		summary.Results = results
 	}
