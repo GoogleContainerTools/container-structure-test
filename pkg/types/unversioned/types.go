@@ -105,7 +105,7 @@ const (
 )
 
 func (o OutputValue) String() string {
-	return [...]string{"text", "json"}[o]
+	return [...]string{"text", "json", "junit"}[o]
 }
 
 func (o OutputValue) Type() string {
