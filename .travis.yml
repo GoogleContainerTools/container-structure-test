@@ -1,6 +1,10 @@
 sudo: required
 dist: trusty
 
+arch:
+  - amd64
+  - arm64
+
 language: go
 go:
   - 1.10.x
