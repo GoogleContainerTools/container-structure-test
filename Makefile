@@ -20,7 +20,7 @@ VERSION_BUILD ?= 0
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
 
 GOOS ?= $(shell go env GOOS)
-GOARCH = amd64
+GOARCH = $(shell go env GOARCH)
 BUILD_DIR ?= ./out
 ORG := github.com/GoogleContainerTools
 PROJECT := container-structure-test
