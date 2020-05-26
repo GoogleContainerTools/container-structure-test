@@ -26,7 +26,7 @@ make image
 
 test_dir=$(dirname "$0")
 # Run the debian tests, they should always pass on latest
-test_image="gcr.io/google-appengine/debian8"
+test_image="debian:8"
 docker pull "$test_image"
 
 res=$(./out/container-structure-test test --image "$test_image" --config "$test_dir"/debian_test.yaml)
