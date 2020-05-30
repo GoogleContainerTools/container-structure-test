@@ -67,7 +67,7 @@ then
   test_metadata_image=debian8-with-metadata:latest
   test_metadata_tar=debian8-with-metadata.tar
   test_metadata_dir=debian8-with-metadata
-  docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_config_dir" > /dev/null
+  docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_dir" > /dev/null
   res=$(./out/container-structure-test test --image "$test_metadata_image" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
 
