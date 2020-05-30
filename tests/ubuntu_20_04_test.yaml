@@ -16,7 +16,7 @@ commandTests:
 fileContentTests:
 - name: 'Debian Sources'
   excludedContents: ['.*gce_debian_mirror.*']
-  expectedContents: ['.*deb\.debian\.org.*']
+  expectedContents: ['.*archive\.ubuntu\.com.*']
   path: '/etc/apt/sources.list'
 - name: 'Passwd file'
   expectedContents: ['root:x:0:0:root:/root:/bin/bash']
@@ -39,5 +39,7 @@ fileExistenceTests:
   path: '/etc/dummy'
   shouldExist: false
 licenseTests:
-- debian: true
+- debian: false
   files:
+    - "/usr/share/doc/ubuntu-keyring/copyright"
+    - "/usr/share/doc/dash/copyright"

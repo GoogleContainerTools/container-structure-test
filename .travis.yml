@@ -12,5 +12,4 @@ go_import_path: github.com/GoogleContainerTools/container-structure-test
 
 script:
   - ./hack/.gofmt.sh
-  - make
   - ./tests/structure_test_tests.sh

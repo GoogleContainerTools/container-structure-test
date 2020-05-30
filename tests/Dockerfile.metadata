@@ -1,4 +1,4 @@
-FROM debian:8
+FROM ubuntu:20.04
 
 ENV SOME_KEY="SOME_VAL" \
     EMPTY_VAR="" \

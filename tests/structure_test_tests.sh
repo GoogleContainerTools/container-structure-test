@@ -20,25 +20,39 @@
 #End to end tests to make sure the structure tests do what we expect them
 #to do on a known quantity, the latest debian docker image.
 failures=0
-# build newest structure test binary
+
+# Get the absolute path of the tests directory
+test_dir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+
+echo "##"
+echo "# Build the newest 'container structure test' binary"
+echo "##"
+cp -f "${test_dir}/Dockerfile" "${test_dir}/../Dockerfile"
+make
 make cross
 make image
 
-test_dir=$(dirname "$0")
-# Run the debian tests, they should always pass on latest
-test_image="debian:8"
-docker pull "$test_image"
+# Run the ubuntu tests, they should always pass on 20.04
+test_image="ubuntu:20.04"
+docker pull "$test_image" > /dev/null
 
-res=$(./out/container-structure-test test --image "$test_image" --config "$test_dir"/debian_test.yaml)
+echo "##"
+echo "# Positive Test Case"
+echo "##"
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_dir}/ubuntu_20_04_test.yaml")
 code=$?
-
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
-  echo "Success case test failed"
+  echo "FAIL: Success test case failed"
   echo "$res"
   failures=$((failures +1))
+else
+  echo "PASS: Success test case passed"
 fi
 
+echo "##"
+echo "# Metadata Test Case"
+echo "##"
 # test image metadata
 run_metadata_tests=true
 if $run_metadata_tests ;
@@ -46,8 +60,8 @@ then
   test_metadata_image=debian8-with-metadata:latest
   test_metadata_tar=debian8-with-metadata.tar
   test_metadata_dir=debian8-with-metadata
-  docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_dir"
-  res=$(./out/container-structure-test test --image "$test_metadata_image" --config "$test_dir"/debian_metadata_test.yaml)
+  docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_dir" > /dev/null
+  res=$(./out/container-structure-test test --image "$test_metadata_image" --config "${test_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
 
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
@@ -57,8 +71,8 @@ then
     failures=$((failures +1))
   fi
 
-  docker save "$test_metadata_image" -o "$test_metadata_tar"
-  res=$(./out/container-structure-test test --driver tar --image "$test_metadata_tar" --config "$test_dir"/debian_metadata_test.yaml)
+  docker save "$test_metadata_image" -o "$test_metadata_tar" > /dev/null
+  res=$(./out/container-structure-test test --driver tar --image "$test_metadata_tar" --config "${test_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
@@ -68,9 +82,9 @@ then
   fi
 
   mkdir -p "$test_metadata_dir"
-  tar -C "$test_metadata_dir" -xvf "$test_metadata_tar"
+  tar -C "$test_metadata_dir" -xvf "$test_metadata_tar" > /dev/null
   test_metadata_json=$(grep 'Config":"\K[^"]+' -Po "$test_metadata_dir/manifest.json")
-  res=$(./out/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "$test_dir"/debian_metadata_test.yaml)
+  res=$(./out/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "${test_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
@@ -81,27 +95,29 @@ then
 
   rm -rf "$test_metadata_dir"
   rm "$test_metadata_tar"
-  docker rmi "$test_metadata_image"
+  docker rmi "$test_metadata_image" > /dev/null
 fi
 
+echo "##"
+echo "# Failure Test Case"
+echo "##"
 # Run some bogus tests, they should fail as expected
-res=$(./out/container-structure-test test --image "$test_image" --config "$test_dir"/debian_failure_test.yaml)
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_dir}/ubuntu_20_04_failure_test.yaml")
 code=$?
-
 if ! [[ ("$res" =~ "FAIL" && "$code" == "1") ]];
 then
-  echo "Failure case test failed"
+  echo "FAIL: Failure test case did not fail"
   echo "$res"
   failures=$((failures +1))
+else
+  echo "PASS: Failure test failed"
 fi
 
 # Test the image.
-abs_test_dir=$(readlink -f "$test_dir")
 res=$(docker run -v /var/run/docker.sock:/var/run/docker.sock \
-                 -v "$abs_test_dir":/tests \
-                 gcr.io/gcp-runtimes/container-structure-test:latest test --image "$test_image" --config /tests/debian_test.yaml)
+                 -v "$test_dir":/tests \
+                 gcr.io/gcp-runtimes/container-structure-test:latest test --image "$test_image" --config "/tests/ubuntu_20_04_test.yaml")
 code=$?
-
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
   echo "Image success case test failed"
