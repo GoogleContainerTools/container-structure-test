@@ -21,8 +21,12 @@
 #to do on a known quantity, the latest debian docker image.
 failures=0
 
+# Get the architecture to load the right configurations
+go_architecture=$(go env GOARCH)
+
 # Get the absolute path of the tests directory
 test_dir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+test_config_dir="${test_dir}/${go_architecture}"
 
 echo "##"
 echo "# Build the newest 'container structure test' binary"
@@ -39,7 +43,7 @@ docker pull "$test_image" > /dev/null
 echo "##"
 echo "# Positive Test Case"
 echo "##"
-res=$(./out/container-structure-test test --image "$test_image" --config "${test_dir}/ubuntu_20_04_test.yaml")
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
@@ -60,8 +64,8 @@ then
   test_metadata_image=debian8-with-metadata:latest
   test_metadata_tar=debian8-with-metadata.tar
   test_metadata_dir=debian8-with-metadata
-  docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_dir" > /dev/null
-  res=$(./out/container-structure-test test --image "$test_metadata_image" --config "${test_dir}/ubuntu_20_04_metadata_test.yaml")
+  docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_config_dir" > /dev/null
+  res=$(./out/container-structure-test test --image "$test_metadata_image" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
 
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
@@ -72,7 +76,7 @@ then
   fi
 
   docker save "$test_metadata_image" -o "$test_metadata_tar" > /dev/null
-  res=$(./out/container-structure-test test --driver tar --image "$test_metadata_tar" --config "${test_dir}/ubuntu_20_04_metadata_test.yaml")
+  res=$(./out/container-structure-test test --driver tar --image "$test_metadata_tar" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
@@ -84,7 +88,7 @@ then
   mkdir -p "$test_metadata_dir"
   tar -C "$test_metadata_dir" -xvf "$test_metadata_tar" > /dev/null
   test_metadata_json=$(grep 'Config":"\K[^"]+' -Po "$test_metadata_dir/manifest.json")
-  res=$(./out/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "${test_dir}/ubuntu_20_04_metadata_test.yaml")
+  res=$(./out/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
@@ -102,7 +106,7 @@ echo "##"
 echo "# Failure Test Case"
 echo "##"
 # Run some bogus tests, they should fail as expected
-res=$(./out/container-structure-test test --image "$test_image" --config "${test_dir}/ubuntu_20_04_failure_test.yaml")
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_failure_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "FAIL" && "$code" == "1") ]];
 then
@@ -115,7 +119,7 @@ fi
 
 # Test the image.
 res=$(docker run -v /var/run/docker.sock:/var/run/docker.sock \
-                 -v "$test_dir":/tests \
+                 -v "$test_config_dir":/tests \
                  gcr.io/gcp-runtimes/container-structure-test:latest test --image "$test_image" --config "/tests/ubuntu_20_04_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
