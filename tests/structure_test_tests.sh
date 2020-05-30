@@ -73,9 +73,11 @@ then
 
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
-    echo "Metadata success case test failed for docker driver"
+    echo "FAIL: Metadata success test case for docker driver"
     echo "$res"
     failures=$((failures +1))
+  else
+    echo "PASS: Metadata success test case for docker driver"
   fi
 
   docker save "$test_metadata_image" -o "$test_metadata_tar" > /dev/null
@@ -83,9 +85,11 @@ then
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
-    echo "Metadata success case test failed for tar driver"
+    echo "FAIL: Metadata success test case for tar driver"
     echo "$res"
     failures=$((failures +1))
+  else
+    echo "PASS: Metadata success test case for tar driver"
   fi
 
   mkdir -p "$test_metadata_dir"
@@ -95,9 +99,11 @@ then
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
-    echo "Metadata success case test failed for host driver"
+    echo "FAIL: Metadata success test case for host driver"
     echo "$res"
     failures=$((failures +1))
+  else
+    echo "PASS: Metadata success test case for host driver"
   fi
 
   rm -rf "$test_metadata_dir"
