@@ -28,6 +28,9 @@ go_architecture=$(go env GOARCH)
 test_dir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 test_config_dir="${test_dir}/${go_architecture}"
 
+# If a configuration folder for the architecture doesn't exist, default to amd64
+test -d ${test_config_dir} || test_config_dir="${test_dir}/amd64"
+
 echo "##"
 echo "# Build the newest 'container structure test' binary"
 echo "##"
