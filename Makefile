@@ -29,7 +29,12 @@ RELEASE_BUCKET ?= $(PROJECT)
 
 VERSION_PACKAGE := $(REPOPATH)/pkg/version
 
+# If the architecture is not amd64, only create the linux binary
+ifeq ($(GOARCH), amd64)
 SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH) windows-$(GOARCH).exe
+else
+SUPPORTED_PLATFORMS := linux-$(GOARCH)
+endif
 
 GO_LDFLAGS :="
 GO_LDFLAGS += -X $(VERSION_PACKAGE).version=$(VERSION)
