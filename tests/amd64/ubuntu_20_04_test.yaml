@@ -8,7 +8,7 @@ commandTests:
 - name: 'apt-config'
   command: 'apt-config'
   args: ['dump']
-  expectedOutput: ['Acquire::Retries "3"']
+  expectedOutput: ['APT::AutoRemove']
 - name: 'path'
   command: 'sh'
   args: ['-c', 'echo $PATH']
@@ -16,11 +16,11 @@ commandTests:
 fileContentTests:
 - name: 'Debian Sources'
   excludedContents: ['.*gce_debian_mirror.*']
-  expectedContents: ['.*httpredir\.debian\.org.*']
+  expectedContents: ['.*archive\.ubuntu\.com.*']
   path: '/etc/apt/sources.list'
-- name: 'Retry Policy'
-  expectedContents: ['Acquire::Retries 3;']
-  path: '/etc/apt/apt.conf.d/apt-retry'
+- name: 'Passwd file'
+  expectedContents: ['root:x:0:0:root:/root:/bin/bash']
+  path: '/etc/passwd'
 fileExistenceTests:
 - name: 'Root'
   path: '/'
@@ -30,8 +30,8 @@ fileExistenceTests:
 - name: 'Date'
   path: '/bin/date'
   isExecutableBy: 'owner'
-- name: 'Netbase'
-  path: '/etc/protocols'
+- name: 'Hosts File'
+  path: '/etc/hosts'
   shouldExist: true
 - name: 'Machine ID'
   path: '/etc/machine-id'
@@ -39,5 +39,7 @@ fileExistenceTests:
   path: '/etc/dummy'
   shouldExist: false
 licenseTests:
-- debian: true
+- debian: false
   files:
+    - "/usr/share/doc/ubuntu-keyring/copyright"
+    - "/usr/share/doc/dash/copyright"
