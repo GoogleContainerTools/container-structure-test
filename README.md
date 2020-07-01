@@ -7,6 +7,8 @@ in an image, as well as verify metadata and contents of the filesystem.
 
 Tests can be run either through a standalone binary, or through a Docker image.
 
+**Note: container-structure-test is not an officially supported Google project, and is currently in maintainence mode. Contributions are still welcome!**
+
 ## Installation
 
 ### OS X
