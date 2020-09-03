@@ -206,10 +206,10 @@ of these checks are optional.
 #### Supported Fields:
 
 - Env (`[]EnvVar`): A list of environment variable key/value pairs that should be set
-in the container.
+in the container. isRegex (*optional*) interpretes the value as regex.
 - Labels (`[]Label`): A list of image labels key/value pairs that should be set on the
-container.
-- Entrypoint (`[]string`): The entrypoint of the container
+container. isRegex (*optional*) interpretes the value as regex.
+- Entrypoint (`[]string`): The entrypoint of the container.
 - Cmd (`[]string`): The CMD specified in the container.
 - Exposed Ports (`[]string`): The ports exposed in the container.
 - Unexposed Ports (`[]string`): The ports **NOT** exposed in the container.
@@ -226,6 +226,9 @@ metadataTest:
   labels:
     - key: 'com.example.vendor'
       value: 'ACME Incorporated'
+    - key: 'build-date'
+      value: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}$'
+      isRegex: true
   exposedPorts: ["8080", "2345"]
   volumes: ["/test"]
   entrypoint: []
