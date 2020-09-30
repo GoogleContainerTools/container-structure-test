@@ -5,12 +5,12 @@ steps:
     args: ['build', '-t', 'builder', '-f', 'deploy/Dockerfile.build', '.']
 
 # Do the go build for amd64
-  - name: 'builder-amd64'
+  - name: 'builder'
     args: ['make', 'cross']
     env: ['GOARCH=amd64']
 
 # Do the go build for arm64
-  - name: 'builder-arm64'
+  - name: 'builder'
     args: ['make', 'cross']
     env: ['GOARCH=arm64']
 
