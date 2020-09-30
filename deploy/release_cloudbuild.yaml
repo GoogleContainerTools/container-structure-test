@@ -5,9 +5,15 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'builder', '-f', 'deploy/Dockerfile.build', '.']
 
-# Do the go build
-  - name: 'builder'
+# Do the go build for amd64
+  - name: 'builder-amd64'
     args: ['make', 'cross']
+    env: ['GOARCH=amd64']
+
+# Do the go build for arm64
+  - name: 'builder-arm64'
+    args: ['make', 'cross']
+    env: ['GOARCH=arm64']
 
 # Upload to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
