@@ -205,5 +205,5 @@ func AddTestFlags(cmd *cobra.Command) {
 
 	cmd.Flags().StringArrayVarP(&opts.ConfigFiles, "config", "c", []string{}, "test config files")
 	cmd.MarkFlagRequired("config")
-	cmd.Flags().StringVar(&opts.TestReport, "test-report", "", "generate test report and write it to specified file (supported format: json, junit; default: json")
+	cmd.Flags().StringVar(&opts.TestReport, "test-report", "", "generate test report and write it to specified file (supported format: json, junit; default: json)")
 }
