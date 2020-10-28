@@ -16,7 +16,6 @@ package unversioned
 
 import (
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
