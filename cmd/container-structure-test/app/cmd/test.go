@@ -200,7 +200,7 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&opts.Force, "force", "f", false, "force run of host driver (without user prompt)")
 	cmd.Flags().BoolVarP(&opts.JSON, "json", "j", false, "output test results in json format")
 	cmd.Flags().MarkDeprecated("json", "please use --output instead")
-	cmd.Flags().VarP(&opts.Output, "output", "o", "output format for the test report (available format: text, json)")
+	cmd.Flags().VarP(&opts.Output, "output", "o", "output format for the test report (available format: text, json, junit)")
 	cmd.Flags().BoolVar(&opts.NoColor, "no-color", false, "no color in the output")
 
 	cmd.Flags().StringArrayVarP(&opts.ConfigFiles, "config", "c", []string{}, "test config files")
