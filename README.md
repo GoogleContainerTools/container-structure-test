@@ -382,12 +382,83 @@ container_test(
   -f, --force                force run of host driver (without user prompt)
   -h, --help                 help for test
   -i, --image string         path to test image
-  -j, --json                 output test results in json format
       --metadata string      path to image metadata file
+      --no-color             no color in the output
+  -o, --output string        output format for the test report (available format: text, json, junit) (default "text")
       --pull                 force a pull of the image before running tests
   -q, --quiet                flag to suppress output
+      --runtime string       runtime to use with docker driver
       --save                 preserve created containers after test run
-      --test-report string   generate JSON test report and write it to specified file.
-      
+      --test-report string   generate test report and write it to specified file (supported format: json, junit; default: json)
  ```   
 See this [example repo](https://github.com/nkubala/structure-test-examples) for a full working example.
+
+## Output formats
+
+Reports are generated using one of the following output formats: `text`, `json` or `junit`.  
+Formats like `json` and `junit` can also be used to write a report to a specified file using the `--test-report`.
+
+### Output samples
+
+#### Text
+
+```text
+====================================
+====== Test file: config.yaml ======
+====================================
+=== RUN: File Existence Test: whoami
+--- PASS
+duration: 0s
+=== RUN: Metadata Test
+--- PASS
+duration: 0s
+
+=====================================
+============== RESULTS ==============
+=====================================
+Passes:      2
+Failures:    0
+Duration:    0s
+Total tests: 2
+
+PASS
+```
+
+#### JSON
+
+The following sample has been formatted.
+
+```json
+{
+  "Pass": 2,
+  "Fail": 0,
+  "Total": 2,
+  "Duration": 0,
+  "Results": [
+    {
+      "Name": "File Existence Test: whoami",
+      "Pass": true,
+      "Duration": 0
+    },
+    {
+      "Name": "Metadata Test",
+      "Pass": true,
+      "Duration": 0
+    }
+  ]
+}
+```
+
+### JUnit
+
+The following sample has been formatted.
+
+```xml
+<?xml version="1.0"?>
+<testsuites failures="0" tests="2" time="0">
+  <testsuite>
+    <testcase name="File Existence Test: whoami" time="0"/>
+    <testcase name="Metadata Test" time="0"/>
+  </testsuite>
+</testsuites>
+```
