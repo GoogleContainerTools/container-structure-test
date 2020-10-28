@@ -121,7 +121,7 @@ func (o *OutputValue) Set(value string) error {
 	case "junit":
 		*o = Junit
 	default:
-		return errors.New("Please specify a supported format such as text, json or junit.")
+		return fmt.Errorf("unsupported format %s: please select from `text`, `json`, or `junit`", value)
 	}
 
 	return nil

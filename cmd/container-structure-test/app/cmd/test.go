@@ -68,7 +68,7 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 					opts.JSON = true
 					opts.Output = unversioned.Json
 
-					logrus.Warn("Unsupported format text, using json as default.")
+					logrus.Warn("raw text format unsupported for writing output file, defaulting to JSON")
 				}
 				testReportFile, err := os.Create(opts.TestReport)
 				if err != nil {
