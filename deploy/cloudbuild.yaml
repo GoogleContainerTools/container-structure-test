@@ -14,6 +14,17 @@ steps:
     args: ['make', 'cross']
     env: ['GOARCH=arm64']
 
+# Do the go build for s390x
+  - name: 'builder'
+    args: ['make', 'cross']
+    env: ['GOARCH=s390x']
+
+# Do the go build for ppc64le
+  - name: 'builder'
+    args: ['make', 'cross']
+    env: ['GOARCH=ppc64le']
+
+
 # Upload to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
     args: ['cp', '-r', 'out/*', 'gs://container-structure-test/builds/$COMMIT_SHA/']

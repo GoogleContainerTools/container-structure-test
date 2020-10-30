@@ -1,0 +1,22 @@
+schemaVersion: '2.0.0' # Make sure to test the latest schema version
+metadataTest:
+  env:
+  - key: 'SOME_KEY'
+    value: 'SOME_VAL'
+  - key: 'EMPTY_VAR'
+    value: ''
+  - key: 'FOO_BAR'
+    value: 'FOO\:BAR=BAZ'
+  - key: 'REGEX_VAR'
+    value: '[a-z]+-2\.1\.*'
+    isRegex: true
+  labels:
+  - key: 'localnet.localdomain.commit_hash'
+    value: '0123456789abcdef0123456789abcdef01234567'
+  - key: 'localnet.my-domain.my-label'
+    value: 'my .+ label'
+    isRegex: true
+  - key: 'label-with-empty-val'
+    value: ''
+  unexposedPorts: ['80']
+  unmountedVolumes: ['/root']

@@ -1,0 +1,32 @@
+schemaVersion: '1.0.0'
+commandTests:
+- name: 'bad apt-get-command'
+  command: ['apt-get', 'dslkfjasl']
+  excludedError: ['.*FAIL.*']
+  expectedOutput: ['.*Usage.*']
+- name: 'apt-config'
+  command: ['apt-config', 'dump']
+  expectedOutput: ['Acquire::Retries "3"']
+  name: 'apt-config'
+- name: 'path'
+  command: ['sh', '-c', 'echo $PATH']
+  expectedOutput: ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin']
+fileContentTests:
+- name: 'Debian Sources'
+  excludedContents: ['.*gce_debian_mirror.*']
+  expectedContents: ['.*httpredir\.debian\.org.*']
+  path: '/etc/apt/sources.list'
+- name: 'Wrong Retry Policy'
+  expectedContents: ['Acquire::Retries 4;']
+  path: '/etc/apt/apt.conf.d/apt-retry'
+fileExistenceTests:
+- name: 'Fake Dir'
+  path: '/foo/bar'
+  shouldExist: true
+- name: 'Wrong permissions'
+  path: '/etc/apt/sources.list'
+  permissions: '-rwxrwxrwx'
+  shouldExist: true
+licenseTests:
+- debian: true
+  files:
