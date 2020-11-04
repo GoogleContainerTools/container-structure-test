@@ -15,6 +15,7 @@
 package unversioned
 
 import (
+	"encoding/xml"
 	"fmt"
 	"strings"
 	"time"
@@ -43,12 +44,12 @@ type Config struct {
 }
 
 type TestResult struct {
-	Name     string
-	Pass     bool
-	Stdout   string   `json:",omitempty"`
-	Stderr   string   `json:",omitempty"`
-	Errors   []string `json:",omitempty"`
-	Duration time.Duration
+	Name     string        `xml:"name,attr"`
+	Pass     bool          `xml:"-"`
+	Stdout   string        `json:",omitempty" xml:"-"`
+	Stderr   string        `json:",omitempty" xml:"-"`
+	Errors   []string      `json:",omitempty" xml:"failure"`
+	Duration time.Duration `xml:"time,attr"`
 }
 
 func (t *TestResult) String() string {
@@ -86,9 +87,41 @@ func (t *TestResult) IsPass() bool {
 }
 
 type SummaryObject struct {
-	Pass     int
-	Fail     int
-	Total    int
-	Duration time.Duration
-	Results  []*TestResult `json:",omitempty"`
+	XMLName  xml.Name      `json:"-" xml:"testsuites"`
+	Pass     int           `xml:"-"`
+	Fail     int           `xml:"failures,attr"`
+	Total    int           `xml:"tests,attr"`
+	Duration time.Duration `xml:"time,attr"`
+	Results  []*TestResult `json:",omitempty" xml:"testsuite>testcase"`
+}
+
+type OutputValue int
+
+const (
+	Text OutputValue = iota
+	Json
+	Junit
+)
+
+func (o OutputValue) String() string {
+	return [...]string{"text", "json", "junit"}[o]
+}
+
+func (o OutputValue) Type() string {
+	return "string"
+}
+
+func (o *OutputValue) Set(value string) error {
+	switch value {
+	case "text":
+		*o = Text
+	case "json":
+		*o = Json
+	case "junit":
+		*o = Junit
+	default:
+		return fmt.Errorf("unsupported format %s: please select from `text`, `json`, or `junit`", value)
+	}
+
+	return nil
 }
