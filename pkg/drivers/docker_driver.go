@@ -412,6 +412,7 @@ func (d *DockerDriver) GetConfig() (unversioned.Config, error) {
 		Workdir:      img.Config.WorkingDir,
 		ExposedPorts: ports,
 		Labels:       img.Config.Labels,
+		User:         img.Config.User,
 	}, nil
 }
 

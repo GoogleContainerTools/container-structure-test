@@ -216,6 +216,7 @@ container. isRegex (*optional*) interpretes the value as regex.
 - Volumes (`[]string`): The volumes exposed in the container.
 - UnmountedVolumes (`[]string`): The volumes **NOT** exposed in the container.
 - Workdir (`string`): The default working directory of the container.
+- User (`user`): The default user of the container.
 
 Example:
 ```yaml
@@ -234,6 +235,7 @@ metadataTest:
   entrypoint: []
   cmd: ["/bin/bash"]
   workdir: "/app"
+  user: "luke"
 ```
 
 ## License Tests
@@ -297,12 +299,12 @@ Container images can be represented in multiple formats, and the Docker image
 is just one of them. At their core, images are just a series of layers, each
 of which is a tarball, and so can be interacted with without a working Docker
 daemon. While running command tests currently requires a functioning Docker
-daemon on the host machine, File Existence/Content tests do not. This can be 
+daemon on the host machine, File Existence/Content tests do not. This can be
 useful when dealing with images which have been `docker export`ed
 or saved in a different image format than the Docker format, or when you're simply
 trying to run structure tests in an environment where Docker can't be installed.
 
-To run tests without using a Docker daemon, users can specify a different 
+To run tests without using a Docker daemon, users can specify a different
 "driver" to use in the tests, with the `--driver` flag.
 
 An example test run with a different driver looks like:
@@ -395,12 +397,12 @@ container_test(
       --runtime string       runtime to use with docker driver
       --save                 preserve created containers after test run
       --test-report string   generate test report and write it to specified file (supported format: json, junit; default: json)
- ```   
+ ```
 See this [example repo](https://github.com/nkubala/structure-test-examples) for a full working example.
 
 ## Output formats
 
-Reports are generated using one of the following output formats: `text`, `json` or `junit`.  
+Reports are generated using one of the following output formats: `text`, `json` or `junit`.
 Formats like `json` and `junit` can also be used to write a report to a specified file using the `--test-report`.
 
 ### Output samples
