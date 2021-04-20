@@ -183,5 +183,6 @@ func (d *HostDriver) GetConfig() (unversioned.Config, error) {
 		Workdir:      config.WorkingDir,
 		ExposedPorts: ports,
 		Labels:       config.Labels,
+		User:         config.User,
 	}, nil
 }

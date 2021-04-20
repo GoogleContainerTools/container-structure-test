@@ -32,6 +32,7 @@ type MetadataTest struct {
 	Volumes          []string       `yaml:"volumes"`
 	UnmountedVolumes []string       `yaml:"unmountedVolumes"`
 	Labels           []types.Label  `yaml:"labels"`
+	User             string         `yaml:"user"`
 }
 
 func (mt MetadataTest) IsEmpty() bool {
@@ -41,6 +42,7 @@ func (mt MetadataTest) IsEmpty() bool {
 		mt.Entrypoint == nil &&
 		mt.Cmd == nil &&
 		mt.Workdir == "" &&
+		mt.User == "" &&
 		len(mt.Volumes) == 0 &&
 		len(mt.UnmountedVolumes) == 0 &&
 		len(mt.Labels) == 0
@@ -160,6 +162,11 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 
 	if mt.Workdir != "" && mt.Workdir != imageConfig.Workdir {
 		result.Errorf("Image workdir %s does not match config workdir: %s", imageConfig.Workdir, mt.Workdir)
+		result.Fail()
+	}
+
+	if mt.User != "" && mt.User != imageConfig.User {
+		result.Errorf("Image user %s does not match config user: %s", imageConfig.User, mt.User)
 		result.Fail()
 	}
 

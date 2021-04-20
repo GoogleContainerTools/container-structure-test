@@ -41,6 +41,7 @@ type Config struct {
 	Workdir      string
 	ExposedPorts []string
 	Labels       map[string]string
+	User         string
 }
 
 type TestResult struct {
