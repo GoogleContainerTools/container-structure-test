@@ -24,6 +24,7 @@ import (
 
 type MetadataTest struct {
 	Env              []types.EnvVar `yaml:"env"`
+	UnboundEnv       []types.EnvVar `yaml:"unboundEnv"`
 	ExposedPorts     []string       `yaml:"exposedPorts"`
 	UnexposedPorts   []string       `yaml:"unexposedPorts"`
 	Entrypoint       *[]string      `yaml:"entrypoint"`
@@ -37,6 +38,7 @@ type MetadataTest struct {
 
 func (mt MetadataTest) IsEmpty() bool {
 	return len(mt.Env) == 0 &&
+		len(mt.UnboundEnv) == 0 &&
 		len(mt.ExposedPorts) == 0 &&
 		len(mt.UnexposedPorts) == 0 &&
 		mt.Entrypoint == nil &&
@@ -110,6 +112,13 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 			}
 		} else {
 			result.Errorf("variable %s not found in image env", pair.Key)
+			result.Fail()
+		}
+	}
+
+	for _, pair := range mt.UnboundEnv {
+		if _, ok := imageConfig.Env[pair.Key]; ok {
+			result.Errorf("env variable %s found in image metadata", pair.Key)
 			result.Fail()
 		}
 	}
