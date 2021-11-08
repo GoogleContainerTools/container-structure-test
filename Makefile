@@ -76,5 +76,9 @@ release: cross
 clean:
 	rm -rf $(BUILD_DIR)
 
+.PHONY: test
+test: $(BUILD_DIR)/$(PROJECT)
+	./tests/structure_test_tests.sh
+
 image:
 	docker build -t gcr.io/gcp-runtimes/container-structure-test:latest .
