@@ -125,21 +125,3 @@ then
 else
   echo "PASS: Failure test failed"
 fi
-
-# Test the image.
-res=$(docker run -v /var/run/docker.sock:/var/run/docker.sock \
-                 -v "$test_config_dir":/tests \
-                 gcr.io/gcp-runtimes/container-structure-test:latest test --image "$test_image" --config "/tests/ubuntu_20_04_test.yaml")
-code=$?
-if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
-then
-  echo "Image success case test failed"
-  echo "$res"
-  failures=$((failures +1))
-fi
-
-echo "Failure Count: $failures"
-if [ "$failures" -gt "0" ]
-then
-  exit 1
-fi
