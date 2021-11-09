@@ -25,7 +25,7 @@ import (
 
 	pkgutil "github.com/GoogleContainerTools/container-diff/pkg/util"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
-	"github.com/google/go-containerregistry/pkg/v1"
+	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 )
 
@@ -139,7 +139,7 @@ func (d *TarDriver) ProcessCommand(_ []unversioned.EnvVar, _ []string) (string, 
 }
 
 func (d *TarDriver) StatFile(path string) (os.FileInfo, error) {
-	return os.Stat(filepath.Join(d.Image.FSPath, path))
+	return os.Lstat(filepath.Join(d.Image.FSPath, path))
 }
 
 func (d *TarDriver) ReadFile(path string) ([]byte, error) {
