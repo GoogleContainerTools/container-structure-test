@@ -28,7 +28,7 @@ import (
 	"bytes"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
-	"github.com/google/go-containerregistry/pkg/v1"
+	v1 "github.com/google/go-containerregistry/pkg/v1"
 )
 
 type HostDriver struct {
@@ -140,7 +140,7 @@ func (d *HostDriver) ProcessCommand(envVars []unversioned.EnvVar, fullCommand []
 }
 
 func (d *HostDriver) StatFile(path string) (os.FileInfo, error) {
-	return os.Stat(path)
+	return os.Lstat(path)
 }
 
 func (d *HostDriver) ReadFile(path string) ([]byte, error) {
