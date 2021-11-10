@@ -12,6 +12,13 @@ Tests can be run either through a standalone binary, or through a Docker image.
 ## Installation
 
 ### OS X
+
+Install via [brew](https://brew.sh/):
+
+```bash
+$ brew install container-structure-test
+```
+
 ```shell
 curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-darwin-amd64 && chmod +x container-structure-test-darwin-amd64 && sudo mv container-structure-test-darwin-amd64 /usr/local/bin/container-structure-test
 ```
