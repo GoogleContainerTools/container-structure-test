@@ -118,7 +118,7 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 
 	for _, pair := range mt.UnboundEnv {
 		if _, ok := imageConfig.Env[pair.Key]; ok {
-			result.Errorf("env variable %s found in image metadata", pair.Key)
+			result.Errorf("env variable %s should not be present in image metadata", pair.Key)
 			result.Fail()
 		}
 	}
