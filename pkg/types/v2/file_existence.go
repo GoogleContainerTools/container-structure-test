@@ -90,7 +90,7 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 	var info os.FileInfo
 	config, err := driver.GetConfig()
 	if err != nil {
-		logrus.Errorf("error retrieving image config: %s", err.Error())
+		logrus.Errorf("Error retrieving image config: %s", err.Error())
 	}
 	info, err = driver.StatFile(utils.SubstituteEnvVar(ft.Path, config.Env))
 	if info == nil && ft.ShouldExist {

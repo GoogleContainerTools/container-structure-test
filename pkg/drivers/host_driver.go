@@ -107,7 +107,7 @@ func ResetEnvVars(envVars []unversioned.EnvVar) {
 			err = os.Setenv(envVar.Key, envVar.Value)
 		}
 		if err != nil {
-			logrus.Errorf("error resetting env var: %s", err)
+			logrus.Errorf("Error resetting env var: %s", err)
 		}
 	}
 }
@@ -123,7 +123,7 @@ func (d *HostDriver) ProcessCommand(envVars []unversioned.EnvVar, fullCommand []
 	exitCode := 0
 
 	if err := cmd.Start(); err != nil {
-		logrus.Fatalf("error starting command: %v", err)
+		logrus.Fatalf("Error starting command: %v", err)
 	}
 
 	if err := cmd.Wait(); err != nil {

@@ -107,18 +107,18 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 				match = (pair.Value == val)
 			}
 			if !match {
-				result.Errorf("env var %s value %s does not match expected value: %s", pair.Key, val, pair.Value)
+				result.Errorf("Env var %s value %s does not match expected value: %s", pair.Key, val, pair.Value)
 				result.Fail()
 			}
 		} else {
-			result.Errorf("variable %s not found in image env", pair.Key)
+			result.Errorf("Variable %s not found in image env", pair.Key)
 			result.Fail()
 		}
 	}
 
 	for _, pair := range mt.UnboundEnv {
 		if _, ok := imageConfig.Env[pair.Key]; ok {
-			result.Errorf("env variable %s should not be present in image metadata", pair.Key)
+			result.Errorf("Env variable %s should not be present in image metadata", pair.Key)
 			result.Fail()
 		}
 	}
@@ -132,11 +132,11 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 				match = (pair.Value == val)
 			}
 			if !match {
-				result.Errorf("label %s value %s does not match expected value: %s", pair.Key, val, pair.Value)
+				result.Errorf("Label %s value %s does not match expected value: %s", pair.Key, val, pair.Value)
 				result.Fail()
 			}
 		} else {
-			result.Errorf("label %s not found in image metadata", pair.Key)
+			result.Errorf("Label %s not found in image metadata", pair.Key)
 			result.Fail()
 		}
 	}

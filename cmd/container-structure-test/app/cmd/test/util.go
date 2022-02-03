@@ -97,7 +97,7 @@ func Parse(fp string, args *drivers.DriverConfig, driverImpl func(drivers.Driver
 	}
 
 	if err = strictUnmarshal(testContents, st); err != nil {
-		return nil, errors.New("error unmarshalling config: " + err.Error())
+		return nil, errors.New("Error unmarshalling config: " + err.Error())
 	}
 
 	tests, _ := st.(types.StructureTest) //type assertion
@@ -153,7 +153,7 @@ func channelToSlice(c chan interface{}) ([]*unversioned.TestResult, error) {
 	for elem := range c {
 		elem, ok := elem.(*unversioned.TestResult)
 		if !ok {
-			return nil, fmt.Errorf("unexpected value found in channel: %v", elem)
+			return nil, fmt.Errorf("Unexpected value found in channel: %v", elem)
 		}
 		results = append(results, elem)
 	}

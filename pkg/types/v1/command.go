@@ -73,7 +73,7 @@ func (ct *CommandTest) Run(driver drivers.Driver) *types.TestResult {
 	logrus.Debug(ct.LogName())
 	config, err := driver.GetConfig()
 	if err != nil {
-		logrus.Errorf("error retrieving image config: %s", err.Error())
+		logrus.Errorf("Error retrieving image config: %s", err.Error())
 	}
 	start := time.Now()
 	stdout, stderr, exitcode, err := driver.ProcessCommand(ct.EnvVars, utils.SubstituteEnvVars(ct.Command, config.Env))

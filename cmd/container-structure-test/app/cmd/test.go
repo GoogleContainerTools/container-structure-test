@@ -68,7 +68,7 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 					opts.JSON = true
 					opts.Output = unversioned.Json
 
-					logrus.Warn("raw text format unsupported for writing output file, defaulting to JSON")
+					logrus.Warn("Raw text format unsupported for writing output file, defaulting to JSON")
 				}
 				testReportFile, err := os.Create(opts.TestReport)
 				if err != nil {
@@ -108,12 +108,12 @@ func run(out io.Writer) error {
 
 	if opts.Pull {
 		if opts.Driver != drivers.Docker {
-			logrus.Fatal("image pull not supported when not using Docker driver")
+			logrus.Fatal("Image pull not supported when not using Docker driver")
 		}
 		var repository, tag string
 		parts := splitImagePath(opts.ImagePath)
 		if len(parts) < 2 {
-			logrus.Fatal("no tag specified for provided image")
+			logrus.Fatal("No tag specified for provided image")
 		}
 		repository = parts[0]
 		tag = parts[1]
@@ -123,17 +123,17 @@ func run(out io.Writer) error {
 			Tag:          tag,
 			OutputStream: out,
 		}, docker.AuthConfiguration{}); err != nil {
-			logrus.Fatalf("error pulling remote image %s: %s", opts.ImagePath, err.Error())
+			logrus.Fatalf("Error pulling remote image %s: %s", opts.ImagePath, err.Error())
 		}
 	}
 
 	if opts.Driver == drivers.Host && !utils.UserConfirmation(warnMessage, opts.Force) {
-		logrus.Fatalf("aborted by user")
+		logrus.Fatalf("Aborted by user")
 	}
 
 	driverImpl = drivers.InitDriverImpl(opts.Driver)
 	if driverImpl == nil {
-		logrus.Fatalf("unsupported driver type: %s", opts.Driver)
+		logrus.Fatalf("Unsupported driver type: %s", opts.Driver)
 	}
 	if err != nil {
 		logrus.Fatal(err.Error())
@@ -153,7 +153,7 @@ func runTests(out io.Writer, channel chan interface{}, args *drivers.DriverConfi
 		if err != nil {
 			channel <- &unversioned.TestResult{
 				Errors: []string{
-					fmt.Sprintf("error parsing config file: %s", err),
+					fmt.Sprintf("Error parsing config file: %s", err),
 				},
 			}
 			continue // Continue with other config files

@@ -70,18 +70,18 @@ func (st *StructureTest) RunCommandTests(channel chan interface{}) {
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			res.Errorf("error creating driver: %s", err.Error())
+			res.Errorf("Error creating driver: %s", err.Error())
 			channel <- res
 			continue
 		}
 		defer driver.Destroy()
 		if err = driver.SetEnv(st.GlobalEnvVars); err != nil {
-			res.Errorf("error setting env vars: %s", err.Error())
+			res.Errorf("Error setting env vars: %s", err.Error())
 			channel <- res
 			continue
 		}
 		if err = driver.Setup(test.EnvVars, test.Setup); err != nil {
-			res.Errorf("error in setup: %s", err.Error())
+			res.Errorf("Error in setup: %s", err.Error())
 			channel <- res
 			continue
 		}
@@ -105,12 +105,12 @@ func (st *StructureTest) RunFileExistenceTests(channel chan interface{}) {
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			res.Errorf("error creating driver: %s", err.Error())
+			res.Errorf("Error creating driver: %s", err.Error())
 			channel <- res
 			continue
 		}
 		if err = driver.SetEnv(st.GlobalEnvVars); err != nil {
-			res.Errorf("error setting env vars: %s", err.Error())
+			res.Errorf("Error setting env vars: %s", err.Error())
 			channel <- res
 			continue
 		}
@@ -130,12 +130,12 @@ func (st *StructureTest) RunFileContentTests(channel chan interface{}) {
 		}
 		driver, err := st.NewDriver()
 		if err != nil {
-			res.Errorf("error creating driver: %s", err.Error())
+			res.Errorf("Error creating driver: %s", err.Error())
 			channel <- res
 			continue
 		}
 		if err = driver.SetEnv(st.GlobalEnvVars); err != nil {
-			res.Errorf("error setting env vars: %s", err.Error())
+			res.Errorf("Error setting env vars: %s", err.Error())
 			channel <- res
 			continue
 		}
@@ -157,7 +157,7 @@ func (st *StructureTest) RunMetadataTests(channel chan interface{}) {
 		channel <- &types.TestResult{
 			Name: st.MetadataTest.LogName(),
 			Errors: []string{
-				fmt.Sprintf("error creating driver: %s", err.Error()),
+				fmt.Sprintf("Error creating driver: %s", err.Error()),
 			},
 		}
 		return

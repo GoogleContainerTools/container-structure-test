@@ -72,7 +72,7 @@ func (d *DockerDriver) Destroy() {
 	// image (that isn't the original) removes all previous ones as well.
 	if d.currentImage != d.originalImage {
 		if err := d.cli.RemoveImage(d.currentImage); err != nil {
-			logrus.Warnf("error removing image: %s", err)
+			logrus.Warnf("Error removing image: %s", err)
 		}
 	}
 }

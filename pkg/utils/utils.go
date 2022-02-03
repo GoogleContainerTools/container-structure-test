@@ -51,7 +51,7 @@ func UserConfirmation(message string, force bool) bool {
 	var input string
 	_, err := fmt.Scanln(&input)
 	if err != nil {
-		logrus.Errorf("error reading input from stdin: %s", err.Error())
+		logrus.Errorf("Error reading input from stdin: %s", err.Error())
 		return false
 	}
 	for _, response := range yesResponses {
