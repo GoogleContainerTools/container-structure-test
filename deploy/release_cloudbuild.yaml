@@ -44,10 +44,16 @@ steps:
 
 # Build the debug image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/gcp-runtimes/container-structure-test:debug',
+    args: ['build', '-t', 'gcr.io/gcp-runtimes/container-structure-test/debug:$TAG_NAME',
            '-f', 'deploy/Dockerfile_debug', '.']
- 
+
+# Tag the debug image as latest
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', 'gcr.io/gcp-runtimes/container-structure-test/debug:$TAG_NAME',
+           'gcr.io/gcp-runtimes/container-structure-test/debug:latest']
+
 images:
 - 'gcr.io/gcp-runtimes/container-structure-test:$TAG_NAME'
 - 'gcr.io/gcp-runtimes/container-structure-test:latest'
-- 'gcr.io/gcp-runtimes/container-structure-test:debug'
+- 'gcr.io/gcp-runtimes/container-structure-test/debug:$TAG_NAME'
+- 'gcr.io/gcp-runtimes/container-structure-test/debug:latest'
