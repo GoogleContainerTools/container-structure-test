@@ -1,6 +1,6 @@
 module github.com/GoogleContainerTools/container-structure-test
 
-go 1.17
+go 1.18
 
 require (
 	github.com/GoogleContainerTools/container-diff v0.14.1-0.20190219205308-3f6b025c016c
