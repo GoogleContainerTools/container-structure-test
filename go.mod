@@ -9,7 +9,7 @@ require (
 	github.com/google/go-containerregistry v0.5.1
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cobra v1.0.0
+	github.com/spf13/cobra v1.5.0
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	gopkg.in/yaml.v2 v2.4.0
 )

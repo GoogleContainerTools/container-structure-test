@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Copyright 2017 Google Inc. All rights reserved.
 
@@ -124,4 +124,39 @@ then
   failures=$((failures +1))
 else
   echo "PASS: Failure test failed"
+fi
+
+
+echo "###"
+echo "# OCI layout test case"
+echo "###"
+
+go install github.com/google/go-containerregistry/cmd/crane/cmd
+tmp="$(mktemp -d)"
+
+crane pull "$test_image" --format=oci "$tmp" --platform=linux/arm64
+
+
+res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+code=$?
+if ! [[ ("$res" =~ "index does not contain a reference annotation. --default-image-tag must be provided." && "$code" == "1") ]];
+then
+  echo "FAIL: oci failing test case"
+  echo "$res"
+  echo "$code"
+  failures=$((failures +1))
+else 
+  echo "PASS: oci failing test case"
+fi
+
+res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --default-image-tag="test.local/library/$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+code=$?
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+then
+  echo "FAIL: oci success test case"
+  echo "$res"
+  echo "$code"
+  failures=$((failures +1))
+else 
+  echo "PASS: oci success test case"
 fi

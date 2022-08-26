@@ -20,10 +20,9 @@ import (
 	"io/ioutil"
 
 	"os"
-	"regexp"
-	"strings"
 
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/color"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/config"
@@ -33,6 +32,9 @@ import (
 	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
 
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/google/go-containerregistry/pkg/v1/daemon"
+	"github.com/google/go-containerregistry/pkg/v1/layout"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -42,9 +44,6 @@ that this binary is being run on, and can potentially corrupt your system.
 Be sure you know what you're doing before continuing!
 
 Continue? (y/n)`
-
-var totalTests int
-var testReportFile *os.File
 
 var (
 	opts = &config.StructureTestOptions{}
@@ -106,21 +105,76 @@ func run(out io.Writer) error {
 
 	var err error
 
+	if opts.ImageFromLayout != "" {
+		if opts.Driver != drivers.Docker {
+			logrus.Fatal("--image-from-oci-layout is not supported when not using Docker driver")
+		}
+		l, err := layout.ImageIndexFromPath(opts.ImageFromLayout)
+		if err != nil {
+			logrus.Fatalf("loading %s as OCI layout: %v", opts.ImageFromLayout, err)
+		}
+		m, err := l.IndexManifest()
+		if err != nil {
+			logrus.Fatalf("could not read OCI index manifest %s: %v", opts.ImageFromLayout, err)
+		}
+
+		if len(m.Manifests) != 1 {
+			logrus.Fatalf("OCI layout contains %d entries. expected only one", len(m.Manifests))
+		}
+
+		desc := m.Manifests[0]
+
+		if desc.MediaType.IsIndex() {
+			logrus.Fatal("multi-arch images are not supported yet.")
+		}
+
+		img, err := l.Image(desc.Digest)
+
+		if err != nil {
+			logrus.Fatalf("could not get image from %s: %v", opts.ImageFromLayout, err)
+		}
+
+		var tag name.Tag
+
+		ref := desc.Annotations[v1.AnnotationRefName]
+		if ref != "" {
+			tag, err = name.NewTag(ref)
+			if err != nil {
+				logrus.Fatalf("could not parse ref annotation %s: %v", v1.AnnotationRefName, err)
+			}
+		} else {
+			if opts.DefaultImageTag == "" {
+				logrus.Fatalf("index does not contain a reference annotation. --default-image-tag must be provided.")
+			}
+			tag, err = name.NewTag(opts.DefaultImageTag, name.StrictValidation)
+			if err != nil {
+				logrus.Fatalf("could parse the default image tag %s: %v", opts.DefaultImageTag, err)
+			}
+		}
+		if _, err = daemon.Write(tag, img); err != nil {
+			logrus.Fatalf("error loading oci layout into daemon: %v, %s", err)
+		}
+
+		opts.ImagePath = tag.String()
+		args.Image = tag.String()
+	}
+
 	if opts.Pull {
 		if opts.Driver != drivers.Docker {
 			logrus.Fatal("image pull not supported when not using Docker driver")
 		}
-		var repository, tag string
-		parts := splitImagePath(opts.ImagePath)
-		if len(parts) < 2 {
-			logrus.Fatal("no tag specified for provided image")
+		ref, err := name.ParseReference(opts.ImagePath)
+		if err != nil {
+			logrus.Fatal(err)
 		}
-		repository = parts[0]
-		tag = parts[1]
 		client, err := docker.NewClientFromEnv()
+		if err != nil {
+			logrus.Fatalf("error connecting to daemon: %v", err)
+		}
 		if err = client.PullImage(docker.PullImageOptions{
-			Repository:   repository,
-			Tag:          tag,
+			Repository:   ref.Context().RepositoryStr(),
+			Tag:          ref.Identifier(),
+			Registry:     ref.Context().RegistryStr(),
 			OutputStream: out,
 		}, docker.AuthConfiguration{}); err != nil {
 			logrus.Fatalf("error pulling remote image %s: %s", opts.ImagePath, err.Error())
@@ -163,38 +217,17 @@ func runTests(out io.Writer, channel chan interface{}, args *drivers.DriverConfi
 	close(channel)
 }
 
-func splitImagePath(imagePath string) []string {
-	var parts []string
-	if strings.Contains(imagePath, "@") {
-		parts = strings.Split(imagePath, "@")
-	} else {
-		switch countColons := strings.Count(imagePath, ":"); countColons {
-		case 0:
-			parts = []string{imagePath}
-		case 1:
-			match, _ := regexp.MatchString(`:\d{1,5}\/`, imagePath)
-			if match {
-				//colon is part of a registry port and no tag available
-				parts = []string{imagePath}
-			} else {
-				//colon separates image name and tag
-				parts = strings.Split(imagePath, ":")
-			}
-		default:
-			imageTagRegex, _ := regexp.Compile("(.*):(.*)")
-			parts = imageTagRegex.FindStringSubmatch(imagePath)[1:]
-		}
-	}
-	return parts
-}
-
 func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&opts.ImagePath, "image", "i", "", "path to test image")
+	cmd.Flags().StringVar(&opts.ImageFromLayout, "image-from-oci-layout", "", "path to the oci layout to test against")
+	cmd.Flags().StringVar(&opts.DefaultImageTag, "default-image-tag", "", "default image tag to used when loading images to the daemon. required when --image-from-oci-layout refers to a oci layout lacking the reference annotation.")
+	cmd.MarkFlagsMutuallyExclusive("image", "image-from-oci-layout")
 	cmd.Flags().StringVarP(&opts.Driver, "driver", "d", "docker", "driver to use when running tests")
 	cmd.Flags().StringVar(&opts.Metadata, "metadata", "", "path to image metadata file")
 	cmd.Flags().StringVar(&opts.Runtime, "runtime", "", "runtime to use with docker driver")
 
 	cmd.Flags().BoolVar(&opts.Pull, "pull", false, "force a pull of the image before running tests")
+	cmd.MarkFlagsMutuallyExclusive("image-from-oci-layout", "pull")
 	cmd.Flags().BoolVar(&opts.Save, "save", false, "preserve created containers after test run")
 	cmd.Flags().BoolVarP(&opts.Quiet, "quiet", "q", false, "flag to suppress output")
 	cmd.Flags().BoolVarP(&opts.Force, "force", "f", false, "force run of host driver (without user prompt)")
