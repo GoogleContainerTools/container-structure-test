@@ -8,18 +8,31 @@ permissions: read-all
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}-${{github.workflow}}
   cancel-in-progress: true
-jobs:
 
+jobs:
   build:
     name: PR unit tests
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    
     steps:
-
+    - name: install podman
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: |
+        brew install podman
+        podman machine init
+        podman machine start
+        echo "DOCKER_HOST=unix:///Users/runner/.local/share/containers/podman/machine/podman-machine-default/podman.sock" >> $GITHUB_ENV
+        
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
         go-version: ^1.17
       id: go
+    
+    - uses: imjasonh/setup-crane@v0.1
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2

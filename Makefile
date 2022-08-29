@@ -26,6 +26,7 @@ ORG := github.com/GoogleContainerTools
 PROJECT := container-structure-test
 REPOPATH ?= $(ORG)/$(PROJECT)
 RELEASE_BUCKET ?= $(PROJECT)
+DOCKER ?=docker
 
 VERSION_PACKAGE := $(REPOPATH)/pkg/version
 
@@ -81,4 +82,4 @@ test: $(BUILD_DIR)/$(PROJECT)
 	./tests/structure_test_tests.sh
 
 image:
-	docker build -t gcr.io/gcp-runtimes/container-structure-test:latest .
+	$(DOCKER) build -t gcr.io/gcp-runtimes/container-structure-test:latest .
