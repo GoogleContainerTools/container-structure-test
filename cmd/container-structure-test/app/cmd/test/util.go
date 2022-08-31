@@ -41,8 +41,8 @@ func ValidateArgs(opts *config.StructureTestOptions) error {
 			return fmt.Errorf("Cannot provide both image path and metadata file")
 		}
 	} else {
-		if opts.ImagePath == "" {
-			return fmt.Errorf("Please supply path to image or tarball to test against")
+		if opts.ImagePath == "" && opts.ImageFromLayout == "" {
+			return fmt.Errorf("Please supply path to image or oci image layout to test against")
 		}
 		if opts.Metadata != "" {
 			return fmt.Errorf("Cannot provide both image path and metadata file")

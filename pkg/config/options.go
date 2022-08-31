@@ -17,12 +17,14 @@ package config
 import "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 
 type StructureTestOptions struct {
-	ImagePath   string
-	Driver      string
-	Runtime     string
-	Metadata    string
-	TestReport  string
-	ConfigFiles []string
+	ImagePath       string
+	ImageFromLayout string
+	DefaultImageTag string
+	Driver          string
+	Runtime         string
+	Metadata        string
+	TestReport      string
+	ConfigFiles     []string
 
 	JSON    bool
 	Output  unversioned.OutputValue
