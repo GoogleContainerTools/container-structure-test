@@ -4,3 +4,8 @@ structure_tests.test
 .vscode
 out/
 **/bazel-*
+dist
+container-structure-test
+tools
+coverage.html
+coverage.out

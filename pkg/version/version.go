@@ -24,8 +24,10 @@ import (
 
 var version = "v0.0.0-unset"
 
-var buildDate string
-var platform = fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)
+var (
+	buildDate string
+	platform  = fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)
+)
 
 type Info struct {
 	Version    string
@@ -36,7 +38,7 @@ type Info struct {
 	Platform   string
 }
 
-// Get returns the version and buildtime information about the binary
+// Get returns the version and buildtime information about the binary.
 func GetVersion() *Info {
 	// These variables typically come from -ldflags settings to `go build`
 	return &Info{

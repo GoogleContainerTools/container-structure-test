@@ -22,8 +22,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var yesResponses = []string{"y", "Y", "yes", "Yes", "YES"}
-var noResponses = []string{"n", "N", "no", "No", "NO"}
+var (
+	yesResponses = []string{"y", "Y", "yes", "Yes", "YES"}
+	noResponses  = []string{"n", "N", "no", "No", "NO"}
+)
 
 const (
 	NoopCommand string = "NOOP_COMMAND_DO_NOT_RUN"

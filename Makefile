@@ -1,84 +1,105 @@
-# Copyright 2017 Google Inc. All rights reserved.
+.DEFAULT_GOAL := dev
 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+export PATH := $(pwd)tools/bin:$(PATH)
+OS := $(shell uname -s)
+ARCH = $(shell uname -m)
 
-#     http://www.apache.org/licenses/LICENSE-2.0
+.PHONY: dev
+dev: ## dev build
+dev: clean install generate vet fmt test cli-test mod-tidy
 
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# Bump these on release
-VERSION_MAJOR ?= 1
-VERSION_MINOR ?= 11
-VERSION_BUILD ?= 0
-
-VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
-
-GOOS ?= $(shell go env GOOS)
-GOARCH ?= $(shell go env GOARCH)
-BUILD_DIR ?= ./out
-ORG := github.com/GoogleContainerTools
-PROJECT := container-structure-test
-REPOPATH ?= $(ORG)/$(PROJECT)
-RELEASE_BUCKET ?= $(PROJECT)
-
-VERSION_PACKAGE := $(REPOPATH)/pkg/version
-
-# If the architecture is not amd64, only create the linux binary
-ifeq ($(GOARCH), amd64)
-SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH) windows-$(GOARCH).exe
-else
-SUPPORTED_PLATFORMS := linux-$(GOARCH)
-endif
-
-GO_LDFLAGS :="
-GO_LDFLAGS += -X $(VERSION_PACKAGE).version=$(VERSION)
-GO_LDFLAGS += -X $(VERSION_PACKAGE).buildDate=$(shell date +'%Y-%m-%dT%H:%M:%SZ')
-GO_LDFLAGS +="
-
-BUILD_PACKAGE = $(REPOPATH)/cmd/container-structure-test
-GO_FILES := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
-
-$(BUILD_DIR)/$(PROJECT): $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH)
-	cp $(BUILD_DIR)/$(PROJECT)-$(GOOS)-$(GOARCH) $@
-
-$(BUILD_DIR)/$(PROJECT)-%-$(GOARCH): $(GO_FILES) $(BUILD_DIR)
-	GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 go build -ldflags $(GO_LDFLAGS) -o $@ $(BUILD_PACKAGE)
-
-%.sha256: %
-	shasum -a 256 $< &> $@
-
-%.exe: %
-	cp $< $@
-
-.PRECIOUS: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform))
-
-.PHONY: cross
-cross: $(foreach platform, $(SUPPORTED_PLATFORMS), $(BUILD_DIR)/$(PROJECT)-$(platform).sha256)
-
-.PHONY: $(BUILD_DIR)/VERSION
-$(BUILD_DIR)/VERSION: $(BUILD_DIR)
-	@ echo $(VERSION) > $@
-
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-
-.PHONY: release
-release: cross
-	gsutil cp $(BUILD_DIR)/$(PROJECT)-* gs://$(RELEASE_BUCKET)/$(VERSION)/
+.PHONY: ci
+ci: ## CI build
+ci: dev diff
 
 .PHONY: clean
-clean:
-	rm -rf $(BUILD_DIR)
+clean: ## remove files created during build pipeline
+	$(call print-target)
+	rm -rf dist
+	rm -f coverage.*
+
+.PHONY: install
+install: tools/bin/golangci-lint tools/bin/goreleaser tools/bin/crane
+install: ## go install tools
+
+tools/bin/golangci-lint:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b tools/bin v1.48.0
+
+tools/bin/goreleaser:
+	curl -sfL https://github.com/goreleaser/goreleaser/releases/download/v1.10.3/goreleaser_${OS}_${ARCH}.tar.gz | tar xz -C tools/bin goreleaser
+
+tools/bin/crane:
+	curl -sfL https://github.com/google/go-containerregistry/releases/download/v0.11.0/go-containerregistry_${OS}_${ARCH}.tar.gz | tar xz -C tools/bin crane
+
+.PHONY: generate
+generate: ## go generate
+	$(call print-target)
+	go generate ./...
+
+.PHONY: vet
+vet: ## go vet
+	$(call print-target)
+	go vet ./...
+
+.PHONY: fmt
+fmt: ## format source code
+	$(call print-target)
+	go fmt ./...
+	golangci-lint run --fix || true
+
+.PHONY: lint
+lint: ## golangci-lint
+	$(call print-target)
+	golangci-lint run
 
 .PHONY: test
-test: $(BUILD_DIR)/$(PROJECT)
+test: ## go test with race detector and code covarage
+	$(call print-target)
+	go test -race -covermode=atomic -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
+
+.PHONY: cli-test
+cli-test: build
+cli-test: ## go test with race detector and code covarage
+	$(call print-target)
 	./tests/structure_test_tests.sh
 
-image:
-	docker build -t gcr.io/gcp-runtimes/container-structure-test:latest .
+.PHONY: mod-tidy
+mod-tidy: ## go mod tidy
+	$(call print-target)
+	go mod tidy
+
+.PHONY: diff
+diff: ## git diff
+	$(call print-target)
+	git diff --exit-code
+	RES=$$(git status --porcelain) ; if [ -n "$$RES" ]; then echo $$RES && exit 1 ; fi
+
+.PHONY: build
+build: ## goreleaser --snapshot --skip-publish --rm-dist
+build: install
+	$(call print-target)
+	goreleaser --snapshot --skip-publish --rm-dist
+
+.PHONY: release
+release: ## goreleaser --rm-dist
+release: install
+	$(call print-target)
+	goreleaser --rm-dist
+
+.PHONY: run
+run: ## go run
+	@go run -race .
+
+.PHONY: go-clean
+go-clean: ## go clean build, test and modules caches
+	$(call print-target)
+	go clean -r -i -cache -testcache -modcache
+
+.PHONY: help
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+define print-target
+    @printf "Executing target: \033[36m$@\033[0m\n"
+endef

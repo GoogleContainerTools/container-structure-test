@@ -1,0 +1,32 @@
+template: $CHANGES
+name-template: $RESOLVED_VERSION
+tag-template: v$RESOLVED_VERSION
+categories:
+    - title: ⭐️ Enhancements
+      labels:
+        - type:enhancement
+    - title: "\U0001F41E Bug Fixes"
+      labels:
+        - type:bug
+    - title: "\U0001F4D4 Documentation"
+      labels:
+        - type:documentation
+    - title: ⛏ Dependency Upgrades
+      labels:
+        - type:dependency-upgrade
+    - title: "\U0001F6A7 Tasks"
+      labels:
+        - type:task
+exclude-labels:
+    - type:question
+version-resolver:
+    major:
+        labels:
+            - semver:major
+    minor:
+        labels:
+            - semver:minor
+    patch:
+        labels:
+            - semver:patch
+    default: patch

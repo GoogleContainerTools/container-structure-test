@@ -15,11 +15,10 @@
 package v2
 
 import (
-	"github.com/sirupsen/logrus"
-
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
+	"github.com/sirupsen/logrus"
 )
 
 type MetadataTest struct {

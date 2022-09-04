@@ -1,0 +1,54 @@
+name: build
+
+on:
+  push: 
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+
+      - name: Build
+        run: make ci
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage.*
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3.1.0
+        with:
+          file: ./coverage.out
+          flags: ${{ runner.os }}
+
+  release-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+
+      - name: Release test
+        run: make build

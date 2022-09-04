@@ -18,16 +18,12 @@ import (
 	"io"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/version"
-
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-var (
-	v          string
-	testReport string
-)
+var v string
 
 var rootCmd = &cobra.Command{
 	Use:   "container-structure-test",

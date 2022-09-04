@@ -57,7 +57,7 @@ var (
 	// None uses ANSI escape codes to reset all formatting.
 	None = Color(0)
 
-	// Default default output color for output from container-structure-test to the user
+	// Default default output color for output from container-structure-test to the user.
 	Default = None
 )
 
@@ -102,7 +102,7 @@ type ColoredWriter struct {
 	io.Writer
 }
 
-// OverwriteDefault overwrites default color
+// OverwriteDefault overwrites default color.
 func OverwriteDefault(color Color) {
 	Default = color
 }

@@ -15,10 +15,9 @@
 package v1
 
 import (
-	"github.com/sirupsen/logrus"
-
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/sirupsen/logrus"
 )
 
 type StructureTest struct {
@@ -95,8 +94,8 @@ func (st *StructureTest) RunFileExistenceTests(channel chan interface{}) {
 		channel <- test.Run(driver)
 		driver.Destroy()
 	}
-
 }
+
 func (st *StructureTest) RunFileContentTests(channel chan interface{}) {
 	for _, test := range st.FileContentTests {
 		if err := test.Validate(); err != nil {

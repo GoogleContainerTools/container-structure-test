@@ -18,23 +18,20 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-
 	"os"
 
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
-
 	"github.com/GoogleContainerTools/container-structure-test/pkg/color"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/config"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/output"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
-
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/daemon"
 	"github.com/google/go-containerregistry/pkg/v1/layout"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -53,7 +50,7 @@ var (
 )
 
 func NewCmdTest(out io.Writer) *cobra.Command {
-	var testCmd = &cobra.Command{
+	testCmd := &cobra.Command{
 		Use:   "test",
 		Short: "Runs the tests",
 		Long:  `Runs the tests`,
@@ -129,7 +126,6 @@ func run(out io.Writer) error {
 		}
 
 		img, err := l.Image(desc.Digest)
-
 		if err != nil {
 			logrus.Fatalf("could not get image from %s: %v", opts.ImageFromLayout, err)
 		}
@@ -152,7 +148,7 @@ func run(out io.Writer) error {
 			}
 		}
 		if _, err = daemon.Write(tag, img); err != nil {
-			logrus.Fatalf("error loading oci layout into daemon: %v, %s", err)
+			logrus.Fatalf("error loading oci layout into daemon: %v", err)
 		}
 
 		opts.ImagePath = tag.String()

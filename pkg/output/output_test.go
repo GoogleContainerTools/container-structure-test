@@ -36,7 +36,7 @@ func TestFinalResults(t *testing.T) {
 		},
 	}
 
-	var finalResultsTests = []struct {
+	finalResultsTests := []struct {
 		actual   *bytes.Buffer
 		format   unversioned.OutputValue
 		expected string

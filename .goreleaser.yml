@@ -1,0 +1,37 @@
+---
+project_name: container-structure-test
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod download
+builds:
+  - env:
+      - CGO_ENABLED=0
+    ldflags:
+      - "-X main.Version={{ .Version }}"
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    main: ./cmd/container-structure-test
+    no_unique_dist_dir: true
+    binary: "{{.Os}}_{{.Arch}}/{{.ProjectName}}"
+archives:
+  - format: binary
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+release:
+  github:
+    owner: samj1912
+    name: container-structure-test

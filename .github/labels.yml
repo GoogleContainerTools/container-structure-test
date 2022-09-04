@@ -1,0 +1,27 @@
+- name: semver:major
+  description: A change requiring a major version bump
+  color: f9d0c4
+- name: semver:minor
+  description: A change requiring a minor version bump
+  color: f9d0c4
+- name: semver:patch
+  description: A change requiring a patch version bump
+  color: f9d0c4
+- name: type:bug
+  description: A general bug
+  color: e3d9fc
+- name: type:dependency-upgrade
+  description: A dependency upgrade
+  color: e3d9fc
+- name: type:documentation
+  description: A documentation update
+  color: e3d9fc
+- name: type:enhancement
+  description: A general enhancement
+  color: e3d9fc
+- name: type:question
+  description: A user question
+  color: e3d9fc
+- name: type:task
+  description: A general task
+  color: e3d9fc

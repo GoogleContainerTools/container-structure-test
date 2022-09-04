@@ -22,10 +22,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	color "github.com/GoogleContainerTools/container-structure-test/pkg/color"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/pkg/errors"
 )
 
 var bannerLength = 27 // default banner length
@@ -61,7 +60,7 @@ func FinalResults(out io.Writer, format types.OutputValue, result types.SummaryO
 	if format == types.Json {
 		res, err := json.Marshal(result)
 		if err != nil {
-			return errors.Wrap(err, "marshalling json")
+			return errors.Wrap(err, "marshaling json")
 		}
 		res = append(res, []byte("\n")...)
 		_, err = out.Write(res)
@@ -71,7 +70,7 @@ func FinalResults(out io.Writer, format types.OutputValue, result types.SummaryO
 	if format == types.Junit {
 		res, err := xml.Marshal(result)
 		if err != nil {
-			return errors.Wrap(err, "marshalling xml")
+			return errors.Wrap(err, "marshaling xml")
 		}
 		res = append(res, []byte("\n")...)
 		_, err = out.Write(res)

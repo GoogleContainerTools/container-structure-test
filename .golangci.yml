@@ -1,0 +1,76 @@
+run:
+  timeout: 6m
+
+linters-settings:
+  goimports:
+    local-prefixes: github.com/samj1912/buildpacks-venom
+  golint:
+    min-confidence: 0.8
+  gocyclo:
+    min-complexity: 15
+  govet:
+    check-shadowing: true
+  misspell:
+    locale: US
+  nolintlint:
+    allow-leading-space: false # require machine-readable nolint directives (with no leading space)
+    allow-unused: false # report any unused nolint directives
+    require-explanation: true # require an explanation for nolint directives
+    require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+
+linters:
+  # please, do not use `enable-all`: it's deprecated and will be removed soon.
+  # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
+  disable-all: true
+  enable:
+    - bodyclose
+    - deadcode
+    - depguard
+    - dupl
+    - errcheck
+    # - errorlint
+    - exportloopref
+    - forcetypeassert
+    - funlen
+    - gci
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    # - goerr113
+    - gofumpt
+    - gomnd
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ifshort
+    - ineffassign
+    - misspell
+    - noctx
+    - nolintlint
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - thelper
+    - tparallel
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace
+    # - wrapcheck
+issues:
+  # enable issues excluded by default 
+  exclude-use-default: false
+
+  # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
+  max-issues-per-linter: 0
+
+  # Maximum count of issues with the same text. Set to 0 to disable. Default is 3.
+  max-same-issues: 0

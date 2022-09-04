@@ -15,6 +15,7 @@
 package drivers
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"os"
@@ -22,13 +23,10 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-
-	"bytes"
-
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 type HostDriver struct {
@@ -87,7 +85,7 @@ func (d *HostDriver) SetEnv(envVars []unversioned.EnvVar) error {
 func SetEnvVars(envVars []unversioned.EnvVar) []unversioned.EnvVar {
 	var originalVars []unversioned.EnvVar
 	for _, envVar := range envVars {
-		originalVars = append(originalVars, unversioned.EnvVar{envVar.Key, os.Getenv(envVar.Key), envVar.IsRegex})
+		originalVars = append(originalVars, unversioned.EnvVar{Key: envVar.Key, Value: os.Getenv(envVar.Key), IsRegex: envVar.IsRegex})
 		if err := os.Setenv(envVar.Key, os.ExpandEnv(envVar.Value)); err != nil {
 			logrus.Errorf("Error setting env var: %s", err)
 		}

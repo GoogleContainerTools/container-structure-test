@@ -27,7 +27,6 @@ import (
 	"github.com/GoogleContainerTools/container-structure-test/pkg/output"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
-
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
@@ -100,9 +99,8 @@ func Parse(fp string, args *drivers.DriverConfig, driverImpl func(drivers.Driver
 		return nil, errors.New("error unmarshalling config: " + err.Error())
 	}
 
-	tests, _ := st.(types.StructureTest) //type assertion
-	tests.SetDriverImpl(driverImpl, *args)
-	return tests, nil
+	st.SetDriverImpl(driverImpl, *args)
+	return st, nil
 }
 
 func ProcessResults(out io.Writer, format unversioned.OutputValue, c chan interface{}) error {

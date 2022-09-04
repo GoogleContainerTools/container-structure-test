@@ -25,13 +25,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-
 	"github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
-
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 type DockerDriver struct {
@@ -159,7 +157,7 @@ func retrieveEnv(d *DockerDriver) func(string) string {
 	}
 }
 
-// returns the value associated with the provided key in the image's environment
+// returns the value associated with the provided key in the image's environment.
 func (d *DockerDriver) retrieveEnvVar(envVar string) string {
 	// since we're only retrieving these during processing, we can use a closure to cache this
 	return retrieveEnv(d)(envVar)
@@ -182,7 +180,7 @@ func (d *DockerDriver) processEnvVars(vars []unversioned.EnvVar) []string {
 }
 
 // copies a tar archive starting at the specified path from the image, and returns
-// a tar reader which can be used to iterate through its contents and retrieve metadata
+// a tar reader which can be used to iterate through its contents and retrieve metadata.
 func (d *DockerDriver) retrieveTar(path string) (*tar.Reader, error) {
 	// this contains a placeholder command which does not get run, since
 	// the client doesn't allow creating a container without a command.
@@ -295,7 +293,7 @@ func (d *DockerDriver) ReadDir(target string) ([]os.FileInfo, error) {
 // the command to run when the container starts
 // 2) starts the container
 // 3) commits the container with its changes to a new image,
-// and sets that image as the new "current image"
+// and sets that image as the new "current image".
 func (d *DockerDriver) runAndCommit(env []string, command []string) (string, error) {
 	container, err := d.cli.CreateContainer(docker.CreateContainerOptions{
 		Config: &docker.Config{
@@ -324,7 +322,6 @@ func (d *DockerDriver) runAndCommit(env []string, command []string) (string, err
 	image, err := d.cli.CommitContainer(docker.CommitContainerOptions{
 		Container: container.ID,
 	})
-
 	if err != nil {
 		return "", errors.Wrap(err, "Error committing container")
 	}
@@ -367,7 +364,6 @@ func (d *DockerDriver) exec(env []string, command []string) (string, string, int
 		return "", "", -1, errors.Wrap(err, "Error creating container")
 	}
 
-	//TODO(nkubala): look into adding timeout
 	exitCode, err := d.cli.WaitContainer(container.ID)
 	if err != nil {
 		return "", "", -1, errors.Wrap(err, "Error when waiting for container")

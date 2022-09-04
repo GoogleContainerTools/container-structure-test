@@ -16,8 +16,8 @@ package types
 
 import (
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
-	"github.com/GoogleContainerTools/container-structure-test/pkg/types/v1"
-	"github.com/GoogleContainerTools/container-structure-test/pkg/types/v2"
+	v1 "github.com/GoogleContainerTools/container-structure-test/pkg/types/v1"
+	v2 "github.com/GoogleContainerTools/container-structure-test/pkg/types/v2"
 )
 
 type StructureTest interface {

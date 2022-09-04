@@ -19,12 +19,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
 	"github.com/GoogleContainerTools/container-structure-test/pkg/utils"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 var defaultOwnership = -1
@@ -122,27 +121,27 @@ func (ft FileExistenceTest) Run(driver drivers.Driver) *types.TestResult {
 		perms := info.Mode()
 		switch ft.IsExecutableBy {
 		case "any":
-			if perms&0111 == 0 {
+			if perms&0o111 == 0 {
 				result.Errorf("%s has incorrect executable bit. Expected to be executable by any, Actual: %s", ft.Path, perms.String())
 				result.Fail()
 			}
 		case "owner":
-			if perms&0100 == 0 {
+			if perms&0o100 == 0 {
 				result.Errorf("%s has incorrect executable bit. Expected to be executable by owner, Actual: %s", ft.Path, perms.String())
 				result.Fail()
 			}
 		case "group":
-			if perms&0010 == 0 {
+			if perms&0o010 == 0 {
 				result.Errorf("%s has incorrect executable bit. Expected to be executable by group, Actual: %s", ft.Path, perms.String())
 				result.Fail()
 			}
 		case "other":
-			if perms&0001 == 0 {
+			if perms&0o001 == 0 {
 				result.Errorf("%s has incorrect executable bit. Expected to be executable by other, Actual: %s", ft.Path, perms.String())
 				result.Fail()
 			}
 		default:
-			result.Errorf("%s not recognised as a valid option", ft.IsExecutableBy)
+			result.Errorf("%s not recognized as a valid option", ft.IsExecutableBy)
 			result.Fail()
 		}
 	}

@@ -23,6 +23,7 @@ failures=0
 
 # Get the architecture to load the right configurations
 go_architecture=$(go env GOARCH)
+go_os=$(go env GOOS)
 
 # Get the absolute path of the tests directory
 test_dir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
@@ -30,15 +31,6 @@ test_config_dir="${test_dir}/${go_architecture}"
 
 # If a configuration folder for the architecture doesn't exist, default to amd64
 test -d ${test_config_dir} || test_config_dir="${test_dir}/amd64"
-
-echo "##"
-echo "# Build the newest 'container structure test' binary"
-echo "##"
-cp -f "${test_dir}/Dockerfile" "${test_dir}/../Dockerfile"
-make
-make cross
-make image
-
 # Run the ubuntu tests, they should always pass on 20.04
 test_image="ubuntu:20.04"
 docker pull "$test_image" > /dev/null
@@ -46,7 +38,7 @@ docker pull "$test_image" > /dev/null
 echo "##"
 echo "# Positive Test Case"
 echo "##"
-res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml")
+res=$(./dist/${go_os}_${go_architecture}/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
@@ -68,7 +60,7 @@ then
   test_metadata_tar=debian8-with-metadata.tar
   test_metadata_dir=debian8-with-metadata
   docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_dir" > /dev/null
-  res=$(./out/container-structure-test test --image "$test_metadata_image" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
+  res=$(./dist/${go_os}_${go_architecture}/container-structure-test test --image "$test_metadata_image" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
 
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
@@ -81,7 +73,7 @@ then
   fi
 
   docker save "$test_metadata_image" -o "$test_metadata_tar" > /dev/null
-  res=$(./out/container-structure-test test --driver tar --image "$test_metadata_tar" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
+  res=$(./dist/${go_os}_${go_architecture}/container-structure-test test --driver tar --image "$test_metadata_tar" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
@@ -94,8 +86,8 @@ then
 
   mkdir -p "$test_metadata_dir"
   tar -C "$test_metadata_dir" -xvf "$test_metadata_tar" > /dev/null
-  test_metadata_json=$(grep 'Config":"\K[^"]+' -Po "$test_metadata_dir/manifest.json")
-  res=$(./out/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
+  test_metadata_json=$(cat "$test_metadata_dir/manifest.json" | jq -r .[0].Config)
+  res=$(./dist/${go_os}_${go_architecture}/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
@@ -115,7 +107,7 @@ echo "##"
 echo "# Failure Test Case"
 echo "##"
 # Run some bogus tests, they should fail as expected
-res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_failure_test.yaml")
+res=$(./dist/${go_os}_${go_architecture}/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_failure_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "FAIL" && "$code" == "1") ]];
 then
@@ -131,13 +123,12 @@ echo "###"
 echo "# OCI layout test case"
 echo "###"
 
-go install github.com/google/go-containerregistry/cmd/crane/cmd
 tmp="$(mktemp -d)"
 
 crane pull "$test_image" --format=oci "$tmp" --platform=linux/arm64
 
 
-res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+res=$(./dist/${go_os}_${go_architecture}/container-structure-test test --image-from-oci-layout="$tmp" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
 code=$?
 if ! [[ ("$res" =~ "index does not contain a reference annotation. --default-image-tag must be provided." && "$code" == "1") ]];
 then
@@ -149,7 +140,7 @@ else
   echo "PASS: oci failing test case"
 fi
 
-res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --default-image-tag="test.local/library/$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+res=$(./dist/${go_os}_${go_architecture}/container-structure-test test --image-from-oci-layout="$tmp" --default-image-tag="test.local/library/$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then

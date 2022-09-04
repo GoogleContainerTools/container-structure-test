@@ -15,9 +15,8 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
-
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {

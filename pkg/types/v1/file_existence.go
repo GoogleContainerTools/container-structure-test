@@ -18,11 +18,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-
 	"github.com/GoogleContainerTools/container-structure-test/pkg/drivers"
 	types "github.com/GoogleContainerTools/container-structure-test/pkg/types/unversioned"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 type FileExistenceTest struct {
@@ -56,7 +55,7 @@ func (ft FileExistenceTest) Validate() error {
 		return fmt.Errorf("Please provide a valid name for every test")
 	}
 	if ft.Path == "" {
-		fmt.Errorf("Please provide a valid file path for test %s", ft.Name)
+		return fmt.Errorf("Please provide a valid file path for test %s", ft.Name)
 	}
 	return nil
 }
