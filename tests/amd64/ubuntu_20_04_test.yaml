@@ -16,7 +16,7 @@ commandTests:
 fileContentTests:
 - name: 'Debian Sources'
   excludedContents: ['.*gce_debian_mirror.*']
-  expectedContents: ['.*archive\.ubuntu\.com.*']
+  expectedContents: ['.*archive\.canonical\.com.*']
   path: '/etc/apt/sources.list'
 - name: 'Passwd file'
   expectedContents: ['root:x:0:0:root:/root:/bin/bash']
