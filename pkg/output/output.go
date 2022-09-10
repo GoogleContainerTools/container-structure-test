@@ -21,6 +21,7 @@ import (
 	"io"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -69,7 +70,43 @@ func FinalResults(out io.Writer, format types.OutputValue, result types.SummaryO
 	}
 
 	if format == types.Junit {
-		res, err := xml.Marshal(result)
+		type JUnitTestCase struct {
+			Name string			`xml:"name,attr"`
+			Errors   []string	`xml:"failure"`
+			Duration float64	`xml:"time,attr"`
+		}
+		type JUnitTestSuite struct {
+			Name string					`xml:"name,attr"`
+			Results []*JUnitTestCase	`xml:"testcase"`
+		}
+		junit_cases := []*JUnitTestCase{}
+		for elem := range result.Results {
+			r := result.Results[elem]
+			junit_cases = append(junit_cases, &JUnitTestCase{
+				Name:		r.Name,
+				Errors:		r.Errors,
+				Duration:	r.Duration.Seconds(),
+			})
+		}
+		junit_result := struct {
+			XMLName		xml.Name		`xml:"testsuites"`
+			Pass		int				`xml:"-"`
+			Fail		int				`xml:"failures,attr"`
+			Total		int				`xml:"tests,attr"`
+			Duration	float64			`xml:"time,attr"`
+			TestSuite	JUnitTestSuite	`xml:"testsuite"`
+		}	{
+			XMLName: result.XMLName,
+			Pass: result.Pass,
+			Fail: result.Fail,
+			Total: result.Total,
+			Duration: time.Duration.Seconds(result.Duration), // JUnit expects durations as float of seconds
+			TestSuite: JUnitTestSuite{
+				Name: "container-structure-test.test",
+				Results: junit_cases,
+			},
+		}
+		res, err := xml.Marshal(junit_result)
 		if err != nil {
 			return errors.Wrap(err, "marshalling xml")
 		}
