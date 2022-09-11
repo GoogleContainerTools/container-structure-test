@@ -97,10 +97,12 @@ func FinalResults(out io.Writer, format types.OutputValue, result types.SummaryO
 				Results:	junit_cases,
 			},
 		}
-		res, err := xml.Marshal(junit_result)
+		res := []byte(strings.ReplaceAll(xml.Header, "\n", ""))
+		marshalled, err := xml.Marshal(junit_result)
 		if err != nil {
 			return errors.Wrap(err, "marshalling xml")
 		}
+		res = append(res, marshalled...)
 		res = append(res, []byte("\n")...)
 		_, err = out.Write(res)
 		return err
