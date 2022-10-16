@@ -212,9 +212,9 @@ of these checks are optional.
 
 #### Supported Fields:
 
-- Env (`[]EnvVar`): A list of environment variable key/value pairs that should be set
+- EnvVars (`[]EnvVar`): A list of environment variable key/value pairs that should be set
 in the container. isRegex (*optional*) interpretes the value as regex.
-- UnboundEnv (`[]EnvVar`): A list of environment variable keys that should **NOT** be set
+- UnboundEnvVars (`[]EnvVar`): A list of environment variable keys that should **NOT** be set
 in the container.
 - Labels (`[]Label`): A list of image labels key/value pairs that should be set on the
 container. isRegex (*optional*) interpretes the value as regex.
