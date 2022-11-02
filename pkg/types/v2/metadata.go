@@ -23,8 +23,8 @@ import (
 )
 
 type MetadataTest struct {
-	Env              []types.EnvVar `yaml:"env"`
-	UnboundEnv       []types.EnvVar `yaml:"unboundEnv"`
+	EnvVars          []types.EnvVar `yaml:"envVars"`
+	UnboundEnvVars   []types.EnvVar `yaml:"unboundEnvVars"`
 	ExposedPorts     []string       `yaml:"exposedPorts"`
 	UnexposedPorts   []string       `yaml:"unexposedPorts"`
 	Entrypoint       *[]string      `yaml:"entrypoint"`
@@ -37,8 +37,8 @@ type MetadataTest struct {
 }
 
 func (mt MetadataTest) IsEmpty() bool {
-	return len(mt.Env) == 0 &&
-		len(mt.UnboundEnv) == 0 &&
+	return len(mt.EnvVars) == 0 &&
+		len(mt.UnboundEnvVars) == 0 &&
 		len(mt.ExposedPorts) == 0 &&
 		len(mt.UnexposedPorts) == 0 &&
 		mt.Entrypoint == nil &&
@@ -58,7 +58,7 @@ func (mt MetadataTest) Validate(channel chan interface{}) bool {
 	res := &types.TestResult{
 		Name: mt.LogName(),
 	}
-	for _, envVar := range mt.Env {
+	for _, envVar := range mt.EnvVars {
 		if envVar.Key == "" {
 			res.Error("Environment variable key cannot be empty")
 		}
@@ -98,7 +98,7 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		return result
 	}
 
-	for _, pair := range mt.Env {
+	for _, pair := range mt.EnvVars {
 		if val, ok := imageConfig.Env[pair.Key]; ok {
 			var match bool
 			if pair.IsRegex {
@@ -116,7 +116,7 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		}
 	}
 
-	for _, pair := range mt.UnboundEnv {
+	for _, pair := range mt.UnboundEnvVars {
 		if _, ok := imageConfig.Env[pair.Key]; ok {
 			result.Errorf("env variable %s should not be present in image metadata", pair.Key)
 			result.Fail()
