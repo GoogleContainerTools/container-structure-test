@@ -230,7 +230,7 @@ container. isRegex (*optional*) interpretes the value as regex.
 Example:
 ```yaml
 metadataTest:
-  env:
+  envVars:
     - key: foo
       value: baz
   labels:
