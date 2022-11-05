@@ -3,11 +3,11 @@ commandTests:
 - name: 'bad apt-get-command'
   command: ['apt-get', 'dslkfjasl']
   excludedError: ['.*FAIL.*']
-  expectedOutput: ['.*Usage.*']
+  expectedError: ['.*Invalid operation dslkfjasl.*']
+  exitCode: 1
 - name: 'apt-config'
   command: ['apt-config', 'dump']
-  expectedOutput: ['Acquire::Retries "3"']
-  name: 'apt-config'
+  expectedOutput: ['DPkg::Pre-Install-Pkgs "";']
 - name: 'path'
   command: ['sh', '-c', 'echo $PATH']
   expectedOutput: ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin']

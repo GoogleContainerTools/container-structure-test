@@ -134,7 +134,8 @@ echo "###"
 go install github.com/google/go-containerregistry/cmd/crane/cmd
 tmp="$(mktemp -d)"
 
-crane pull "$test_image" --format=oci "$tmp" --platform=linux/arm64
+
+crane pull "$test_image" --format=oci "$tmp" --platform=linux/${go_architecture}
 
 
 res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
