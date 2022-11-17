@@ -31,21 +31,49 @@ test_config_dir="${test_dir}/${go_architecture}"
 # If a configuration folder for the architecture doesn't exist, default to amd64
 test -d ${test_config_dir} || test_config_dir="${test_dir}/amd64"
 
-echo "##"
-echo "# Build the newest 'container structure test' binary"
-echo "##"
+
+function HEADER() {
+  local msg="$1"
+  echo ""
+  echo "###############"
+  echo "# $msg"
+  echo "###############"
+  echo ""
+}
+
+HEADER "Determine the runtime"
+
+DOCKER=""
+if which docker > /dev/null; then
+  DOCKER=$(which docker)
+  echo "Using docker at $(which docker)"
+elif which podman > /dev/null; then 
+  DOCKER=$(which podman)
+  echo "Using podman at $(which podman)"
+else 
+  echo "Could not find a runtime to run tests"
+  exit 1
+fi
+
+docker() {
+  $DOCKER $@
+}
+
+
+HEADER "Build the newest 'container structure test' binary"
+
 cp -f "${test_dir}/Dockerfile" "${test_dir}/../Dockerfile"
-make
-make cross
-make image
+make DOCKER=$DOCKER
+make DOCKER=$DOCKER cross
+make DOCKER=$DOCKER image
 
 # Run the ubuntu tests, they should always pass on 20.04
 test_image="ubuntu:20.04"
 docker pull "$test_image" > /dev/null
 
-echo "##"
-echo "# Positive Test Case"
-echo "##"
+
+HEADER "Positive Test Case"
+
 res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
@@ -57,14 +85,13 @@ else
   echo "PASS: Success test case passed"
 fi
 
-echo "##"
-echo "# Metadata Test Case"
-echo "##"
+
+HEADER "Metadata Test Case"
 # test image metadata
 run_metadata_tests=true
 if $run_metadata_tests ;
 then
-  test_metadata_image=debian8-with-metadata:latest
+  test_metadata_image=test.local/debian8-with-metadata:latest
   test_metadata_tar=debian8-with-metadata.tar
   test_metadata_dir=debian8-with-metadata
   docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_dir" > /dev/null
@@ -93,8 +120,8 @@ then
   fi
 
   mkdir -p "$test_metadata_dir"
-  tar -C "$test_metadata_dir" -xvf "$test_metadata_tar" > /dev/null
-  test_metadata_json=$(grep 'Config":"\K[^"]+' -Po "$test_metadata_dir/manifest.json")
+  tar -C "$test_metadata_dir" -xf "$test_metadata_tar" > /dev/null
+  test_metadata_json=$(jq -r '.[0].Config' "$test_metadata_dir/manifest.json")
   res=$(./out/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
@@ -111,9 +138,9 @@ then
   docker rmi "$test_metadata_image" > /dev/null
 fi
 
-echo "##"
-echo "# Failure Test Case"
-echo "##"
+
+HEADER "Failure Test Case"
+
 # Run some bogus tests, they should fail as expected
 res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_failure_test.yaml")
 code=$?
@@ -127,15 +154,13 @@ else
 fi
 
 
-echo "###"
-echo "# OCI layout test case"
-echo "###"
 
-go install github.com/google/go-containerregistry/cmd/crane/cmd
+HEADER "OCI layout test case"
+
+go install github.com/google/go-containerregistry/cmd/crane
 tmp="$(mktemp -d)"
 
-
-crane pull "$test_image" --format=oci "$tmp" --platform=linux/${go_architecture}
+crane pull "$test_image" --format=oci "$tmp" --platform="linux/$go_architecture"
 
 
 res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
@@ -150,7 +175,7 @@ else
   echo "PASS: oci failing test case"
 fi
 
-res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --default-image-tag="test.local/library/$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --default-image-tag="test.local/$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
@@ -160,4 +185,9 @@ then
   failures=$((failures +1))
 else 
   echo "PASS: oci success test case"
+fi
+
+if [ $failures -gt 0 ]; then
+  echo "Some tests did not pass. $failures"
+  exit 1
 fi
