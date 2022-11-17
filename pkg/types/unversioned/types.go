@@ -96,6 +96,17 @@ type SummaryObject struct {
 	Results  []*TestResult `json:",omitempty" xml:"testsuite>testcase"`
 }
 
+type JUnitTestSuite struct {
+	Name    string           `xml:"name,attr"`
+	Results []*JUnitTestCase `xml:"testcase"`
+}
+
+type JUnitTestCase struct {
+	Name     string   `xml:"name,attr"`
+	Errors   []string `xml:"failure"`
+	Duration float64  `xml:"time,attr"`
+}
+
 type OutputValue int
 
 const (
