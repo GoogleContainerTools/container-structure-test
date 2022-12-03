@@ -23,7 +23,9 @@ import (
 )
 
 type MetadataTest struct {
+	Env              []types.EnvVar `yaml:"env"`
 	EnvVars          []types.EnvVar `yaml:"envVars"`
+	UnboundEnv       []types.EnvVar `yaml:"unboundEnv"`
 	UnboundEnvVars   []types.EnvVar `yaml:"unboundEnvVars"`
 	ExposedPorts     []string       `yaml:"exposedPorts"`
 	UnexposedPorts   []string       `yaml:"unexposedPorts"`
@@ -37,7 +39,9 @@ type MetadataTest struct {
 }
 
 func (mt MetadataTest) IsEmpty() bool {
-	return len(mt.EnvVars) == 0 &&
+	return len(mt.Env) == 0 &&
+		len(mt.EnvVars) == 0 &&
+		len(mt.UnboundEnv) == 0 &&
 		len(mt.UnboundEnvVars) == 0 &&
 		len(mt.ExposedPorts) == 0 &&
 		len(mt.UnexposedPorts) == 0 &&
@@ -57,6 +61,20 @@ func (mt MetadataTest) LogName() string {
 func (mt MetadataTest) Validate(channel chan interface{}) bool {
 	res := &types.TestResult{
 		Name: mt.LogName(),
+	}
+	if len(mt.Env) > 0 && len(mt.EnvVars) > 0 {
+		res.Error("Cannot use both env and envVars in the same test")
+	}
+	if len(mt.UnboundEnv) > 0 && len(mt.UnboundEnvVars) > 0 {
+		res.Error("Cannot use both unboundEnv and unboundEnvVars in the same test")
+	}
+	if len(mt.Env) > 0 || len(mt.UnboundEnv) > 0 {
+		logrus.Warn("env & unboundEnv fields are deprecated. Use envVars or unboundEnvVars instead.")
+	}
+	for _, envVar := range mt.Env {
+		if envVar.Key == "" {
+			res.Error("Environment variable key cannot be empty")
+		}
 	}
 	for _, envVar := range mt.EnvVars {
 		if envVar.Key == "" {
@@ -97,8 +115,13 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		result.Fail()
 		return result
 	}
-
-	for _, pair := range mt.EnvVars {
+	var envRange []types.EnvVar
+	if len(mt.EnvVars) > 0 {
+		envRange = mt.EnvVars
+	} else {
+		envRange = mt.Env
+	}
+	for _, pair := range envRange {
 		if val, ok := imageConfig.Env[pair.Key]; ok {
 			var match bool
 			if pair.IsRegex {
@@ -116,7 +139,13 @@ func (mt MetadataTest) Run(driver drivers.Driver) *types.TestResult {
 		}
 	}
 
-	for _, pair := range mt.UnboundEnvVars {
+	var unboundEnvRange []types.EnvVar
+	if len(mt.UnboundEnvVars) > 0 {
+		unboundEnvRange = mt.UnboundEnvVars
+	} else {
+		unboundEnvRange = mt.UnboundEnv
+	}
+	for _, pair := range unboundEnvRange {
 		if _, ok := imageConfig.Env[pair.Key]; ok {
 			result.Errorf("env variable %s should not be present in image metadata", pair.Key)
 			result.Fail()

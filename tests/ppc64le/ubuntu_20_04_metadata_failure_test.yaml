@@ -1,0 +1,12 @@
+schemaVersion: '2.0.0' # Make sure to test the latest schema version
+metadataTest:
+  env:
+  - key: 'SOME_KEY'
+    value: 'SOME_VAL'
+  envVars:
+    - key: 'OTHER_KEY'
+      value: 'SOME_VAL'
+  unboundEnv:
+  - key: 'BAR_FOO'
+  unboundEnvVars:
+  - key: 'BAZ_FOO'

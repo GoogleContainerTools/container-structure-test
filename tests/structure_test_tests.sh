@@ -107,6 +107,17 @@ then
     echo "PASS: Metadata success test case for docker driver"
   fi
 
+  res=$(./out/container-structure-test test --image "$test_metadata_image" --config "${test_config_dir}/ubuntu_20_04_metadata_env_test.yaml")
+  code=$?
+  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+  then
+    echo "FAIL: Metadata env var success test case for docker driver"
+    echo "$res"
+    failures=$((failures +1))
+  else
+    echo "PASS: Metadata env var success test case for docker driver"
+  fi
+
   docker save "$test_metadata_image" -o "$test_metadata_tar" > /dev/null
   res=$(./out/container-structure-test test --driver tar --image "$test_metadata_tar" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
@@ -117,6 +128,17 @@ then
     failures=$((failures +1))
   else
     echo "PASS: Metadata success test case for tar driver"
+  fi
+
+  res=$(./out/container-structure-test test --driver tar --image "$test_metadata_image" --config "${test_config_dir}/ubuntu_20_04_metadata_env_test.yaml")
+  code=$?
+  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+  then
+    echo "FAIL: Metadata env var success test case for tar driver"
+    echo "$res"
+    failures=$((failures +1))
+  else
+    echo "PASS: Metadata env var success test case for tar driver"
   fi
 
   mkdir -p "$test_metadata_dir"
@@ -131,6 +153,17 @@ then
     failures=$((failures +1))
   else
     echo "PASS: Metadata success test case for host driver"
+  fi
+
+  res=$(./out/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "${test_config_dir}/ubuntu_20_04_metadata_env_test.yaml")
+  code=$?
+  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+  then
+    echo "FAIL: Metadata env var success test case for host driver"
+    echo "$res"
+    failures=$((failures +1))
+  else
+    echo "PASS: Metadata env var success test case for host driver"
   fi
 
   rm -rf "$test_metadata_dir"
@@ -153,7 +186,16 @@ else
   echo "PASS: Failure test failed"
 fi
 
-
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_metadata_failure_test.yaml")
+code=$?
+if ! [[ ("$res" =~ "FAIL" && "$code" == "1") ]];
+then
+  echo "FAIL: Metadata failure test case did not fail"
+  echo "$res"
+  failures=$((failures +1))
+else
+  echo "PASS: Metadata failure test failed"
+fi
 
 HEADER "OCI layout test case"
 

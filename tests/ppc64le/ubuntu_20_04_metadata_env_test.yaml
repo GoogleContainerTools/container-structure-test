@@ -1,0 +1,14 @@
+schemaVersion: '2.0.0' # Make sure to test the latest schema version
+metadataTest:
+  env:
+  - key: 'SOME_KEY'
+    value: 'SOME_VAL'
+  - key: 'EMPTY_VAR'
+    value: ''
+  - key: 'FOO_BAR'
+    value: 'FOO\:BAR=BAZ'
+  - key: 'REGEX_VAR'
+    value: '[a-z]+-2\.1\.*'
+    isRegex: true
+  unboundEnv:
+  - key: 'BAR_FOO'
