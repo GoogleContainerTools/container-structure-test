@@ -86,6 +86,38 @@ else
 fi
 
 
+HEADER "Container Run Options Test Case"
+run_containeropts_tests=true
+if $run_containeropts_tests ;
+then
+  test_containeropts_user_image=test.local/ubuntu-unprivileged:latest
+  docker build -q -f "$test_dir"/Dockerfile.unprivileged --tag "$test_containeropts_user_image" "$test_dir" > /dev/null
+  res=$(./out/container-structure-test test --image "$test_containeropts_user_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_user_test.yaml")
+  code=$?
+  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+  then
+    echo "FAIL: Run option user test case failed"
+    echo "$res"
+    failures=$((failures +1))
+  else
+    echo "PASS: Run option user test case passed"
+  fi
+  docker rmi "$test_containeropts_user_image" > /dev/null
+
+  test_containeropts_image=ubuntu:16.04
+  res=$(./out/container-structure-test test --image "$test_containeropts_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_test.yaml")
+  code=$?
+  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+  then
+    echo "FAIL: Run options test case failed"
+    echo "$res"
+    failures=$((failures +1))
+  else
+    echo "PASS: Run options test case passed"
+  fi
+fi
+
+
 HEADER "Metadata Test Case"
 # test image metadata
 run_metadata_tests=true

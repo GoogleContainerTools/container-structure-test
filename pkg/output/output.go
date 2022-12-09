@@ -86,15 +86,15 @@ func FinalResults(out io.Writer, format types.OutputValue, result types.SummaryO
 			Total     int                  `xml:"tests,attr"`
 			Duration  float64              `xml:"time,attr"`
 			TestSuite types.JUnitTestSuite `xml:"testsuite"`
-		}	{
-			XMLName:	result.XMLName,
-			Pass:		result.Pass,
-			Fail:		result.Fail,
-			Total:		result.Total,
-			Duration:	time.Duration.Seconds(result.Duration), // JUnit expects durations as float of seconds
-			TestSuite:	types.JUnitTestSuite{
-				Name:		"container-structure-test.test",
-				Results:	junit_cases,
+		}{
+			XMLName:  result.XMLName,
+			Pass:     result.Pass,
+			Fail:     result.Fail,
+			Total:    result.Total,
+			Duration: time.Duration.Seconds(result.Duration), // JUnit expects durations as float of seconds
+			TestSuite: types.JUnitTestSuite{
+				Name:    "container-structure-test.test",
+				Results: junit_cases,
 			},
 		}
 		res := []byte(strings.ReplaceAll(xml.Header, "\n", ""))

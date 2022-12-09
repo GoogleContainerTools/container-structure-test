@@ -1,0 +1,19 @@
+schemaVersion: '2.0.0' # Make sure to test the latest schema version
+commandTests:
+- name: "Test Capabilities containerRunOptions"
+  command: "capsh"
+  args: ["--print"]
+  expectedOutput:
+    - ".*cap_sys_admin.*"
+- name: "Test bindMounts containerRunOptions"
+  command: "test"
+  args:
+    - "-d"
+    - "/tmp/test"
+  exitCode: 0
+containerRunOptions:
+  privileged: true
+  capabilities:
+    - "sys_admin"
+  bindMounts:
+    - "/tmp/test:/tmp/test"

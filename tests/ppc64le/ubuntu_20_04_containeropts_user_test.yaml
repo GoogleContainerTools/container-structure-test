@@ -1,0 +1,11 @@
+schemaVersion: '2.0.0' # Make sure to test the latest schema version
+commandTests:
+- name: 'apt-get'
+  command: 'bash'
+  args:
+    - -c
+    - |
+      whoami
+      apt-get update
+containerRunOptions:
+  user: 'root'

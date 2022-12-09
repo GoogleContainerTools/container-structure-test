@@ -44,6 +44,20 @@ type Config struct {
 	User         string
 }
 
+type ContainerRunOptions struct {
+	User         string
+	Privileged   bool
+	Capabilities []string
+	BindMounts   []string `yaml:"bindMounts"`
+}
+
+func (opts *ContainerRunOptions) IsSet() bool {
+	return len(opts.User) != 0 ||
+		opts.Privileged ||
+		(opts.Capabilities != nil && len(opts.Capabilities) > 0) ||
+		(opts.BindMounts != nil && len(opts.BindMounts) > 0)
+}
+
 type TestResult struct {
 	Name     string        `xml:"name,attr"`
 	Pass     bool          `xml:"-"`

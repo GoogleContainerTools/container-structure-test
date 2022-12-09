@@ -24,19 +24,24 @@ import (
 )
 
 type StructureTest struct {
-	DriverImpl         func(drivers.DriverConfig) (drivers.Driver, error)
-	DriverArgs         drivers.DriverConfig
-	SchemaVersion      string              `yaml:"schemaVersion"`
-	GlobalEnvVars      []types.EnvVar      `yaml:"globalEnvVars"`
-	CommandTests       []CommandTest       `yaml:"commandTests"`
-	FileExistenceTests []FileExistenceTest `yaml:"fileExistenceTests"`
-	FileContentTests   []FileContentTest   `yaml:"fileContentTests"`
-	MetadataTest       MetadataTest        `yaml:"metadataTest"`
-	LicenseTests       []LicenseTest       `yaml:"licenseTests"`
+	DriverImpl          func(drivers.DriverConfig) (drivers.Driver, error)
+	DriverArgs          drivers.DriverConfig
+	SchemaVersion       string                    `yaml:"schemaVersion"`
+	GlobalEnvVars       []types.EnvVar            `yaml:"globalEnvVars"`
+	CommandTests        []CommandTest             `yaml:"commandTests"`
+	FileExistenceTests  []FileExistenceTest       `yaml:"fileExistenceTests"`
+	FileContentTests    []FileContentTest         `yaml:"fileContentTests"`
+	MetadataTest        MetadataTest              `yaml:"metadataTest"`
+	LicenseTests        []LicenseTest             `yaml:"licenseTests"`
+	ContainerRunOptions types.ContainerRunOptions `yaml:"containerRunOptions"`
 }
 
 func (st *StructureTest) NewDriver() (drivers.Driver, error) {
-	return st.DriverImpl(st.DriverArgs)
+	args := st.DriverArgs
+	if st.ContainerRunOptions.IsSet() {
+		args.RunOpts = st.ContainerRunOptions
+	}
+	return st.DriverImpl(args)
 }
 
 func (st *StructureTest) SetDriverImpl(f func(drivers.DriverConfig) (drivers.Driver, error), args drivers.DriverConfig) {
