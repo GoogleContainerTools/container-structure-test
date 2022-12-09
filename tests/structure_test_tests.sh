@@ -105,7 +105,8 @@ then
   docker rmi "$test_containeropts_user_image" > /dev/null
 
   test_containeropts_image=ubuntu:16.04
-  res=$(./out/container-structure-test test --image "$test_containeropts_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_test.yaml")
+  docker pull "$test_containeropts_image" > /dev/null
+  res=$(./out/container-structure-test test --image "$test_containeropts_image" --config "${test_config_dir}/ubuntu_16_04_containeropts_test.yaml")
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
