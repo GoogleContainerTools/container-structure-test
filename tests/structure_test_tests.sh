@@ -25,7 +25,7 @@ failures=0
 go_architecture=$(go env GOARCH)
 
 # Get the absolute path of the tests directory
-test_dir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+test_dir="$( cd "$(dirname "$0")" || return >/dev/null 2>&1 ; pwd -P )"
 test_config_dir="${test_dir}/${go_architecture}"
 
 # If a configuration folder for the architecture doesn't exist, default to amd64
@@ -39,6 +39,13 @@ function HEADER() {
   echo "# $msg"
   echo "###############"
   echo ""
+}
+
+function build_image() {
+  _file=$1
+  _tag=$2
+  _dir=$3
+  docker build -q -f "$_dir/$_file" --tag "$_tag" "$_dir" > /dev/null
 }
 
 HEADER "Determine the runtime"
@@ -56,7 +63,7 @@ else
 fi
 
 docker() {
-  $DOCKER $@
+  $DOCKER "$@"
 }
 
 
@@ -86,36 +93,55 @@ else
 fi
 
 
-HEADER "Container Run Options Test Case"
-run_containeropts_tests=true
-if $run_containeropts_tests ;
+HEADER "Container Run Options Test Cases"
+test_containeropts_user_image="test.local/ubuntu-unprivileged:latest"
+build_image "Dockerfile.unprivileged" "$test_containeropts_user_image" "$test_dir"
+res=$(./out/container-structure-test test --image "$test_containeropts_user_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_user_test.yaml")
+code=$?
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
-  test_containeropts_user_image=test.local/ubuntu-unprivileged:latest
-  docker build -q -f "$test_dir"/Dockerfile.unprivileged --tag "$test_containeropts_user_image" "$test_dir" > /dev/null
-  res=$(./out/container-structure-test test --image "$test_containeropts_user_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_user_test.yaml")
-  code=$?
-  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
-  then
-    echo "FAIL: Run option user test case failed"
-    echo "$res"
-    failures=$((failures +1))
-  else
-    echo "PASS: Run option user test case passed"
-  fi
-  docker rmi "$test_containeropts_user_image" > /dev/null
+  echo "FAIL: Run options (user) test case failed"
+  echo "$res"
+  failures=$((failures +1))
+else
+  echo "PASS: Run option (user) test case passed"
+fi
+docker rmi "$test_containeropts_user_image" > /dev/null
 
-  test_containeropts_image=ubuntu:16.04
-  docker pull "$test_containeropts_image" > /dev/null
-  res=$(./out/container-structure-test test --image "$test_containeropts_image" --config "${test_config_dir}/ubuntu_16_04_containeropts_test.yaml")
-  code=$?
-  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
-  then
-    echo "FAIL: Run options test case failed"
-    echo "$res"
-    failures=$((failures +1))
-  else
-    echo "PASS: Run options test case passed"
-  fi
+test_containeropts_cap_image="test.local/ubuntu-cap:latest"
+build_image "Dockerfile.cap" "$test_containeropts_cap_image" "$test_dir"
+res=$(./out/container-structure-test test --image "$test_containeropts_cap_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_test.yaml")
+code=$?
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+then
+  echo "FAIL: Run options (capabilities, bindMounts) test case failed"
+  echo "$res"
+  failures=$((failures +1))
+else
+  echo "PASS: Run options (capabilities, bindMounts) test case passed"
+fi
+docker rmi "$test_containeropts_cap_image" > /dev/null
+
+res=$(FOO='keepitsecret!' BAR='keepitsafe!' ./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_env_test.yaml")
+code=$?
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+then
+  echo "FAIL: Run options (envVars) test case failed"
+  echo "$res"
+  failures=$((failures +1))
+else
+  echo "PASS: Run options (envVars) test case passed"
+fi
+
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_envfile_test.yaml")
+code=$?
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+then
+  echo "FAIL: Run options (envFile) test case failed"
+  echo "$res"
+  failures=$((failures +1))
+else
+  echo "PASS: Run options (envFile) test case passed"
 fi
 
 
@@ -127,7 +153,7 @@ then
   test_metadata_image=test.local/debian8-with-metadata:latest
   test_metadata_tar=debian8-with-metadata.tar
   test_metadata_dir=debian8-with-metadata
-  docker build -q -f "$test_dir"/Dockerfile.metadata --tag "$test_metadata_image" "$test_dir" > /dev/null
+  build_image "Dockerfile.metadata" "$test_metadata_image" "$test_dir"
   res=$(./out/container-structure-test test --image "$test_metadata_image" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
   code=$?
 
@@ -198,7 +224,7 @@ crane pull "$test_image" --format=oci "$tmp" --platform="linux/$go_architecture"
 
 res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
 code=$?
-if ! [[ ("$res" =~ "index does not contain a reference annotation. --default-image-tag must be provided." && "$code" == "1") ]];
+if ! [[ ("$res" =~ index\ does\ not\ contain\ a\ reference\ annotation\.\ \-\-default\-image\-tag\ must\ be\ provided\. && "$code" == "1") ]];
 then
   echo "FAIL: oci failing test case"
   echo "$res"

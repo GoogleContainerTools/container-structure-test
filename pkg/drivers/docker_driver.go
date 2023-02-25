@@ -19,6 +19,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/joho/godotenv"
 	"io"
 	"os"
 	"path"
@@ -375,8 +376,37 @@ func (d *DockerDriver) exec(env []string, command []string) (string, string, int
 		HostConfig:       d.hostConfig(),
 		NetworkingConfig: nil,
 	}
-	if d.runOpts.IsSet() && len(d.runOpts.User) > 0 {
-		createOpts.Config.User = d.runOpts.User
+	if d.runOpts.IsSet() {
+		createOpts.Config.Tty = d.runOpts.TTY
+		if len(d.runOpts.User) > 0 {
+			createOpts.Config.User = d.runOpts.User
+		}
+		var envVars []string
+		if d.runOpts.EnvFile != "" {
+			varMap, err := godotenv.Read(d.runOpts.EnvFile)
+			if err != nil {
+				logrus.Warnf("Unable to load envFile %s: %s", d.runOpts.EnvFile, err.Error())
+			} else {
+				var varsFromFile []string
+				for k, v := range varMap {
+					if k != "" && v != "" {
+						varsFromFile = append(varsFromFile, fmt.Sprintf("%s=%s", k, v))
+					}
+				}
+				envVars = append(envVars, varsFromFile...)
+			}
+		}
+		if d.runOpts.EnvVars != nil && len(d.runOpts.EnvVars) > 0 {
+			varsFromEnv := make([]string, len(d.runOpts.EnvVars))
+			for i, e := range d.runOpts.EnvVars {
+				v := os.Getenv(e)
+				if v != "" {
+					varsFromEnv[i] = fmt.Sprintf("%s=%s", e, v)
+				}
+			}
+			envVars = append(envVars, varsFromEnv...)
+		}
+		createOpts.Config.Env = envVars
 	}
 	// first, start container from the current image
 	container, err := d.cli.CreateContainer(createOpts)

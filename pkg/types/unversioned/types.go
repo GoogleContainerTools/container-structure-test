@@ -47,6 +47,9 @@ type Config struct {
 type ContainerRunOptions struct {
 	User         string
 	Privileged   bool
+	TTY          bool     `yaml:"allocateTty"`
+	EnvVars      []string `yaml:"envVars"`
+	EnvFile      string   `yaml:"envFile"`
 	Capabilities []string
 	BindMounts   []string `yaml:"bindMounts"`
 }
@@ -54,6 +57,9 @@ type ContainerRunOptions struct {
 func (opts *ContainerRunOptions) IsSet() bool {
 	return len(opts.User) != 0 ||
 		opts.Privileged ||
+		opts.TTY ||
+		len(opts.EnvFile) > 0 ||
+		(opts.EnvVars != nil && len(opts.EnvVars) > 0) ||
 		(opts.Capabilities != nil && len(opts.Capabilities) > 0) ||
 		(opts.BindMounts != nil && len(opts.BindMounts) > 0)
 }
