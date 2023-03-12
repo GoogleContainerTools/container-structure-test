@@ -30,11 +30,11 @@ DOCKER ?=docker
 
 VERSION_PACKAGE := $(REPOPATH)/pkg/version
 
-# If the architecture is not amd64, only create the linux binary
+# Windows binaries for amd64 only
 ifeq ($(GOARCH), amd64)
 SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH) windows-$(GOARCH).exe
 else
-SUPPORTED_PLATFORMS := linux-$(GOARCH)
+SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH)
 endif
 
 GO_LDFLAGS :="
