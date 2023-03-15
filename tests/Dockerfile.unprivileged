@@ -1,0 +1,5 @@
+FROM ubuntu:20.04
+
+RUN useradd --create-home --uid 1001 nonroot
+
+USER 1001

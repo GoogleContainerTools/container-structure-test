@@ -282,6 +282,31 @@ globalEnvVars:
     value: "/env/bin:$PATH"
 ```
 
+### Additional Options
+The following fields are used to control various options and flags that may be
+desirable to set for the running container used to perform a structure test 
+against an image. This allows an image author to validate certain runtime
+behavior that cannot be modified in the image-under-test such as running a 
+container with an alternative user/UID or mounting a volume.
+
+Note that these options are currently only supported with the `docker` driver.
+
+The following list of options are currently supported:
+```yaml
+containerRunOptions:
+  user: "root"                  # set the --user/-u flag
+  privileged: true              # set the --privileged flag (default: false)
+  allocateTty: true             # set the --tty flag (default: false)
+  envFile: path/to/.env         # load environment variables from file and pass to container (equivalent to --env-file)
+  envVars:                      # if not empty, read each envVar from the environment and pass to test (equivalent to --env/e)
+    - SECRET_KEY_FOO
+    - OTHER_SECRET_BAR
+  capabilities:                 # Add list of Linux capabilities (--cap-add)
+    - NET_BIND_SERVICE
+  bindMounts:                   # Bind mount a volume (--volume, -v)
+    - /etc/example/dir:/etc/dir
+```
+
 ## Running Tests On [Google Cloud Build](https://cloud.google.com/cloud-build/docs/)
 
 This tool is released as a builder image, tagged as

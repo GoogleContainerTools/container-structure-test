@@ -19,6 +19,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/joho/godotenv"
 	"io"
 	"os"
 	"path"
@@ -41,6 +42,7 @@ type DockerDriver struct {
 	env           map[string]string
 	save          bool
 	runtime       string
+	runOpts       unversioned.ContainerRunOptions
 }
 
 func NewDockerDriver(args DriverConfig) (Driver, error) {
@@ -55,10 +57,26 @@ func NewDockerDriver(args DriverConfig) (Driver, error) {
 		env:           nil,
 		save:          args.Save,
 		runtime:       args.Runtime,
+		runOpts:       args.RunOpts,
 	}, nil
 }
 
 func (d *DockerDriver) hostConfig() *docker.HostConfig {
+	if d.runOpts.IsSet() && d.runtime != "" {
+		return &docker.HostConfig{
+			Capabilities: d.runOpts.Capabilities,
+			Binds:        d.runOpts.BindMounts,
+			Privileged:   d.runOpts.Privileged,
+			Runtime:      d.runtime,
+		}
+	}
+	if d.runOpts.IsSet() {
+		return &docker.HostConfig{
+			Capabilities: d.runOpts.Capabilities,
+			Binds:        d.runOpts.BindMounts,
+			Privileged:   d.runOpts.Privileged,
+		}
+	}
 	if d.runtime != "" {
 		return &docker.HostConfig{
 			Runtime: d.runtime,
@@ -297,7 +315,7 @@ func (d *DockerDriver) ReadDir(target string) ([]os.FileInfo, error) {
 // 3) commits the container with its changes to a new image,
 // and sets that image as the new "current image"
 func (d *DockerDriver) runAndCommit(env []string, command []string) (string, error) {
-	container, err := d.cli.CreateContainer(docker.CreateContainerOptions{
+	createOpts := docker.CreateContainerOptions{
 		Config: &docker.Config{
 			Image:        d.currentImage,
 			Env:          env,
@@ -308,7 +326,11 @@ func (d *DockerDriver) runAndCommit(env []string, command []string) (string, err
 		},
 		HostConfig:       d.hostConfig(),
 		NetworkingConfig: nil,
-	})
+	}
+	if d.runOpts.IsSet() && len(d.runOpts.User) > 0 {
+		createOpts.Config.User = d.runOpts.User
+	}
+	container, err := d.cli.CreateContainer(createOpts)
 	if err != nil {
 		return "", errors.Wrap(err, "Error creating container")
 	}
@@ -342,8 +364,7 @@ func (d *DockerDriver) runAndCommit(env []string, command []string) (string, err
 }
 
 func (d *DockerDriver) exec(env []string, command []string) (string, string, int, error) {
-	// first, start container from the current image
-	container, err := d.cli.CreateContainer(docker.CreateContainerOptions{
+	createOpts := docker.CreateContainerOptions{
 		Config: &docker.Config{
 			Image:        d.currentImage,
 			Env:          env,
@@ -354,7 +375,41 @@ func (d *DockerDriver) exec(env []string, command []string) (string, string, int
 		},
 		HostConfig:       d.hostConfig(),
 		NetworkingConfig: nil,
-	})
+	}
+	if d.runOpts.IsSet() {
+		createOpts.Config.Tty = d.runOpts.TTY
+		if len(d.runOpts.User) > 0 {
+			createOpts.Config.User = d.runOpts.User
+		}
+		var envVars []string
+		if d.runOpts.EnvFile != "" {
+			varMap, err := godotenv.Read(d.runOpts.EnvFile)
+			if err != nil {
+				logrus.Warnf("Unable to load envFile %s: %s", d.runOpts.EnvFile, err.Error())
+			} else {
+				var varsFromFile []string
+				for k, v := range varMap {
+					if k != "" && v != "" {
+						varsFromFile = append(varsFromFile, fmt.Sprintf("%s=%s", k, v))
+					}
+				}
+				envVars = append(envVars, varsFromFile...)
+			}
+		}
+		if d.runOpts.EnvVars != nil && len(d.runOpts.EnvVars) > 0 {
+			varsFromEnv := make([]string, len(d.runOpts.EnvVars))
+			for i, e := range d.runOpts.EnvVars {
+				v := os.Getenv(e)
+				if v != "" {
+					varsFromEnv[i] = fmt.Sprintf("%s=%s", e, v)
+				}
+			}
+			envVars = append(envVars, varsFromEnv...)
+		}
+		createOpts.Config.Env = envVars
+	}
+	// first, start container from the current image
+	container, err := d.cli.CreateContainer(createOpts)
 	if err != nil {
 		return "", "", -1, errors.Wrap(err, "Error creating container")
 	}

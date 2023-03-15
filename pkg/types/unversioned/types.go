@@ -44,6 +44,26 @@ type Config struct {
 	User         string
 }
 
+type ContainerRunOptions struct {
+	User         string
+	Privileged   bool
+	TTY          bool     `yaml:"allocateTty"`
+	EnvVars      []string `yaml:"envVars"`
+	EnvFile      string   `yaml:"envFile"`
+	Capabilities []string
+	BindMounts   []string `yaml:"bindMounts"`
+}
+
+func (opts *ContainerRunOptions) IsSet() bool {
+	return len(opts.User) != 0 ||
+		opts.Privileged ||
+		opts.TTY ||
+		len(opts.EnvFile) > 0 ||
+		(opts.EnvVars != nil && len(opts.EnvVars) > 0) ||
+		(opts.Capabilities != nil && len(opts.Capabilities) > 0) ||
+		(opts.BindMounts != nil && len(opts.BindMounts) > 0)
+}
+
 type TestResult struct {
 	Name     string        `xml:"name,attr"`
 	Pass     bool          `xml:"-"`

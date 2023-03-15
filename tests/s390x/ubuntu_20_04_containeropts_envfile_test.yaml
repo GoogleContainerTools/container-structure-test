@@ -1,0 +1,7 @@
+schemaVersion: '2.0.0' # Make sure to test the latest schema version
+commandTests:
+- name: "Test envFile containerRunOptions"
+  command: "printenv"
+  expectedOutput: [".*(FOO|BAR)=keepit(secret|safe)!.*"]
+containerRunOptions:
+  envFile: tests/envfile
