@@ -76,8 +76,8 @@ github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7
 github.com/frankban/quicktest v1.11.3/go.mod h1:wRf/ReqHper53s+kmmSZizM8NamnL3IM0I9ntUbOk+k=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/fsouza/go-dockerclient v1.3.6/go.mod h1:ptN6nXBwrXuiHAz2TYGOFCBB1aKGr371sGjMFdJEr1A=
-github.com/fsouza/go-dockerclient v1.9.0 h1:KolErz3rXEhwjTuV0VLXcAyB/qFV9bLNZTIHbfpEsOY=
-github.com/fsouza/go-dockerclient v1.9.0/go.mod h1:OjHFPhuiKyqFDhT5owUV9L7+Ta7GPgnxDWb7UuFKuoQ=
+github.com/fsouza/go-dockerclient v1.9.6 h1:6yTc8oTLHjz4H3AXAAdO4R+Nh5B7s9Uf5R4oQUtZ9Mg=
+github.com/fsouza/go-dockerclient v1.9.6/go.mod h1:Z0GysXoBlysCsdUO2tMK/13R2tvpehDns08Mih0XvKg=
 github.com/garyburd/redigo v0.0.0-20150301180006-535138d7bcd7/go.mod h1:NR3MbYisc3/PwhQ00EMzDiPmrwpPxAn5GI05/YaO1SY=
 github.com/go-ini/ini v1.25.4/go.mod h1:ByCAeIL28uOIIG0E3PJtZPDL8WnHpFKFOtgjp+3Ies8=
 github.com/go-kit/kit v0.8.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
