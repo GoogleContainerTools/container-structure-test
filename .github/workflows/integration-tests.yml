@@ -30,7 +30,7 @@ jobs:
         echo "DOCKER_HOST=unix:///Users/runner/.local/share/containers/podman/machine/podman-machine-default/podman.sock" >> $GITHUB_ENV
         
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: ^1.17
       id: go
