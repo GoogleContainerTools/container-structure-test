@@ -1,0 +1,17 @@
+"Bazel module definition, see https://bazel.build/external/overview#bzlmod"
+module(
+    name = "container_structure_test",
+    compatibility_level = 1,
+    # Replaced dynamically when published
+    version = "0.0.0",
+)
+
+# To run yq
+bazel_dep(name = "aspect_bazel_lib", version = "1.28.0")
+bazel_dep(name = "bazel_skylib", version = "1.4.1")
+bazel_dep(name = "platforms", version = "0.0.5")
+
+ext = use_extension("//:repositories.bzl", "extension")
+use_repo(ext, "st_toolchains")
+
+register_toolchains("@st_toolchains//:all")

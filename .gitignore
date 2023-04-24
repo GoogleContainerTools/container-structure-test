@@ -3,4 +3,4 @@ structure-test
 structure_tests.test
 .vscode
 out/
-**/bazel-*
+bazel-*

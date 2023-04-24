@@ -1,0 +1,15 @@
+name: Bazel
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v2
+    with:
+      folders: '["bazel/test"]'

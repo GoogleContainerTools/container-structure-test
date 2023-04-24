@@ -1,0 +1,13 @@
+"Bazel dependencies under --enable_bzlmod"
+module(
+    name = "smoke",
+    compatibility_level = 1,
+    version = "0.0.0",
+)
+
+bazel_dep(name = "container_structure_test", version = "0.0.0")
+
+local_path_override(
+    module_name = "container_structure_test",
+    path = "../..",
+)
