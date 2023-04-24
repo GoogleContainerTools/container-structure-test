@@ -1,5 +1,8 @@
 "Implementation details for container_structure_test rule."
 
+load("@aspect_bazel_lib//lib:paths.bzl", "BASH_RLOCATION_FUNCTION", "to_rlocation_path")
+load("@aspect_bazel_lib//lib:windows_utils.bzl", "create_windows_native_launcher_script")
+
 _attrs = {
     "image": attr.label(
         allow_single_file = True,
@@ -12,48 +15,58 @@ _attrs = {
         values = ["docker", "tar", "host"],
         doc = "See https://github.com/GoogleContainerTools/container-structure-test#running-file-tests-without-docker",
     ),
+    "_runfiles": attr.label(default = "@bazel_tools//tools/bash/runfiles"),
+    "_windows_constraint": attr.label(default = "@platforms//os:windows"),
 }
 
 CMD = """\
 #!/usr/bin/env bash
 
-readonly DIGEST=$("{yq_path}" eval '.manifests[0].digest | sub(":"; "-")' "{image_path}/index.json")
+{BASH_RLOCATION_FUNCTION}
 
-exec "{st_path}" test {fixed_args} --default-image-tag "registry.structure_test.oci.local/image:$DIGEST" $@
+readonly DIGEST=$("$(rlocation {yq_path})" eval '.manifests[0].digest | sub(":"; "-")' "$(rlocation {image_path})/index.json")
+
+exec "$(rlocation {st_path})" test {fixed_args} --default-image-tag "registry.structure_test.oci.local/image:$DIGEST" $@
 """
 
 def _structure_test_impl(ctx):
-    st_info = ctx.toolchains["@container_structure_test//bazel:st_toolchain_type"].st_info
-    yq_info = ctx.toolchains["@aspect_bazel_lib//lib:yq_toolchain_type"].yqinfo
-
     fixed_args = ["--driver", ctx.attr.driver]
-    image_path = ctx.file.image.short_path
+    test_bin = ctx.toolchains["@container_structure_test//bazel:st_toolchain_type"].st_info.binary
+    yq_bin = ctx.toolchains["@aspect_bazel_lib//lib:yq_toolchain_type"].yqinfo.bin
 
+    image_path = to_rlocation_path(ctx, ctx.file.image)
     # Prefer to use a tarball if we are given one, as it works with more 'driver' types.
-    if image_path.endswith(".tar"):
-        fixed_args.extend(["--image", image_path])
+    if ctx.file.image.path.endswith(".tar"):
+        fixed_args.append("--image=$(rlocation %s)" % image_path)
     else:
         # https://github.com/GoogleContainerTools/container-structure-test/blob/5e347b66fcd06325e3caac75ef7dc999f1a9b614/cmd/container-structure-test/app/cmd/test.go#L110
         if ctx.attr.driver != "docker":
             fail("when the 'driver' attribute is not 'docker', then the image must be a .tar file")
-        fixed_args.extend(["--image-from-oci-layout", image_path])
+        fixed_args.append("--image-from-oci-layout=$(rlocation %s)" % image_path)
 
     for arg in ctx.files.configs:
-        fixed_args.append("--config=%s" % arg.path)
+        fixed_args.append("--config=$(rlocation %s)" % to_rlocation_path(ctx, arg))
 
-    launcher = ctx.actions.declare_file("%s.sh" % ctx.label.name)
+    bash_launcher = ctx.actions.declare_file("%s.sh" % ctx.label.name)
     ctx.actions.write(
-        launcher,
+        bash_launcher,
         content = CMD.format(
-            st_path = st_info.binary.short_path,
-            fixed_args = " ".join(fixed_args),
-            yq_path = yq_info.bin.short_path,
+            BASH_RLOCATION_FUNCTION = BASH_RLOCATION_FUNCTION,
+            st_path = to_rlocation_path(ctx, test_bin),
+            yq_path = to_rlocation_path(ctx, yq_bin),
             image_path = image_path,
+            fixed_args = " ".join(fixed_args),
         ),
         is_executable = True,
     )
 
-    runfiles = ctx.runfiles(files = ctx.files.image + ctx.files.configs + [st_info.binary, yq_info.bin])
+    is_windows = ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo])
+    launcher = create_windows_native_launcher_script(ctx, bash_launcher) if is_windows else bash_launcher
+
+    runfiles = ctx.runfiles(
+        files = ctx.files.image + ctx.files.configs + [
+            bash_launcher, test_bin, yq_bin
+        ]).merge(ctx.attr._runfiles.default_runfiles)
 
     return DefaultInfo(runfiles = runfiles, executable = launcher)
 
