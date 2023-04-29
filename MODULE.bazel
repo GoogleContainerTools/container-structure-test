@@ -12,6 +12,6 @@ bazel_dep(name = "bazel_skylib", version = "1.4.1")
 bazel_dep(name = "platforms", version = "0.0.5")
 
 ext = use_extension("//:repositories.bzl", "extension")
-use_repo(ext, "st_toolchains")
+use_repo(ext, "structure_test_toolchains")
 
-register_toolchains("@st_toolchains//:all")
+register_toolchains("@structure_test_toolchains//:all")

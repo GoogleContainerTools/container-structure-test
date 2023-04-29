@@ -1,4 +1,4 @@
 toolchain_type(
-    name = "st_toolchain_type",
+    name = "structure_test_toolchain_type",
     visibility = ["//visibility:public"],
 )

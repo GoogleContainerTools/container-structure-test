@@ -38,7 +38,7 @@ exec "$st" test {fixed_args} $@
 
 def _structure_test_impl(ctx):
     fixed_args = ["--driver", ctx.attr.driver]
-    test_bin = ctx.toolchains["@container_structure_test//bazel:st_toolchain_type"].st_info.binary
+    test_bin = ctx.toolchains["@container_structure_test//bazel:structure_test_toolchain_type"].st_info.binary
     yq_bin = ctx.toolchains["@aspect_bazel_lib//lib:yq_toolchain_type"].yqinfo.bin
 
     image_path = to_rlocation_path(ctx, ctx.file.image)

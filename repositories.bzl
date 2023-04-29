@@ -66,7 +66,7 @@ def container_structure_test_register_toolchain(name, register = True):
             Should be True for WORKSPACE users, but false when used under bzlmod extension
     """
 
-    st_toolchain_name = "st_toolchains"
+    st_toolchain_name = "structure_test_toolchains"
 
     for platform in PLATFORMS.keys():
         structure_test_repositories(
@@ -79,7 +79,7 @@ def container_structure_test_register_toolchain(name, register = True):
 
     toolchains_repo(
         name = st_toolchain_name,
-        toolchain_type = "@container_structure_test//bazel:st_toolchain_type",
+        toolchain_type = "@container_structure_test//bazel:structure_test_toolchain_type",
         # avoiding use of .format since {platform} is formatted by toolchains_repo for each platform.
         toolchain = "@%s_st_{platform}//:structure_test_toolchain" % name,
     )
