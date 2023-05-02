@@ -27,7 +27,7 @@ jobs:
         brew install podman
         podman machine init
         podman machine start
-        echo "DOCKER_HOST=unix:///Users/runner/.local/share/containers/podman/machine/qemu/podman.sock" >> $GITHUB_ENV
+        echo 'DOCKER_HOST=unix://$(podman info -f "{{.Host.RemoteSocket.Path}}")' >> $GITHUB_ENV
         
     - name: Set up Go
       uses: actions/setup-go@v4
