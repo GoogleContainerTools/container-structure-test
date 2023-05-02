@@ -6,9 +6,9 @@ require (
 	github.com/GoogleContainerTools/container-diff v0.17.0
 	github.com/fsouza/go-dockerclient v1.9.7
 	github.com/google/go-cmp v0.5.9
-	github.com/google/go-containerregistry v0.14.0
+	github.com/google/go-containerregistry v0.11.0
 	github.com/joho/godotenv v1.5.1
-	github.com/opencontainers/image-spec v1.1.0-rc2
+	github.com/opencontainers/image-spec v1.1.0-rc.3
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.7.0
