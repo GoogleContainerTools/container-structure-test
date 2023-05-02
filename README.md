@@ -359,62 +359,22 @@ Does *not* support command tests.
 
 ### Running Structure Tests Through Bazel
 Structure tests can also be run through `bazel`.
-To do so, load the rule and its dependencies in your `WORKSPACE`:
-```BUILD
-git_repository(
-    name = "io_bazel_rules_docker",
-    commit = "8aeab63328a82fdb8e8eb12f677a4e5ce6b183b1",
-    remote = "https://github.com/bazelbuild/rules_docker.git",
-)
 
-load(
-    "@io_bazel_rules_docker//container:container.bzl",
-    "repositories",
-)
-repositories()
+With Bazel 6 and bzlmod, just see https://registry.bazel.build/modules/container_structure_test.
+Otherwise, load the rule and its dependencies in your `WORKSPACE`, see bazel/test/WORKSPACE.bazel in this repo.
 
+Load the rule definition in your BUILD file and declare a `container_structure_test` target, passing in your image and config file as parameters:
 
-load(
-    "@io_bazel_rules_docker//contrib:test.bzl",
-    "container_test",
-)
+```bazel
+load("@container_structure_test//:defs.bzl", "container_structure_test")
 
-# io_bazel_rules_go is the dependency of container_test rules.
-http_archive(
-    name = "io_bazel_rules_go",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/0.9.0/rules_go-0.9.0.tar.gz",
-    sha256 = "4d8d6244320dd751590f9100cf39fd7a4b75cd901e1f3ffdfd6f048328883695",
-)
-load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
-go_rules_dependencies()
-go_register_toolchains()
-
-```
-
-and then include the rule definition in your `BUILD` file:
-
-```BUILD
-load("@io_bazel_rules_docker//contrib:test.bzl", "container_test")
-```
-
-Then, create a `container_test` rule, passing in your image and config
-file as parameters:
-
-```BUILD
-container_build(
-    name = "hello",
-    base = "//java:java8",
-    cmd = ["/HelloJava_deploy.jar"],
-    files = [":HelloJava_deploy.jar"],
-)
-
-
-container_test(
+container_structure_test(
     name = "hello_test",
     configs = ["testdata/hello.yaml"],
     image = ":hello",
 )
 ```
+
 ### Flags:
 `container-structure-test test -h`
 ```

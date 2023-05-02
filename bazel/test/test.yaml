@@ -1,0 +1,8 @@
+schemaVersion: "2.0.0"
+
+metadataTest:
+  envVars:
+    - key: "ENV"
+      value: "/test"
+  entrypoint: ["/custom_bin"]
+  cmd: ["--arg1", "--arg2"]
