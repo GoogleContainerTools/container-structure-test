@@ -30,9 +30,10 @@ readonly yq=$(rlocation {yq_path})
 # When the image points to a folder, we can read the index.json file inside
 if [[ -d "{image_path}" ]]; then
   readonly DIGEST=$("$yq" eval '.manifests[0].digest | sub(":"; "-")' "{image_path}/index.json")
+  exec "$st" test {fixed_args} --default-image-tag "registry.structure_test.oci.local/image:$DIGEST" $@
+else
+  exec "$st" test {fixed_args} $@
 fi
-
-exec "$st" test {fixed_args} $@
 """
 
 def _structure_test_impl(ctx):
