@@ -26,14 +26,14 @@ CMD = """\
 
 readonly st=$(rlocation {st_path})
 readonly yq=$(rlocation {yq_path})
-readonly image=$(rlocation {image_path})
 
 # When the image points to a folder, we can read the index.json file inside
-if [[ -d "$image" ]]; then
-  readonly DIGEST=$("$yq" eval '.manifests[0].digest | sub(":"; "-")' "${{image}}/index.json")
+if [[ -d "{image_path}" ]]; then
+  readonly DIGEST=$("$yq" eval '.manifests[0].digest | sub(":"; "-")' "{image_path}/index.json")
+  exec "$st" test {fixed_args} --default-image-tag "registry.structure_test.oci.local/image:$DIGEST" $@
+else
+  exec "$st" test {fixed_args} $@
 fi
-
-exec "$st" test {fixed_args} $@
 """
 
 def _structure_test_impl(ctx):
@@ -41,15 +41,15 @@ def _structure_test_impl(ctx):
     test_bin = ctx.toolchains["@container_structure_test//bazel:structure_test_toolchain_type"].st_info.binary
     yq_bin = ctx.toolchains["@aspect_bazel_lib//lib:yq_toolchain_type"].yqinfo.bin
 
-    image_path = to_rlocation_path(ctx, ctx.file.image)
+    image_path = ctx.file.image.short_path
     # Prefer to use a tarball if we are given one, as it works with more 'driver' types.
     if image_path.endswith(".tar"):
-        fixed_args.extend(["--image", "$(rlocation %s)" % image_path])
+        fixed_args.extend(["--image", image_path])
     else:
         # https://github.com/GoogleContainerTools/container-structure-test/blob/5e347b66fcd06325e3caac75ef7dc999f1a9b614/cmd/container-structure-test/app/cmd/test.go#L110
         if ctx.attr.driver != "docker":
             fail("when the 'driver' attribute is not 'docker', then the image must be a .tar file")
-        fixed_args.extend(["--image-from-oci-layout", "$(rlocation %s)" % image_path])
+        fixed_args.extend(["--image-from-oci-layout", image_path])
         fixed_args.extend(["--default-image-tag", "registry.structure_test.oci.local/image:$DIGEST"])
 
     for arg in ctx.files.configs:
