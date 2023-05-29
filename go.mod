@@ -10,7 +10,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/opencontainers/image-spec v1.1.0-rc.3
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.2
 	github.com/spf13/cobra v1.7.0
 	golang.org/x/crypto v0.8.0
 	gopkg.in/yaml.v2 v2.4.0
