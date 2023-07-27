@@ -7,8 +7,8 @@ github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOEl
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1/go.mod h1:xomTg63KZ2rFqZQzSB4Vz2SUXa1BpHTVz9L5PTmPC4E=
 github.com/Azure/go-autorest v10.8.1+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSWATqVooLgysK6ZNox3g/xq24=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/GoogleContainerTools/container-diff v0.17.0 h1:P9va/peQsiBcFuL+hcZWHp3Ry7bCLLoNhUrjj7DBNFQ=
-github.com/GoogleContainerTools/container-diff v0.17.0/go.mod h1:pddOdZb5Wghtb2fmqbKy7Kj/sgoafW9AvUp4KS9svmg=
+github.com/GoogleContainerTools/container-diff v0.17.1-0.20230727210151-35d9770aeea3 h1:n7VIeFTBpu3hUX+ZLsKs8Dpvv8JZhNuxFneRPpHUTdQ=
+github.com/GoogleContainerTools/container-diff v0.17.1-0.20230727210151-35d9770aeea3/go.mod h1:pddOdZb5Wghtb2fmqbKy7Kj/sgoafW9AvUp4KS9svmg=
 github.com/Microsoft/go-winio v0.4.11/go.mod h1:VhR8bwka0BXejwEJY73c50VrPtXAaKcyvVC4A4RozmA=
 github.com/Microsoft/go-winio v0.6.0 h1:slsWYD/zyx7lCXoZVlvQrj0hPTM1HI4+v1sIda2yDvg=
 github.com/Microsoft/go-winio v0.6.0/go.mod h1:cTAf44im0RAYeL23bpB+fzCyDH2MJiz2BO69KH/soAE=
