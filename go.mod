@@ -3,7 +3,7 @@ module github.com/GoogleContainerTools/container-structure-test
 go 1.19
 
 require (
-	github.com/GoogleContainerTools/container-diff v0.17.0
+	github.com/GoogleContainerTools/container-diff v0.17.1-0.20230727210151-35d9770aeea3
 	github.com/fsouza/go-dockerclient v1.9.7
 	github.com/google/go-cmp v0.5.9
 	github.com/google/go-containerregistry v0.11.0
