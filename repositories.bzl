@@ -3,14 +3,14 @@
 load("//bazel:toolchains_repo.bzl", "PLATFORMS", "toolchains_repo")
 
 # TODO(alexeagle): automate updates when new releases
-_VERSION = "v1.15.0"
+_VERSION = "v1.16.0"
 _HASHES = {
-    "darwin-amd64": "sha256-6QRBiuQh2NiZLB6TTz8uuXO6HdEU4Wy42Pv3xk/ihqY=",
-    "linux-amd64": "sha256-6FiT0F6wcWECqvy2jrpBc0GpLlSbEmySQPK5HXzoPVo=",
-    "linux-arm64": "sha256-4yVlbxwTgc4appxMgaVpXvQJ0Q/ZTu3sSy+sSLpI/kw=",
-    "linux-ppc64le": "sha256-aFuBytG1AljuHff8BX0+xIZm58dpJsbv4K3zqj6phAw=",
-    "linux-s390x": "sha256-1tB8LoN6qLu4JkItHLgIjo3O7U5y94o6kHbShyXtlO0=",
-    "windows-amd64.exe": "sha256-ZzgSHeblwqDJaukjOQMrdxbZHM8gy1L/SzpVVOQglN0="
+    "darwin-amd64": "sha256-jOe4gU9MwonDp3K8lSZGmjmKDLLdl4ejPT6Ke86lYhs=",
+    "linux-amd64": "sha256-nMIaLb5vcqahAZXMO2/R2163bEqurAm0Kwam8Bf03ko=",
+    "linux-arm64": "sha256-EWuxmIv/YLcRQV++8o3KjaVmVUT5sHSIZoeMSjuKKJQ=",
+    "linux-ppc64le": "sha256-NEiUQYRgZtnhCzKXDTjB0lO95WkVcxvoPFnVt6neN0A=",
+    "linux-s390x": "sha256-6Hvn2XJZtLyP11IQlgqty7jMZ+6ETro3CRzayNslQAw=",
+    "windows-amd64.exe": "sha256-vdYQeDJ+DUyXNeLV8UtE5cGjdHF7+aQfFRG6Xo8Q0hY="
 }
 
 STRUCTURE_TEST_BUILD_TMPL = """\
