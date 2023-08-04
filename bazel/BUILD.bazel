@@ -1,4 +1,16 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+package(default_visibility = ["//visibility:public"])
+
 toolchain_type(
     name = "structure_test_toolchain_type",
-    visibility = ["//visibility:public"],
+)
+
+bzl_library(
+    name = "container_structure_test",
+    srcs = ["container_structure_test.bzl"],
+    deps = [
+        "@aspect_bazel_lib//lib:paths",
+        "@aspect_bazel_lib//lib:windows_utils",
+    ],
 )
