@@ -15,3 +15,6 @@ ext = use_extension("//:repositories.bzl", "extension")
 use_repo(ext, "structure_test_toolchains")
 
 register_toolchains("@structure_test_toolchains//:all")
+
+# 0.5.4 is the first version with bzlmod support
+bazel_dep(name = "stardoc", version = "0.5.4", repo_name = "io_bazel_stardoc")

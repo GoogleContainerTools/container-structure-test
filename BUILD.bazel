@@ -1,1 +1,11 @@
-# Marker that this is the root of a Bazel package
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+# For stardoc to reference the file directly
+exports_files(["defs.bzl"])
+
+bzl_library(
+    name = "defs",
+    srcs = ["defs.bzl"],
+    deps = ["//bazel:container_structure_test"],
+    visibility = ["//visibility:public"],
+)
