@@ -44,7 +44,7 @@ func TestFinalResults(t *testing.T) {
 		{
 			actual:   bytes.NewBuffer([]byte{}),
 			format:   unversioned.Junit,
-			expected: `<?xml version="1.0" encoding="UTF-8"?><testsuites failures="1" tests="2" time="2e-09"><testsuite name="container-structure-test.test"><testcase name="my first test" time="1e-09"></testcase><testcase name="my fail" time="1e-09"><failure>this failed because of that</failure></testcase></testsuite></testsuites>`,
+			expected: `<?xml version="1.0" encoding="UTF-8"?><testsuites failures="1" tests="2" time="2e-09"><testsuite name="container-structure-test.test"><testcase name="my first test" time="1e-09"><system-out>it works!</system-out><system-err></system-err></testcase><testcase name="my fail" time="1e-09"><failure>this failed because of that</failure><system-out></system-out><system-err>this failed</system-err></testcase></testsuite></testsuites>`,
 		},
 		{
 			actual:   bytes.NewBuffer([]byte{}),
