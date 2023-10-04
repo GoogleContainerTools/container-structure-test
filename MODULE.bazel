@@ -6,7 +6,7 @@ module(
     version = "0.0.0",
 )
 
-# To run yq
+# To run jq
 bazel_dep(name = "aspect_bazel_lib", version = "1.28.0")
 bazel_dep(name = "bazel_skylib", version = "1.4.1")
 bazel_dep(name = "platforms", version = "0.0.5")
@@ -17,4 +17,4 @@ use_repo(ext, "structure_test_toolchains")
 register_toolchains("@structure_test_toolchains//:all")
 
 # 0.5.4 is the first version with bzlmod support
-bazel_dep(name = "stardoc", version = "0.5.4", repo_name = "io_bazel_stardoc")
+bazel_dep(name = "stardoc", version = "0.5.4", repo_name = "io_bazel_stardoc", dev_dependency = True)

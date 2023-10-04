@@ -25,6 +25,3 @@ load("@container_structure_test//:repositories.bzl", "container_structure_test_r
 
 container_structure_test_register_toolchain(name = "cst")
 
-load("@aspect_bazel_lib//lib:repositories.bzl", "register_yq_toolchains")
-
-register_yq_toolchains()

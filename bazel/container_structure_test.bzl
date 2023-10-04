@@ -27,12 +27,12 @@ CMD_HEAD = [
 
 CMD = """\
 readonly st=$(rlocation {st_path})
-readonly yq=$(rlocation {yq_path})
+readonly jq=$(rlocation {jq_path})
 readonly image=$(rlocation {image_path})
 
 # When the image points to a folder, we can read the index.json file inside
 if [[ -d "$image" ]]; then
-  readonly DIGEST=$("$yq" eval '.manifests[0].digest | sub(":"; "-")' "$image/index.json")
+  readonly DIGEST=$("$jq" -r '.manifests[0].digest | sub(":"; "-")' "$image/index.json")
   exec "$st" test --driver {driver} {fixed_args} --default-image-tag "registry.structure_test.oci.local/image:$DIGEST" $@
 else
   exec "$st" test --driver {driver} {fixed_args} $@
@@ -42,7 +42,7 @@ fi
 def _structure_test_impl(ctx):
     fixed_args = []
     test_bin = ctx.toolchains["@container_structure_test//bazel:structure_test_toolchain_type"].st_info.binary
-    yq_bin = ctx.toolchains["@aspect_bazel_lib//lib:yq_toolchain_type"].yqinfo.bin
+    jq_bin = ctx.toolchains["@aspect_bazel_lib//lib:jq_toolchain_type"].jqinfo.bin
 
     image_path = to_rlocation_path(ctx, ctx.file.image)
 
@@ -64,7 +64,7 @@ def _structure_test_impl(ctx):
         bash_launcher,
         content = "\n".join(CMD_HEAD) + CMD.format(
             st_path = to_rlocation_path(ctx, test_bin),
-            yq_path = to_rlocation_path(ctx, yq_bin),
+            jq_path = to_rlocation_path(ctx, jq_bin),
             driver = ctx.attr.driver,
             image_path = image_path,
             fixed_args = " ".join(fixed_args),
@@ -78,7 +78,7 @@ def _structure_test_impl(ctx):
         files = ctx.files.image + ctx.files.configs + [
             bash_launcher,
             test_bin,
-            yq_bin,
+            jq_bin,
         ],
     ).merge(ctx.attr._runfiles.default_runfiles)
 

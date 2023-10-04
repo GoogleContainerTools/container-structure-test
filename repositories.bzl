@@ -1,5 +1,5 @@
 """Repository rules for fetching pre-built container-test binaries"""
-
+load("@aspect_bazel_lib//lib:repositories.bzl", "register_jq_toolchains")
 load("//bazel:toolchains_repo.bzl", "PLATFORMS", "toolchains_repo")
 
 # TODO(alexeagle): automate updates when new releases
@@ -67,6 +67,8 @@ def container_structure_test_register_toolchain(name, register = True):
     """
 
     st_toolchain_name = "structure_test_toolchains"
+
+    register_jq_toolchains(register = register)
 
     for platform in PLATFORMS.keys():
         structure_test_repositories(
