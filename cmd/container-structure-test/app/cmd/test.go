@@ -99,6 +99,7 @@ func run(out io.Writer) error {
 		Save:     opts.Save,
 		Metadata: opts.Metadata,
 		Runtime:  opts.Runtime,
+		Platform: opts.Platform,
 	}
 
 	var err error
@@ -170,6 +171,7 @@ func run(out io.Writer) error {
 			logrus.Fatalf("error connecting to daemon: %v", err)
 		}
 		if err = client.PullImage(docker.PullImageOptions{
+			Platform: 	  opts.Platform,
 			Repository:   ref.Context().RepositoryStr(),
 			Tag:          ref.Identifier(),
 			Registry:     ref.Context().RegistryStr(),
@@ -223,7 +225,7 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&opts.Driver, "driver", "d", "docker", "driver to use when running tests")
 	cmd.Flags().StringVar(&opts.Metadata, "metadata", "", "path to image metadata file")
 	cmd.Flags().StringVar(&opts.Runtime, "runtime", "", "runtime to use with docker driver")
-
+	cmd.Flags().StringVar(&opts.Platform, "platform", "linux/amd64", "Set platform if host is multi-platform capable")
 	cmd.Flags().BoolVar(&opts.Pull, "pull", false, "force a pull of the image before running tests")
 	cmd.MarkFlagsMutuallyExclusive("image-from-oci-layout", "pull")
 	cmd.Flags().BoolVar(&opts.Save, "save", false, "preserve created containers after test run")

@@ -42,6 +42,7 @@ type DockerDriver struct {
 	env           map[string]string
 	save          bool
 	runtime       string
+	platform      string
 	runOpts       unversioned.ContainerRunOptions
 }
 
@@ -57,6 +58,7 @@ func NewDockerDriver(args DriverConfig) (Driver, error) {
 		env:           nil,
 		save:          args.Save,
 		runtime:       args.Runtime,
+		platform: 	   args.Platform,
 		runOpts:       args.RunOpts,
 	}, nil
 }
@@ -98,6 +100,7 @@ func (d *DockerDriver) Destroy() {
 func (d *DockerDriver) SetEnv(envVars []unversioned.EnvVar) error {
 	env := d.processEnvVars(envVars)
 	container, err := d.cli.CreateContainer(docker.CreateContainerOptions{
+		Platform: d.platform,
 		Config: &docker.Config{
 			Image:        d.currentImage,
 			Env:          env,
@@ -205,6 +208,7 @@ func (d *DockerDriver) retrieveTar(path string) (*tar.Reader, error) {
 	// this contains a placeholder command which does not get run, since
 	// the client doesn't allow creating a container without a command.
 	container, err := d.cli.CreateContainer(docker.CreateContainerOptions{
+		Platform: d.platform,
 		Config: &docker.Config{
 			Image: d.currentImage,
 			Cmd:   []string{utils.NoopCommand},
@@ -316,6 +320,7 @@ func (d *DockerDriver) ReadDir(target string) ([]os.FileInfo, error) {
 // and sets that image as the new "current image"
 func (d *DockerDriver) runAndCommit(env []string, command []string) (string, error) {
 	createOpts := docker.CreateContainerOptions{
+		Platform: d.platform,
 		Config: &docker.Config{
 			Image:        d.currentImage,
 			Env:          env,
@@ -365,6 +370,7 @@ func (d *DockerDriver) runAndCommit(env []string, command []string) (string, err
 
 func (d *DockerDriver) exec(env []string, command []string) (string, string, int, error) {
 	createOpts := docker.CreateContainerOptions{
+		Platform: d.platform,
 		Config: &docker.Config{
 			Image:        d.currentImage,
 			Env:          env,

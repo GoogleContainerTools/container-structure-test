@@ -22,6 +22,7 @@ type StructureTestOptions struct {
 	DefaultImageTag string
 	Driver          string
 	Runtime         string
+	Platform		string
 	Metadata        string
 	TestReport      string
 	ConfigFiles     []string
