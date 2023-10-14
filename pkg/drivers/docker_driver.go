@@ -58,7 +58,7 @@ func NewDockerDriver(args DriverConfig) (Driver, error) {
 		env:           nil,
 		save:          args.Save,
 		runtime:       args.Runtime,
-		platform: 	   args.Platform,
+		platform:      args.Platform,
 		runOpts:       args.RunOpts,
 	}, nil
 }

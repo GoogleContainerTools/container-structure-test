@@ -171,7 +171,7 @@ func run(out io.Writer) error {
 			logrus.Fatalf("error connecting to daemon: %v", err)
 		}
 		if err = client.PullImage(docker.PullImageOptions{
-			Platform: 	  opts.Platform,
+			Platform:     opts.Platform,
 			Repository:   ref.Context().RepositoryStr(),
 			Tag:          ref.Identifier(),
 			Registry:     ref.Context().RegistryStr(),
