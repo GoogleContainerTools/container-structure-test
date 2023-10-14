@@ -19,10 +19,6 @@
 
 #End to end tests to make sure the structure tests do what we expect them
 #to do on a known quantity, the latest debian docker image.
-if [[ -n "$DEBUG" ]];
-then
-  set -x
-fi
 failures=0
 
 # Get the architecture to load the right configurations
