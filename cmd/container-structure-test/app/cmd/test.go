@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-
+	"runtime"
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
@@ -225,7 +225,7 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&opts.Driver, "driver", "d", "docker", "driver to use when running tests")
 	cmd.Flags().StringVar(&opts.Metadata, "metadata", "", "path to image metadata file")
 	cmd.Flags().StringVar(&opts.Runtime, "runtime", "", "runtime to use with docker driver")
-	cmd.Flags().StringVar(&opts.Platform, "platform", "linux/amd64", "Set platform if host is multi-platform capable")
+	cmd.Flags().StringVar(&opts.Platform, "platform", fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH), "Set platform if host is multi-platform capable")
 	cmd.Flags().BoolVar(&opts.Pull, "pull", false, "force a pull of the image before running tests")
 	cmd.MarkFlagsMutuallyExclusive("image-from-oci-layout", "pull")
 	cmd.Flags().BoolVar(&opts.Save, "save", false, "preserve created containers after test run")
