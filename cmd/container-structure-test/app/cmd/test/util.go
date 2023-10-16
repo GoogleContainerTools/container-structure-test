@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
@@ -55,7 +55,7 @@ func ValidateArgs(opts *config.StructureTestOptions) error {
 }
 
 func Parse(fp string, args *drivers.DriverConfig, driverImpl func(drivers.DriverConfig) (drivers.Driver, error)) (types.StructureTest, error) {
-	testContents, err := ioutil.ReadFile(fp)
+	testContents, err := os.ReadFile(fp)
 	if err != nil {
 		return nil, err
 	}

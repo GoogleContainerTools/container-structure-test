@@ -15,7 +15,7 @@
 package drivers
 
 import (
-	"io/ioutil"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -143,11 +143,23 @@ func (d *TarDriver) StatFile(path string) (os.FileInfo, error) {
 }
 
 func (d *TarDriver) ReadFile(path string) ([]byte, error) {
-	return ioutil.ReadFile(filepath.Join(d.Image.FSPath, path))
+	return os.ReadFile(filepath.Join(d.Image.FSPath, path))
 }
 
 func (d *TarDriver) ReadDir(path string) ([]os.FileInfo, error) {
-	return ioutil.ReadDir(filepath.Join(d.Image.FSPath, path))
+	entries, err := os.ReadDir(filepath.Join(d.Image.FSPath, path))
+	if err != nil {
+		return nil, err
+	}
+	infos := make([]fs.FileInfo, 0, len(entries))
+	for _, entry := range entries {
+		info, err := entry.Info()
+		if err != nil {
+			return nil, err
+		}
+		infos = append(infos, info)
+	}
+	return infos, nil
 }
 
 func (d *TarDriver) GetConfig() (unversioned.Config, error) {

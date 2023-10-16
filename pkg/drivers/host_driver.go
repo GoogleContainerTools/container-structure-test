@@ -16,7 +16,7 @@ package drivers
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io/fs"
 	"os"
 	"os/exec"
 	"strings"
@@ -144,15 +144,27 @@ func (d *HostDriver) StatFile(path string) (os.FileInfo, error) {
 }
 
 func (d *HostDriver) ReadFile(path string) ([]byte, error) {
-	return ioutil.ReadFile(path)
+	return os.ReadFile(path)
 }
 
 func (d *HostDriver) ReadDir(path string) ([]os.FileInfo, error) {
-	return ioutil.ReadDir(path)
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return nil, err
+	}
+	infos := make([]fs.FileInfo, 0, len(entries))
+	for _, entry := range entries {
+		info, err := entry.Info()
+		if err != nil {
+			return nil, err
+		}
+		infos = append(infos, info)
+	}
+	return infos, nil
 }
 
 func (d *HostDriver) GetConfig() (unversioned.Config, error) {
-	file, err := ioutil.ReadFile(d.ConfigPath)
+	file, err := os.ReadFile(d.ConfigPath)
 	if err != nil {
 		return unversioned.Config{}, errors.Wrap(err, "Error retrieving config")
 	}

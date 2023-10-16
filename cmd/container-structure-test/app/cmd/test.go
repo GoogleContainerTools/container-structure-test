@@ -17,8 +17,6 @@ package cmd
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
-
 	"os"
 
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test"
@@ -78,7 +76,7 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 			}
 
 			if opts.Quiet {
-				out = ioutil.Discard
+				out = io.Discard
 			}
 
 			color.NoColor = opts.NoColor
