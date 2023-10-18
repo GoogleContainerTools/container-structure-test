@@ -230,7 +230,7 @@ then
   echo "$res"
   echo "$code"
   failures=$((failures +1))
-else 
+else
   echo "PASS: oci failing test case"
 fi
 
@@ -242,9 +242,50 @@ then
   echo "$res"
   echo "$code"
   failures=$((failures +1))
-else 
+else
   echo "PASS: oci success test case"
 fi
+
+HEADER "Platform test cases"
+
+docker run --rm --privileged tonistiigi/binfmt --install all > /dev/null
+res=$(./out/container-structure-test test --image "$test_image" --platform="linux/$go_architecture" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+code=$?
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+then
+  echo "FAIL: current host platform test case"
+  echo "$res"
+  echo "$code"
+  failures=$((failures +1))
+else
+  echo "PASS: current host platform test case"
+fi
+
+res=$(./out/container-structure-test test --image "$test_image" --platform="linux/riscv64" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+code=$?
+if ! [[ ("$res" =~ image\ with\ reference.+was\ found\ but\ does\ not\ match\ the\ specified\ platform:\ wanted\ linux\/\riscv64,\ actual:\ linux\/$go_architecture && "$code" == "1") ]];
+then
+  echo "FAIL: platform failing test case"
+  echo "$res"
+  echo "$code"
+  failures=$((failures +1))
+else
+  echo "PASS: platform failing test case"
+fi
+
+test_config_dir="${test_dir}/s390x"
+res=$(./out/container-structure-test test --image "$test_image" --platform="linux/s390x" --pull --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+code=$?
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+then
+  echo "FAIL: platform w/ --pull test case"
+  echo "$res"
+  echo "$code"
+  failures=$((failures +1))
+else
+  echo "PASS: platform w/ --pull test case"
+fi
+
 
 if [ $failures -gt 0 ]; then
   echo "Some tests did not pass. $failures"

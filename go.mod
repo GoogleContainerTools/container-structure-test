@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/GoogleContainerTools/container-diff v0.17.1-0.20230727210151-35d9770aeea3
-	github.com/fsouza/go-dockerclient v1.9.7
+	github.com/fsouza/go-dockerclient v1.10.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/go-containerregistry v0.15.2
 	github.com/joho/godotenv v1.5.1
@@ -15,6 +15,8 @@ require (
 	golang.org/x/crypto v0.14.0
 	gopkg.in/yaml.v2 v2.4.0
 )
+
+exclude github.com/docker/docker v24.0.6+incompatible // indirect
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
@@ -32,7 +34,7 @@ require (
 	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/moby/patternmatcher v0.5.0 // indirect
+	github.com/moby/patternmatcher v0.6.0 // indirect
 	github.com/moby/sys/sequential v0.5.0 // indirect
 	github.com/moby/term v0.0.0-20221205130635-1aeaba878587 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect

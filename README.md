@@ -378,19 +378,22 @@ container_structure_test(
 ### Flags:
 `container-structure-test test -h`
 ```
-  -c, --config stringArray   test config files
-  -d, --driver string        driver to use when running tests (default "docker")
-  -f, --force                force run of host driver (without user prompt)
-  -h, --help                 help for test
-  -i, --image string         path to test image
-      --metadata string      path to image metadata file
-      --no-color             no color in the output
-  -o, --output string        output format for the test report (available format: text, json, junit) (default "text")
-      --pull                 force a pull of the image before running tests
-  -q, --quiet                flag to suppress output
-      --runtime string       runtime to use with docker driver
-      --save                 preserve created containers after test run
-      --test-report string   generate test report and write it to specified file (supported format: json, junit; default: json)
+  -c, --config stringArray             test config files
+      --default-image-tag string       default image tag to used when loading images to the daemon. required when --image-from-oci-layout refers to a oci layout lacking the reference annotation.
+  -d, --driver string                  driver to use when running tests (default "docker")
+  -f, --force                          force run of host driver (without user prompt)
+  -h, --help                           help for test
+  -i, --image string                   path to test image
+      --image-from-oci-layout string   path to the oci layout to test against
+      --metadata string                path to image metadata file
+      --no-color                       no color in the output
+  -o, --output string                  output format for the test report (available format: text, json, junit) (default "text")
+      --platform string                Set platform if host is multi-platform capable (default "linux/amd64")
+      --pull                           force a pull of the image before running tests
+  -q, --quiet                          flag to suppress output
+      --runtime string                 runtime to use with docker driver
+      --save                           preserve created containers after test run
+      --test-report string             generate test report and write it to specified file (supported format: json, junit; default: json)
  ```
 See this [example repo](https://github.com/nkubala/structure-test-examples) for a full working example.
 
