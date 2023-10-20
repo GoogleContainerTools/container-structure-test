@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@b134b73fcae522bc77dcc03533d3de20b45714bf # v5
+    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v5
     with:
       folders: '["bazel/test"]'
       exclude_windows: true
