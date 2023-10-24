@@ -5,6 +5,8 @@ commandTests:
   args: ["--print"]
   expectedOutput:
     - ".*cap_sys_admin.*"
+  excludedOutput:
+    - ".*chown.*"
 - name: "Test bindMounts containerRunOptions"
   command: "test"
   args:
@@ -15,5 +17,7 @@ containerRunOptions:
   privileged: true
   capabilities:
     - "sys_admin"
+  drop_capabilities:
+    - "chown"
   bindMounts:
     - "/tmp/test:/tmp/test"
