@@ -14,7 +14,11 @@ By default, container-structure-test uses the socket available at `/var/run/dock
 If the installation creates the socket in a different path, use
 `--test_env=DOCKER_HOST='unix://<path_to_sock>'`.
 
-To avoid putting this into the commandline or to instruct bazel to read it from terminal environment, 
+If the installation uses a remote Docker daemon and is protected by TLS, the following may be needed as well
+`--test_env=DOCKER_TLS_VERIFY=1`
+`--test_env=DOCKER_CERT_PATH=<path_to_certs>`.
+
+To avoid putting this into the commandline or to instruct bazel to read it from terminal environment,
 simply add `test --test_env=DOCKER_HOST` into the `.bazelrc` file.
 
 Alternatively, use the `driver = "tar"` attribute to avoid the need for a container runtime, see
