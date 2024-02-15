@@ -11,7 +11,7 @@ require (
 	github.com/opencontainers/image-spec v1.1.0-rc5
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	golang.org/x/crypto v0.14.0
 	gopkg.in/yaml.v2 v2.4.0
 )
