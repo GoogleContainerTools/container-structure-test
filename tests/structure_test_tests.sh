@@ -74,14 +74,14 @@ make DOCKER=$DOCKER
 make DOCKER=$DOCKER cross
 make DOCKER=$DOCKER image
 
-# Run the ubuntu tests, they should always pass on 20.04
-test_image="ubuntu:20.04"
+# Run the ubuntu tests, they should always pass on 22.04
+test_image="ubuntu:22.04"
 docker pull "$test_image" > /dev/null
 
 
 HEADER "Positive Test Case"
 
-res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml")
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_22_04_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
@@ -96,7 +96,7 @@ fi
 HEADER "Container Run Options Test Cases"
 test_containeropts_user_image="test.local/ubuntu-unprivileged:latest"
 build_image "Dockerfile.unprivileged" "$test_containeropts_user_image" "$test_dir"
-res=$(./out/container-structure-test test --image "$test_containeropts_user_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_user_test.yaml")
+res=$(./out/container-structure-test test --image "$test_containeropts_user_image" --config "${test_config_dir}/ubuntu_22_04_containeropts_user_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
@@ -110,7 +110,7 @@ docker rmi "$test_containeropts_user_image" > /dev/null
 
 test_containeropts_cap_image="test.local/ubuntu-cap:latest"
 build_image "Dockerfile.cap" "$test_containeropts_cap_image" "$test_dir"
-res=$(./out/container-structure-test test --image "$test_containeropts_cap_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_test.yaml")
+res=$(./out/container-structure-test test --image "$test_containeropts_cap_image" --config "${test_config_dir}/ubuntu_22_04_containeropts_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
@@ -122,7 +122,7 @@ else
 fi
 docker rmi "$test_containeropts_cap_image" > /dev/null
 
-res=$(FOO='keepitsecret!' BAR='keepitsafe!' ./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_env_test.yaml")
+res=$(FOO='keepitsecret!' BAR='keepitsafe!' ./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_22_04_containeropts_env_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
@@ -133,7 +133,7 @@ else
   echo "PASS: Run options (envVars) test case passed"
 fi
 
-res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_containeropts_envfile_test.yaml")
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_22_04_containeropts_envfile_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
@@ -154,7 +154,7 @@ then
   test_metadata_tar=debian8-with-metadata.tar
   test_metadata_dir=debian8-with-metadata
   build_image "Dockerfile.metadata" "$test_metadata_image" "$test_dir"
-  res=$(./out/container-structure-test test --image "$test_metadata_image" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
+  res=$(./out/container-structure-test test --image "$test_metadata_image" --config "${test_config_dir}/ubuntu_22_04_metadata_test.yaml")
   code=$?
 
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
@@ -167,7 +167,7 @@ then
   fi
 
   docker save "$test_metadata_image" -o "$test_metadata_tar" > /dev/null
-  res=$(./out/container-structure-test test --driver tar --image "$test_metadata_tar" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
+  res=$(./out/container-structure-test test --driver tar --image "$test_metadata_tar" --config "${test_config_dir}/ubuntu_22_04_metadata_test.yaml")
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
@@ -181,7 +181,7 @@ then
   mkdir -p "$test_metadata_dir"
   tar -C "$test_metadata_dir" -xf "$test_metadata_tar" > /dev/null
   test_metadata_json=$(jq -r '.[0].Config' "$test_metadata_dir/manifest.json")
-  res=$(./out/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "${test_config_dir}/ubuntu_20_04_metadata_test.yaml")
+  res=$(./out/container-structure-test test --driver host --force --metadata "$test_metadata_dir/$test_metadata_json" --config "${test_config_dir}/ubuntu_22_04_metadata_test.yaml")
   code=$?
   if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
   then
@@ -201,7 +201,7 @@ fi
 HEADER "Failure Test Case"
 
 # Run some bogus tests, they should fail as expected
-res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_20_04_failure_test.yaml")
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_22_04_failure_test.yaml")
 code=$?
 if ! [[ ("$res" =~ "FAIL" && "$code" == "1") ]];
 then
@@ -222,7 +222,7 @@ tmp="$(mktemp -d)"
 crane pull "$test_image" --format=oci "$tmp" --platform="linux/$go_architecture"
 
 
-res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --config "${test_config_dir}/ubuntu_22_04_test.yaml" 2>&1)
 code=$?
 if ! [[ ("$res" =~ index\ does\ not\ contain\ a\ reference\ annotation\.\ \-\-default\-image\-tag\ must\ be\ provided\. && "$code" == "1") ]];
 then
@@ -234,7 +234,7 @@ else
   echo "PASS: oci failing test case"
 fi
 
-res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --default-image-tag="test.local/$test_image" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --default-image-tag="test.local/$test_image" --config "${test_config_dir}/ubuntu_22_04_test.yaml" 2>&1)
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
@@ -249,7 +249,7 @@ fi
 HEADER "Platform test cases"
 
 docker run --rm --privileged tonistiigi/binfmt --install all > /dev/null
-res=$(./out/container-structure-test test --image "$test_image" --platform="linux/$go_architecture" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+res=$(./out/container-structure-test test --image "$test_image" --platform="linux/$go_architecture" --config "${test_config_dir}/ubuntu_22_04_test.yaml" 2>&1)
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
@@ -261,7 +261,7 @@ else
   echo "PASS: current host platform test case"
 fi
 
-res=$(./out/container-structure-test test --image "$test_image" --platform="linux/riscv64" --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+res=$(./out/container-structure-test test --image "$test_image" --platform="linux/riscv64" --config "${test_config_dir}/ubuntu_22_04_test.yaml" 2>&1)
 code=$?
 if ! [[ ("$res" =~ image\ with\ reference.+was\ found\ but\ does\ not\ match\ the\ specified\ platform:\ wanted\ linux\/\riscv64,\ actual:\ linux\/$go_architecture && "$code" == "1") ]];
 then
@@ -274,7 +274,7 @@ else
 fi
 
 test_config_dir="${test_dir}/s390x"
-res=$(./out/container-structure-test test --image "$test_image" --platform="linux/s390x" --pull --config "${test_config_dir}/ubuntu_20_04_test.yaml" 2>&1)
+res=$(./out/container-structure-test test --image "$test_image" --platform="linux/s390x" --pull --config "${test_config_dir}/ubuntu_22_04_test.yaml" 2>&1)
 code=$?
 if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
 then
