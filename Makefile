@@ -34,7 +34,11 @@ VERSION_PACKAGE := $(REPOPATH)/pkg/version
 ifeq ($(GOARCH), amd64)
 SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH) windows-$(GOARCH).exe
 else
+ifeq ($(GOARCH), arm64)
+SUPPORTED_PLATFORMS := linux-$(GOARCH) darwin-$(GOARCH)
+else
 SUPPORTED_PLATFORMS := linux-$(GOARCH)
+endif
 endif
 
 GO_LDFLAGS :="
