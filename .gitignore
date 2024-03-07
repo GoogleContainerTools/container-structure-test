@@ -4,3 +4,4 @@ structure_tests.test
 .vscode
 out/
 bazel-*
+dist/

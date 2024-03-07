@@ -1,0 +1,56 @@
+project_name: container-structure-test
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+
+    main: ./cmd/container-structure-test
+
+    binary: container-structure-test-{{.Os}}-{{.Arch}}
+
+    ldflags:
+      - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.version=12
+      - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.buildDate={{.Date}}
+      - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.builtBy=goreleaser
+      - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.commit={{.Commit}}
+
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - linux_s390x
+      - linux_ppc64le
+      - windows_amd64
+
+    no_unique_dist_dir: true
+
+checksum:
+  name_template: "checksums.txt"
+
+archives:
+  - format: binary
+    name_template: "{{ .Binary }}"
+
+kos:
+  - repository: ghcr.io/GoogleContainerTools/container-structure-test
+    base_image: ubuntu:22.04
+    tags:
+      - '{{.Version}}'
+      - latest
+    bare: true
+    preserve_import_paths: false
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    ldflags:
+      - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.version=12
+      - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.buildDate={{.Date}}
+      - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.builtBy=goreleaser
+      - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.commit={{.Commit}}
+
+release:
+  footer: |
+    ## Container Images
+
+    `ghcr.io/GoogleContainerTools/container-structure-test:{{.Version}}`
