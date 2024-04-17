@@ -19,6 +19,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
@@ -150,8 +151,17 @@ func run(out io.Writer) error {
 				logrus.Fatalf("could parse the default image tag %s: %v", opts.DefaultImageTag, err)
 			}
 		}
-		if _, err = daemon.Write(tag, img); err != nil {
+		var r string
+		if r, err = daemon.Write(tag, img); err != nil {
 			logrus.Fatalf("error loading oci layout into daemon: %v, %s", err)
+		}
+		// For some reason, daemon.Write doesn't return errors for some edge cases.
+		// We should always print what the daemon sent back so that errors are transparent.
+		fmt.Println("Loaded ", tag.String(), r)
+
+		_, err = daemon.Image(tag)
+		if err != nil {
+			logrus.Fatalf("error loading oci layout into daemon: %v", err)
 		}
 
 		opts.ImagePath = tag.String()
