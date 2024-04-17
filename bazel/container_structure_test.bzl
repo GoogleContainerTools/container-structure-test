@@ -54,7 +54,6 @@ def _structure_test_impl(ctx):
         if ctx.attr.driver != "docker":
             fail("when the 'driver' attribute is not 'docker', then the image must be a .tar file")
         fixed_args.extend(["--image-from-oci-layout", "$(rlocation %s)" % image_path])
-        fixed_args.extend(["--default-image-tag", "registry.structure_test.oci.local/image:$DIGEST"])
 
     for arg in ctx.files.configs:
         fixed_args.extend(["--config", "$(rlocation %s)" % to_rlocation_path(ctx, arg)])
