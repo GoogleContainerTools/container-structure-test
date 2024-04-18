@@ -3,7 +3,7 @@ module github.com/GoogleContainerTools/container-structure-test
 go 1.22
 
 require (
-	github.com/fsouza/go-dockerclient v1.10.2
+	github.com/fsouza/go-dockerclient v1.11.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-containerregistry v0.19.1
 	github.com/joho/godotenv v1.5.1
