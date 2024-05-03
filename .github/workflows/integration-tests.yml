@@ -5,12 +5,20 @@ on: [push, pull_request]
 
 permissions: read-all
 
+concurrency:
+  # On master/release, we don't want any jobs cancelled
+  # On PR branches, we cancel the job if new commits are pushed
+  # More info: https://stackoverflow.com/a/70972844/1261287
+  group: ${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+  
 jobs:
   build:
     name: PR unit tests
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
+      fail-fast: false
     runs-on: ${{ matrix.os }}
     
     steps:
