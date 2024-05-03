@@ -33,7 +33,7 @@ readonly image=$(rlocation {image_path})
 # When the image points to a folder, we can read the index.json file inside
 if [[ -d "$image" ]]; then
   readonly DIGEST=$("$jq" -r '.manifests[0].digest | sub(":"; "-")' "$image/index.json")
-  exec "$st" test --driver {driver} {fixed_args} --default-image-tag "registry.structure_test.oci.local/image:$DIGEST" $@
+  exec "$st" test --driver {driver} {fixed_args} --default-image-tag "cst.oci.local/$DIGEST:$DIGEST" $@
 else
   exec "$st" test --driver {driver} {fixed_args} $@
 fi
@@ -53,7 +53,7 @@ def _structure_test_impl(ctx):
         # https://github.com/GoogleContainerTools/container-structure-test/blob/5e347b66fcd06325e3caac75ef7dc999f1a9b614/cmd/container-structure-test/app/cmd/test.go#L110
         if ctx.attr.driver != "docker":
             fail("when the 'driver' attribute is not 'docker', then the image must be a .tar file")
-        fixed_args.extend(["--image-from-oci-layout", "$(rlocation %s)" % image_path])
+        fixed_args.extend(["--ignore-ref-annotation", "--image-from-oci-layout", "$(rlocation %s)" % image_path])
 
     for arg in ctx.files.configs:
         fixed_args.extend(["--config", "$(rlocation %s)" % to_rlocation_path(ctx, arg)])
