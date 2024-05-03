@@ -33,7 +33,7 @@ archives:
     name_template: "{{ .Binary }}"
 
 kos:
-  - repository: ghcr.io/GoogleContainerTools/container-structure-test
+  - repository: ghcr.io/googlecontainertools/container-structure-test
     base_image: ubuntu:22.04
     tags:
       - '{{.Version}}'
