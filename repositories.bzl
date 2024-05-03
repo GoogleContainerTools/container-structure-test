@@ -3,14 +3,20 @@ load("@aspect_bazel_lib//lib:repositories.bzl", "register_jq_toolchains")
 load("//bazel:toolchains_repo.bzl", "PLATFORMS", "toolchains_repo")
 
 # TODO(alexeagle): automate updates when new releases
-_VERSION = "v1.16.0"
+# Run following command to make sure all checksums are correct.
+
+# bazel build @structure_test_st_darwin_amd64//... @structure_test_st_darwin_arm64//... @structure_test_st_linux_arm64//... \
+# @structure_test_st_linux_s390x//...  @structure_test_st_linux_amd64//... @structure_test_st_windows_amd64//...
+
+_VERSION = "v1.18.0"
 _HASHES = {
-    "darwin-amd64": "sha256-jOe4gU9MwonDp3K8lSZGmjmKDLLdl4ejPT6Ke86lYhs=",
-    "linux-amd64": "sha256-nMIaLb5vcqahAZXMO2/R2163bEqurAm0Kwam8Bf03ko=",
-    "linux-arm64": "sha256-EWuxmIv/YLcRQV++8o3KjaVmVUT5sHSIZoeMSjuKKJQ=",
-    "linux-ppc64le": "sha256-NEiUQYRgZtnhCzKXDTjB0lO95WkVcxvoPFnVt6neN0A=",
-    "linux-s390x": "sha256-6Hvn2XJZtLyP11IQlgqty7jMZ+6ETro3CRzayNslQAw=",
-    "windows-amd64.exe": "sha256-vdYQeDJ+DUyXNeLV8UtE5cGjdHF7+aQfFRG6Xo8Q0hY="
+    "darwin-amd64": "sha256-5y1LUSMqGM6ObPvhxb8lX3hr1s9qmipEeeF22AuV/qM=",
+    "darwin-arm64": "sha256-gyciqmGRpEJWJVerDk3DMsgQCwIbH96erVsplg79RXc=",
+    "linux-amd64": "sha256-E3KUXKTtni6NzZCOURgkmrMFrBQwqAyuaKKgLdFeB1k=",
+    "linux-arm64": "sha256-6ViiaUqdpYsypcH1KJ0so5I3FcBXD3AdAPYdeZe2RU0=",
+    "linux-ppc64le": "sha256-WhrNx20HPr5YlOdAvvlXu4JLf99aR3VR7j24nS37cPs=",
+    "linux-s390x": "sha256-pVMML4W7RyD/UnVcl3rZaGWFa6hQCEK1vxWYwr9TVAY=",
+    "windows-amd64.exe": "sha256-DMMeVu5TH7WzRidInMdvMkxuYWpuuV8u4R7y9M1ObnU="
 }
 
 STRUCTURE_TEST_BUILD_TMPL = """\

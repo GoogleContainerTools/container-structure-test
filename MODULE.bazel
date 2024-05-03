@@ -12,7 +12,18 @@ bazel_dep(name = "bazel_skylib", version = "1.4.1")
 bazel_dep(name = "platforms", version = "0.0.5")
 
 ext = use_extension("//:repositories.bzl", "extension")
-use_repo(ext, "structure_test_toolchains")
+use_repo(
+    ext,
+    "structure_test_toolchains",
+    # For testing only
+    "structure_test_st_darwin_amd64",
+    "structure_test_st_darwin_arm64",
+    "structure_test_st_linux_arm64",
+    "structure_test_st_linux_i386",
+    "structure_test_st_linux_s390x",
+    "structure_test_st_linux_amd64",
+    "structure_test_st_windows_amd64",
+)
 
 register_toolchains("@structure_test_toolchains//:all")
 
