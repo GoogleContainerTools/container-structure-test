@@ -4,5 +4,6 @@ Barebones releasing instructions
 
 - Update Makefile `VERSION_xxx` and submit changes
 - Tag the new release (at the above commit)
-- Tagging triggers a build on cloud build
-- Go update the release on github with artifacts (from gcs) and release notes
+- Tagging triggers a goreleaser build on github actions
+- Artifacts are automatically added to the github release 
+- Container images are published to ghcr.io/GoogleContainerTools/container-structure-test (:latest, :<version>)
