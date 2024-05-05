@@ -31,11 +31,7 @@ structure_test_toolchain(
 def _structure_test_repo_impl(repository_ctx):
     platform = repository_ctx.attr.platform.replace("_", "-")
 
-    # There is no arm64 version of structure test binary.
-    # TODO: remove this after we start publishing one.
-    if platform.find("darwin") != -1:
-        platform = platform.replace("arm64", "amd64")
-    elif platform.find("windows") != -1:
+    if platform.find("windows") != -1:
         platform = platform + ".exe"
     url = "https://github.com/GoogleContainerTools/container-structure-test/releases/download/{version}/container-structure-test-{platform}".format(
         version = _VERSION,
