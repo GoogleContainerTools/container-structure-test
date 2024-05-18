@@ -19,7 +19,6 @@ use_repo(
     "structure_test_st_darwin_amd64",
     "structure_test_st_darwin_arm64",
     "structure_test_st_linux_arm64",
-    "structure_test_st_linux_i386",
     "structure_test_st_linux_s390x",
     "structure_test_st_linux_amd64",
     "structure_test_st_windows_amd64",
