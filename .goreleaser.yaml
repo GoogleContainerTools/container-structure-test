@@ -9,7 +9,7 @@ builds:
     binary: container-structure-test-{{.Os}}-{{.Arch}}
 
     ldflags:
-      - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.version=12
+      - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.version={{.Version}}
       - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.buildDate={{.Date}}
       - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.builtBy=goreleaser
       - -X github.com/GoogleContainerTools/container-structure-test/pkg/version.commit={{.Commit}}
