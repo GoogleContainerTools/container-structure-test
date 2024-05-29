@@ -38,12 +38,6 @@ PLATFORMS = {
             "@platforms//cpu:aarch64",
         ],
     ),
-    "linux_i386": struct(
-        compatible_with = [
-            "@platforms//os:linux",
-            "@platforms//cpu:x86_32",
-        ],
-    ),
     "linux_s390x": struct(
         compatible_with = [
             "@platforms//os:linux",
