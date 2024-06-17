@@ -35,7 +35,7 @@ jobs:
         go-version: ^1.22
       id: go
     
-    - uses: imjasonh/setup-crane@v0.3
+    - uses: imjasonh/setup-crane@v0.4
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v4
