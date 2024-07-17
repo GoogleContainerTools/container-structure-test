@@ -8,8 +8,8 @@ module(
 
 # To run jq
 bazel_dep(name = "aspect_bazel_lib", version = "1.28.0")
-bazel_dep(name = "bazel_skylib", version = "1.4.1")
-bazel_dep(name = "platforms", version = "0.0.5")
+bazel_dep(name = "bazel_skylib", version = "1.6.1")
+bazel_dep(name = "platforms", version = "0.0.9")
 
 ext = use_extension("//:repositories.bzl", "extension")
 use_repo(
