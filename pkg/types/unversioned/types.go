@@ -125,6 +125,8 @@ type JUnitTestCase struct {
 	Name     string   `xml:"name,attr"`
 	Errors   []string `xml:"failure"`
 	Duration float64  `xml:"time,attr"`
+	Stdout   string   `xml:"system-out"`
+	Stderr   string   `xml:"system-err"`
 }
 
 type OutputValue int

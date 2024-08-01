@@ -77,6 +77,8 @@ func FinalResults(out io.Writer, format types.OutputValue, result types.SummaryO
 				Name:     r.Name,
 				Errors:   r.Errors,
 				Duration: r.Duration.Seconds(),
+				Stdout:   r.Stdout,
+				Stderr:   r.Stderr,
 			})
 		}
 		junit_result := struct {
