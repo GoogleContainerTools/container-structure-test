@@ -98,6 +98,9 @@ func (d *DockerDriver) Destroy() {
 }
 
 func (d *DockerDriver) SetEnv(envVars []unversioned.EnvVar) error {
+	if len(envVars) == 0 {
+		return nil
+	}
 	env := d.processEnvVars(envVars)
 	container, err := d.cli.CreateContainer(docker.CreateContainerOptions{
 		Platform: d.platform,
