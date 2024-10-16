@@ -20,7 +20,7 @@ $ brew install container-structure-test
 ```
 
 ```shell
-curl -LO https://github.com/GoogleContainerTools/container-structure-test/releases/latest/download/container-structure-test-darwin-arm64 && chmod +x container-structure-test-darwin-amd64 && sudo mv container-structure-test-darwin-amd64 /usr/local/bin/container-structure-test
+curl -LO https://github.com/GoogleContainerTools/container-structure-test/releases/latest/download/container-structure-test-darwin-arm64 && chmod +x container-structure-test-darwin-arm64 && sudo mv container-structure-test-darwin-arm64 /usr/local/bin/container-structure-test
 ```
 
 ### Linux
