@@ -38,7 +38,7 @@ while IFS= read -r line; do
 	read -r sha256 filename <<< "$line"
 	integrity="sha256-$(echo $sha256 | xxd -r -p | base64)"
 	filename=${filename#container-structure-test-}
-    echo "    \"$filename\": \"$integrity\""
+    echo "    \"$filename\": \"$integrity\","
 done <<< "$checksums"
 echo "}"
 
