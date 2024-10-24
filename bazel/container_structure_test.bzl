@@ -15,6 +15,10 @@ _attrs = {
         values = ["docker", "tar", "host"],
         doc = "See https://github.com/GoogleContainerTools/container-structure-test#running-file-tests-without-docker",
     ),
+    "platform": attr.string(
+        default = "linux/amd64",
+        doc = "Set platform if host is multi-platform capable (default \"linux/amd64\")",
+    ),
     "_runfiles": attr.label(default = "@bazel_tools//tools/bash/runfiles"),
     "_windows_constraint": attr.label(default = "@platforms//os:windows"),
 }
@@ -57,6 +61,9 @@ def _structure_test_impl(ctx):
 
     for arg in ctx.files.configs:
         fixed_args.extend(["--config", "$(rlocation %s)" % to_rlocation_path(ctx, arg)])
+
+    if ctx.attr.platform:
+        fixed_args.extend(["--platform", ctx.attr.platform])
 
     bash_launcher = ctx.actions.declare_file("%s.sh" % ctx.label.name)
     ctx.actions.write(
