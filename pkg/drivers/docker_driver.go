@@ -19,13 +19,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/joho/godotenv"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
@@ -69,6 +69,7 @@ func (d *DockerDriver) hostConfig() *docker.HostConfig {
 			Capabilities: d.runOpts.Capabilities,
 			Binds:        d.runOpts.BindMounts,
 			Privileged:   d.runOpts.Privileged,
+			Sysctls:      d.runOpts.Sysctls,
 			Runtime:      d.runtime,
 		}
 	}
@@ -77,6 +78,7 @@ func (d *DockerDriver) hostConfig() *docker.HostConfig {
 			Capabilities: d.runOpts.Capabilities,
 			Binds:        d.runOpts.BindMounts,
 			Privileged:   d.runOpts.Privileged,
+			Sysctls:      d.runOpts.Sysctls,
 		}
 	}
 	if d.runtime != "" {
