@@ -306,6 +306,9 @@ containerRunOptions:
     - OTHER_SECRET_BAR
   capabilities:                 # Add list of Linux capabilities (--cap-add)
     - NET_BIND_SERVICE
+  sysctls:
+    net.core.somaxconn: "1024"
+    net.ipv4.tcp_max_syn_backlog: "4096"
   bindMounts:                   # Bind mount a volume (--volume, -v)
     - /etc/example/dir:/etc/dir
 ```
