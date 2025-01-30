@@ -153,7 +153,7 @@ func run(out io.Writer) error {
 		}
 		var r string
 		if r, err = daemon.Write(tag, img); err != nil {
-			logrus.Fatalf("error loading oci layout into daemon: %v, %s", err)
+			logrus.Fatalf("error loading oci layout into daemon: %v", err)
 		}
 		// For some reason, daemon.Write doesn't return errors for some edge cases.
 		// We should always print what the daemon sent back so that errors are transparent.
