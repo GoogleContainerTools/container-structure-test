@@ -44,7 +44,11 @@ fi
 """
 
 def _structure_test_impl(ctx):
-    fixed_args = []
+    fixed_args = [
+        "--test-report $XML_OUTPUT_FILE",
+        "--output junit",
+        "--junit-suite-name $TEST_TARGET"
+    ]
     test_bin = ctx.toolchains["@container_structure_test//bazel:structure_test_toolchain_type"].st_info.binary
     jq_bin = ctx.toolchains["@aspect_bazel_lib//lib:jq_toolchain_type"].jqinfo.bin
 
