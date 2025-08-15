@@ -21,11 +21,7 @@ When developing changes, you may want to test your modifications before they're 
 
 2. Temporarily modify `bazel/container_structure_test.bzl`:
    ```sh
-   # Backup the original
-   cp bazel/container_structure_test.bzl bazel/container_structure_test.bzl.backup
-   
-   # Replace the st_path reference with your local binary
-   sed -i '' 's|readonly st=$(rlocation {st_path})|readonly st="/tmp/container-structure-test-local"|g' bazel/container_structure_test.bzl
+   sed -i.bak 's|readonly st=$(rlocation {st_path})|readonly st="/tmp/container-structure-test-local"|g' bazel/container_structure_test.bzl
    ```
 
 3. Run the bazel test:
@@ -36,7 +32,7 @@ When developing changes, you may want to test your modifications before they're 
 
 4. Restore the original rule:
    ```sh
-   mv bazel/container_structure_test.bzl.backup bazel/container_structure_test.bzl
+   mv bazel/container_structure_test.bzl.bak bazel/container_structure_test.bzl
    ```
 
 This allows you to verify that your changes work correctly with the bazel integration before submitting them.
