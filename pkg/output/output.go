@@ -101,10 +101,10 @@ func FinalResults(out io.Writer, format types.OutputValue, junitSuiteName string
 			Fail:     result.Fail,
 			Total:    result.Total,
 			Duration: time.Duration.Seconds(result.Duration), // JUnit expects durations as float of seconds
-					TestSuite: types.JUnitTestSuite{
-			Name:    getJunitSuiteName(junitSuiteName),
-			Results: junit_cases,
-		},
+			TestSuite: types.JUnitTestSuite{
+				Name:    getJunitSuiteName(junitSuiteName),
+				Results: junit_cases,
+			},
 		}
 		res := []byte(strings.ReplaceAll(xml.Header, "\n", ""))
 		marshalled, err := xml.Marshal(junit_result)
