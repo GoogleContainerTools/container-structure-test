@@ -5,7 +5,5 @@ go_library(
     srcs = ["options.go"],
     importpath = "github.com/GoogleContainerTools/container-structure-test/pkg/config",
     visibility = ["//visibility:public"],
-    # importpath = "github.com/bazel-contrib/rules_go/examples/hello",
-    # visibility = ["//visibility:private"],
     deps = ["//pkg/types/unversioned"],
 )
