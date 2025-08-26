@@ -1,0 +1,11 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "config",
+    srcs = ["options.go"],
+    importpath = "github.com/GoogleContainerTools/container-structure-test/pkg/config",
+    visibility = ["//visibility:public"],
+    # importpath = "github.com/bazel-contrib/rules_go/examples/hello",
+    # visibility = ["//visibility:private"],
+    deps = ["//pkg/types/unversioned"],
+)

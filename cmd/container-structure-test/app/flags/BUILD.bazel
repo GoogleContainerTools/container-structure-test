@@ -1,0 +1,9 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "flags",
+    srcs = ["template.go"],
+    importpath = "github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/flags",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_pkg_errors//:go_default_library"],
+)

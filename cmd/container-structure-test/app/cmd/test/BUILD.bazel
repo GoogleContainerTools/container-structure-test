@@ -1,0 +1,17 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "test",
+    srcs = ["util.go"],
+    importpath = "github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/config",
+        "//pkg/drivers",
+        "//pkg/output",
+        "//pkg/types",
+        "//pkg/types/unversioned",
+        "@com_github_pkg_errors//:go_default_library",
+        "@in_gopkg_yaml_v2//:go_default_library",
+    ],
+)
