@@ -8,6 +8,6 @@ go_library(
     deps = [
         "//pkg/drivers",
         "//pkg/types/v1",
-        "//pkg/types/v2:types",
+        "//pkg/types/v2",
     ],
 )
