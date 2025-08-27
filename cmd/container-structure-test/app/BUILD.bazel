@@ -4,6 +4,6 @@ go_library(
     name = "app",
     srcs = ["container-structure-test.go"],
     importpath = "github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app",
-    visibility = ["//visibility:public"],
+    visibility = ["//cmd/container-structure-test:__pkg__"],
     deps = ["//cmd/container-structure-test/app/cmd"],
 )
