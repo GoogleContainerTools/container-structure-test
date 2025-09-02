@@ -34,7 +34,7 @@ bazel_dep(
     version = "0.50.1",
 )
 
-bazel_dep(name = "gazelle", version = "0.42.0", dev_dependency = True)
+bazel_dep(name = "gazelle", version = "0.42.0")
 
 go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
 go_deps.from_file(go_mod = "//:go.mod")
