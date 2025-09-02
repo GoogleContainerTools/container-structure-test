@@ -8,7 +8,7 @@ go_library(
         "version.go",
     ],
     importpath = "github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd",
-    visibility = ["//visibility:public"],
+    visibility = ["//cmd/container-structure-test/app:__pkg__"],
     deps = [
         "//cmd/container-structure-test/app/cmd/test",
         "//cmd/container-structure-test/app/flags",

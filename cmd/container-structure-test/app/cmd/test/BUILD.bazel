@@ -4,7 +4,7 @@ go_library(
     name = "test",
     srcs = ["util.go"],
     importpath = "github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test",
-    visibility = ["//visibility:public"],
+    visibility = ["//cmd/container-structure-test/app/cmd:__pkg__"],
     deps = [
         "//pkg/config",
         "//pkg/drivers",
