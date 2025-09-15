@@ -1,6 +1,6 @@
 module github.com/GoogleContainerTools/container-structure-test
 
-go 1.22
+go 1.24.0
 
 require (
 	github.com/fsouza/go-dockerclient v1.11.2
@@ -12,7 +12,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
-	golang.org/x/crypto v0.25.0
+	golang.org/x/crypto v0.42.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -53,6 +53,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/term v0.22.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/term v0.35.0 // indirect
 )
