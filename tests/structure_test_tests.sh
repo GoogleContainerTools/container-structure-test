@@ -263,7 +263,7 @@ fi
 
 res=$(./out/container-structure-test test --image "$test_image" --platform="linux/riscv64" --config "${test_config_dir}/ubuntu_22_04_test.yaml" 2>&1)
 code=$?
-if ! [[ ("$res" =~ image\ with\ reference.+was\ found\ but\ does\ not\ match\ the\ specified\ platform:\ wanted\ linux\/\riscv64,\ actual:\ linux\/$go_architecture && "$code" == "1") ]];
+if ! [[ "$res" =~ image\ with\ reference.+was\ found\ but\ its\ platform\ \(linux\/${go_architecture}\)\ does\ not\ match\ the\ specified\ platform\ \(linux\/riscv64\) && "$code" == "1" ]];
 then
   echo "FAIL: platform failing test case"
   echo "$res"
