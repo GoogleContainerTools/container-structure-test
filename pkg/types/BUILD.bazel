@@ -1,0 +1,13 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "types",
+    srcs = ["types.go"],
+    importpath = "github.com/GoogleContainerTools/container-structure-test/pkg/types",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/drivers",
+        "//pkg/types/v1",
+        "//pkg/types/v2",
+    ],
+)

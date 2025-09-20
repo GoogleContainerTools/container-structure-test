@@ -1,0 +1,9 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "app",
+    srcs = ["container-structure-test.go"],
+    importpath = "github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app",
+    visibility = ["//cmd/container-structure-test:__pkg__"],
+    deps = ["//cmd/container-structure-test/app/cmd"],
+)

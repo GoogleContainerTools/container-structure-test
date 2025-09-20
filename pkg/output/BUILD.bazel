@@ -1,0 +1,20 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "output",
+    srcs = ["output.go"],
+    importpath = "github.com/GoogleContainerTools/container-structure-test/pkg/output",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/color",
+        "//pkg/types/unversioned",
+        "@com_github_pkg_errors//:go_default_library",
+    ],
+)
+
+go_test(
+    name = "output_test",
+    srcs = ["output_test.go"],
+    embed = [":output"],
+    deps = ["//pkg/types/unversioned"],
+)
