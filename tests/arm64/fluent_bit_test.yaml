@@ -1,0 +1,19 @@
+schemaVersion: '2.0.0' # Make sure to test the latest schema version
+commandTests:
+- name: 'fluent-bit'
+  command: '/fluent-bit/bin/fluent-bit'
+  args: ['--version']
+  expectedOutput: ['Fluent Bit v4.0.4']
+fileContentTests:
+- name: 'Passwd file'
+  expectedContents: ['root:x:0:0:root:/root:/sbin/nologin']
+  path: '/etc/passwd'
+fileExistenceTests:
+- name: 'Root'
+  path: '/'
+  shouldExist: true
+  uid: 0
+  gid: 0
+- name: 'libc'
+  path: '/lib/aarch64-linux-gnu/libc.so.6'
+  shouldExist: true
