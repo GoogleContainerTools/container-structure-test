@@ -10,6 +10,8 @@ on:
 
 jobs:
   test:
+    # Disabled until post-release
+    when: never
     uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v6
     with:
       folders: '["bazel/test"]'
