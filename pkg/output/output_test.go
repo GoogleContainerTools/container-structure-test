@@ -59,7 +59,7 @@ func TestFinalResults(t *testing.T) {
 		t.Run(test.format.String(), func(t *testing.T) {
 			t.Parallel()
 
-			FinalResults(test.actual, test.format, result)
+			FinalResults(test.actual, test.format, "", result)
 
 			if strings.TrimSpace(test.actual.String()) != test.expected {
 				t.Errorf("expected %s but got %s", test.expected, test.actual)
