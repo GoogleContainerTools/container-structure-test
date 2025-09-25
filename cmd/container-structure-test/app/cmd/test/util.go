@@ -105,7 +105,7 @@ func Parse(fp string, args *drivers.DriverConfig, driverImpl func(drivers.Driver
 	return tests, nil
 }
 
-func ProcessResults(out io.Writer, format unversioned.OutputValue, c chan interface{}) error {
+func ProcessResults(out io.Writer, format unversioned.OutputValue, junitSuiteName string, c chan interface{}) error {
 	totalPass := 0
 	totalFail := 0
 	totalDuration := time.Duration(0)
@@ -143,7 +143,7 @@ func ProcessResults(out io.Writer, format unversioned.OutputValue, c chan interf
 		// only output results here if we're in json mode
 		summary.Results = results
 	}
-	output.FinalResults(out, format, summary)
+	output.FinalResults(out, format, junitSuiteName, summary)
 
 	return err
 }
