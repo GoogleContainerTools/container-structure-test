@@ -31,11 +31,13 @@ import (
 
 var bannerLength = 27 // default banner length
 
+const DefaultJunitSuiteName = "container-structure-test.test"
+
 func getJunitSuiteName(junitSuiteName string) string {
 	if junitSuiteName != "" {
 		return junitSuiteName
 	}
-	return "container-structure-test.test"
+	return DefaultJunitSuiteName
 }
 
 func OutputResult(out io.Writer, result *types.TestResult) {
