@@ -205,7 +205,7 @@ func run(out io.Writer) error {
 	channel := make(chan interface{}, 1)
 	go runTests(out, channel, args, driverImpl)
 	// TODO(nkubala): put a sync.WaitGroup here
-	return test.ProcessResults(out, opts.Output, channel)
+	return test.ProcessResults(out, opts.Output, opts.JunitSuiteName, channel)
 }
 
 func runTests(out io.Writer, channel chan interface{}, args *drivers.DriverConfig, driverImpl func(drivers.DriverConfig) (drivers.Driver, error)) {
@@ -246,6 +246,7 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().MarkDeprecated("json", "please use --output instead")
 	cmd.Flags().VarP(&opts.Output, "output", "o", "output format for the test report (available format: text, json, junit)")
 	cmd.Flags().BoolVar(&opts.NoColor, "no-color", false, "no color in the output")
+	cmd.Flags().StringVar(&opts.JunitSuiteName, "junit-suite-name", "", fmt.Sprintf("name to use for the junit test suite (defaults to '%s')", output.DefaultJunitSuiteName))
 
 	cmd.Flags().StringArrayVarP(&opts.ConfigFiles, "config", "c", []string{}, "test config files")
 	cmd.MarkFlagRequired("config")

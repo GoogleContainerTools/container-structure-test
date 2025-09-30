@@ -28,11 +28,12 @@ type StructureTestOptions struct {
 	TestReport          string
 	ConfigFiles         []string
 
-	JSON    bool
-	Output  unversioned.OutputValue
-	Pull    bool
-	Save    bool
-	Quiet   bool
-	Force   bool
-	NoColor bool
+	JSON           bool
+	Output         unversioned.OutputValue
+	JunitSuiteName string
+	Pull           bool
+	Save           bool
+	Quiet          bool
+	Force          bool
+	NoColor        bool
 }

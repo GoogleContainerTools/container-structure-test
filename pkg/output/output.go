@@ -31,6 +31,15 @@ import (
 
 var bannerLength = 27 // default banner length
 
+const DefaultJunitSuiteName = "container-structure-test.test"
+
+func getJunitSuiteName(junitSuiteName string) string {
+	if junitSuiteName != "" {
+		return junitSuiteName
+	}
+	return DefaultJunitSuiteName
+}
+
 func OutputResult(out io.Writer, result *types.TestResult) {
 	color.Default.Fprintf(out, "=== RUN: %s\n", result.Name)
 	if result.Pass {
@@ -58,7 +67,7 @@ func Banner(out io.Writer, filename string) {
 	color.Purple.Fprintln(out, strings.Repeat("=", bannerLength))
 }
 
-func FinalResults(out io.Writer, format types.OutputValue, result types.SummaryObject) error {
+func FinalResults(out io.Writer, format types.OutputValue, junitSuiteName string, result types.SummaryObject) error {
 	if format == types.Json {
 		res, err := json.Marshal(result)
 		if err != nil {
@@ -95,7 +104,7 @@ func FinalResults(out io.Writer, format types.OutputValue, result types.SummaryO
 			Total:    result.Total,
 			Duration: time.Duration.Seconds(result.Duration), // JUnit expects durations as float of seconds
 			TestSuite: types.JUnitTestSuite{
-				Name:    "container-structure-test.test",
+				Name:    getJunitSuiteName(junitSuiteName),
 				Results: junit_cases,
 			},
 		}
