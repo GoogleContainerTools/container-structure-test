@@ -19,12 +19,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/joho/godotenv"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/joho/godotenv"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -66,17 +67,19 @@ func NewDockerDriver(args DriverConfig) (Driver, error) {
 func (d *DockerDriver) hostConfig() *docker.HostConfig {
 	if d.runOpts.IsSet() && d.runtime != "" {
 		return &docker.HostConfig{
-			Capabilities: d.runOpts.Capabilities,
-			Binds:        d.runOpts.BindMounts,
-			Privileged:   d.runOpts.Privileged,
-			Runtime:      d.runtime,
+			CapAdd:     d.runOpts.CapAdd,
+			CapDrop:    d.runOpts.CapDrop,
+			Binds:      d.runOpts.BindMounts,
+			Privileged: d.runOpts.Privileged,
+			Runtime:    d.runtime,
 		}
 	}
 	if d.runOpts.IsSet() {
 		return &docker.HostConfig{
-			Capabilities: d.runOpts.Capabilities,
-			Binds:        d.runOpts.BindMounts,
-			Privileged:   d.runOpts.Privileged,
+			CapAdd:     d.runOpts.CapAdd,
+			CapDrop:    d.runOpts.CapDrop,
+			Binds:      d.runOpts.BindMounts,
+			Privileged: d.runOpts.Privileged,
 		}
 	}
 	if d.runtime != "" {
