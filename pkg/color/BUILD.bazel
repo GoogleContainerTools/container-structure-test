@@ -1,0 +1,16 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "color",
+    srcs = ["formatter.go"],
+    importpath = "github.com/GoogleContainerTools/container-structure-test/pkg/color",
+    visibility = ["//visibility:public"],
+    deps = ["@org_golang_x_crypto//ssh/terminal:go_default_library"],
+)
+
+go_test(
+    name = "color_test",
+    srcs = ["formatter_test.go"],
+    embed = [":color"],
+    deps = ["//testutil"],
+)
