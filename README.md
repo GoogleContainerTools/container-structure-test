@@ -300,6 +300,7 @@ containerRunOptions:
   user: "root"                  # set the --user/-u flag
   privileged: true              # set the --privileged flag (default: false)
   allocateTty: true             # set the --tty flag (default: false)
+  network: "bridge"             # set the --net flag (default: bridge)
   envFile: path/to/.env         # load environment variables from file and pass to container (equivalent to --env-file)
   envVars:                      # if not empty, read each envVar from the environment and pass to test (equivalent to --env/e)
     - SECRET_KEY_FOO
