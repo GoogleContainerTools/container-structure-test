@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/fsouza/go-dockerclient v1.11.2
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.20.1
 	github.com/joho/godotenv v1.5.1
 	github.com/moby/sys/sequential v0.6.0
