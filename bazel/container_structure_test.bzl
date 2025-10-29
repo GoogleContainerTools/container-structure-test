@@ -5,7 +5,7 @@ load("@aspect_bazel_lib//lib:windows_utils.bzl", "create_windows_native_launcher
 
 _attrs = {
     "image": attr.label(
-        allow_single_file = True,
+        allow_files = True,
         doc = "Label of an oci_image or oci_tarball target.",
     ),
     "configs": attr.label_list(allow_files = True, mandatory = True),
@@ -48,7 +48,25 @@ def _structure_test_impl(ctx):
     test_bin = ctx.toolchains["@container_structure_test//bazel:structure_test_toolchain_type"].st_info.binary
     jq_bin = ctx.toolchains["@aspect_bazel_lib//lib:jq_toolchain_type"].jqinfo.bin
 
-    image_path = to_rlocation_path(ctx, ctx.file.image)
+    default_info = ctx.attr.image[DefaultInfo] if DefaultInfo in ctx.attr.image else None
+    output_group_info = ctx.attr.image[OutputGroupInfo] if OutputGroupInfo in ctx.attr.image else None
+    image = None
+    image_files = []
+    if output_group_info:
+        for group_name in ["oci_layout", "oci_tarball"]:
+            if group_name in output_group_info:
+                image_files = output_group_info[group_name].to_list()
+                if len(image_files) != 1:
+                    fail("the 'image' attribute contains the '%s' output group but it does not have exactly one file" % group_name)
+                image = image_files[0]
+                break
+    if not image and default_info and len(default_info.files.to_list()) == 1:
+        image_files = default_info.files.to_list()
+        image = image_files[0]
+    if not image:
+        fail("the 'image' attribute must be a target that produces exactly one file or contain either the 'oci_layout' or 'oci_tarball' output groups")
+
+    image_path = to_rlocation_path(ctx, image)
 
     # Prefer to use a tarball if we are given one, as it works with more 'driver' types.
     if image_path.endswith(".tar"):
@@ -81,7 +99,7 @@ def _structure_test_impl(ctx):
     is_windows = ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo])
     launcher = create_windows_native_launcher_script(ctx, bash_launcher) if is_windows else bash_launcher
     runfiles = ctx.runfiles(
-        files = ctx.files.image + ctx.files.configs + [
+        files = image_files + ctx.files.configs + [
             bash_launcher,
             test_bin,
             jq_bin,
