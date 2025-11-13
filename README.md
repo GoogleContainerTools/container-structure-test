@@ -306,6 +306,8 @@ containerRunOptions:
     - OTHER_SECRET_BAR
   capabilities:                 # Add list of Linux capabilities (--cap-add)
     - NET_BIND_SERVICE
+  drop_capabilities:            # Drop list of Linux capabilities (--cap-drop)
+    - NET_BIND_SERVICE
   bindMounts:                   # Bind mount a volume (--volume, -v)
     - /etc/example/dir:/etc/dir
 ```
