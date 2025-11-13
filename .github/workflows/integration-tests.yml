@@ -17,17 +17,15 @@ jobs:
     name: PR unit tests
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-15]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     
     steps:
     - name: start docker
-      if: ${{ matrix.os == 'macos-latest' }}
-      run: |
-        brew install docker colima
-        colima start
-        echo "DOCKER_HOST=unix:///Users/runner/.colima/default/docker.sock" >> $GITHUB_ENV
+      if: ${{ matrix.os == 'macos-15' }}
+      id: setup-docker
+      uses: douglascamata/setup-docker-macos-action@v1.0.1
         
     - name: Set up Go
       uses: actions/setup-go@v5
