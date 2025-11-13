@@ -25,7 +25,7 @@ jobs:
     - name: start docker
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
-        brew install docker
+        brew install docker colima
         colima start
         echo "DOCKER_HOST=unix:///Users/runner/.colima/default/docker.sock" >> $GITHUB_ENV
         
