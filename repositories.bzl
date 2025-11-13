@@ -8,7 +8,7 @@ load("//bazel:toolchains_repo.bzl", "PLATFORMS", "toolchains_repo")
 # bazel build @structure_test_st_darwin_amd64//... @structure_test_st_darwin_arm64//... @structure_test_st_linux_arm64//... \
 # @structure_test_st_linux_s390x//...  @structure_test_st_linux_amd64//... @structure_test_st_windows_amd64//...
 
-_VERSION="v1.21.0"
+_VERSION="v1.22.0"
 _HASHES = {
     "darwin-amd64": "sha256-wABR53ZRgR9vh3Mxt4xCshURf3ut01fHVoje6S+vT40=",
     "darwin-arm64": "sha256-OEN4h1ayg8IZH9pkLbmT/QWEn69cToD6OIQe3t9+/Xg=",
