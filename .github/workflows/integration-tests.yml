@@ -26,6 +26,10 @@ jobs:
       if: ${{ matrix.os == 'macos-13' }}
       id: setup-docker
       uses: douglascamata/setup-docker-macos-action@v1.0.2
+
+    - name: inject colima docker sock
+      if: ${{ matrix.os == 'macos-13' }}
+      run: echo "DOCKER_HOST=unix:///Users/runner/.colima/default/docker.sock" >> $GITHUB_ENV
       
     - name: Set up Go
       uses: actions/setup-go@v5
@@ -41,7 +45,5 @@ jobs:
         fetch-depth: 0
 
     - name: Run tests
-      env:
-        DOCKER_HOST: unix:///Users/runner/.colima/default/docker.sock
       run: |
         make test
