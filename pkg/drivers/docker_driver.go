@@ -66,6 +66,7 @@ func NewDockerDriver(args DriverConfig) (Driver, error) {
 func (d *DockerDriver) hostConfig() *docker.HostConfig {
 	if d.runOpts.IsSet() && d.runtime != "" {
 		return &docker.HostConfig{
+			CapAdd:       d.runOpts.Capabilities,
 			Capabilities: d.runOpts.Capabilities,
 			Binds:        d.runOpts.BindMounts,
 			Privileged:   d.runOpts.Privileged,
@@ -74,6 +75,7 @@ func (d *DockerDriver) hostConfig() *docker.HostConfig {
 	}
 	if d.runOpts.IsSet() {
 		return &docker.HostConfig{
+			CapAdd:       d.runOpts.Capabilities,
 			Capabilities: d.runOpts.Capabilities,
 			Binds:        d.runOpts.BindMounts,
 			Privileged:   d.runOpts.Privileged,
