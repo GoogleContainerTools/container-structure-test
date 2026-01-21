@@ -16,8 +16,7 @@ _attrs = {
         doc = "See https://github.com/GoogleContainerTools/container-structure-test#running-file-tests-without-docker",
     ),
     "platform": attr.string(
-        default = "linux/amd64",
-        doc = "Set platform if host is multi-platform capable (default \"linux/amd64\")",
+        doc = "Set platform if host is multi-platform capable",
     ),
     "_runfiles": attr.label(default = "@bazel_tools//tools/bash/runfiles"),
     "_windows_constraint": attr.label(default = "@platforms//os:windows"),
