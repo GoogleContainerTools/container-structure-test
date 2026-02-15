@@ -45,6 +45,12 @@ def _structure_test_repo_impl(repository_ctx):
     )
     repository_ctx.file("BUILD.bazel", STRUCTURE_TEST_BUILD_TMPL)
 
+    # Bazel <8.3.0 lacks repository_ctx.repo_metadata
+    if not hasattr(repository_ctx, "repo_metadata"):
+        return None
+
+    return repository_ctx.repo_metadata(reproducible = True)
+
 structure_test_repositories = repository_rule(
     _structure_test_repo_impl,
     doc = "Fetch external tools needed for structure test toolchain",
