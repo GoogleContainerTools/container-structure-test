@@ -1,15 +1,16 @@
 "Bazel module definition, see https://bazel.build/external/overview#bzlmod"
+
 module(
     name = "container_structure_test",
-    compatibility_level = 1,
     # Replaced dynamically when published
     version = "0.0.0",
+    compatibility_level = 1,
 )
 
 # To run jq
-bazel_dep(name = "aspect_bazel_lib", version = "1.28.0")
-bazel_dep(name = "bazel_skylib", version = "1.6.1")
-bazel_dep(name = "platforms", version = "0.0.9")
+bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "platforms", version = "1.0.0")
 
 ext = use_extension("//:repositories.bzl", "extension")
 use_repo(
@@ -18,13 +19,13 @@ use_repo(
     # For testing only
     "structure_test_st_darwin_amd64",
     "structure_test_st_darwin_arm64",
+    "structure_test_st_linux_amd64",
     "structure_test_st_linux_arm64",
     "structure_test_st_linux_s390x",
-    "structure_test_st_linux_amd64",
     "structure_test_st_windows_amd64",
 )
 
 register_toolchains("@structure_test_toolchains//:all")
 
 # 0.5.4 is the first version with bzlmod support
-bazel_dep(name = "stardoc", version = "0.5.4", repo_name = "io_bazel_stardoc", dev_dependency = True)
+bazel_dep(name = "stardoc", version = "0.7.2", dev_dependency = True, repo_name = "io_bazel_stardoc")
