@@ -69,6 +69,7 @@ func (d *DockerDriver) hostConfig() *docker.HostConfig {
 			Capabilities: d.runOpts.Capabilities,
 			Binds:        d.runOpts.BindMounts,
 			Privileged:   d.runOpts.Privileged,
+			NetworkMode:  d.runOpts.Network,
 			Runtime:      d.runtime,
 		}
 	}
@@ -77,6 +78,7 @@ func (d *DockerDriver) hostConfig() *docker.HostConfig {
 			Capabilities: d.runOpts.Capabilities,
 			Binds:        d.runOpts.BindMounts,
 			Privileged:   d.runOpts.Privileged,
+			NetworkMode:  d.runOpts.Network,
 		}
 	}
 	if d.runtime != "" {

@@ -52,6 +52,7 @@ type ContainerRunOptions struct {
 	EnvFile      string   `yaml:"envFile"`
 	Capabilities []string
 	BindMounts   []string `yaml:"bindMounts"`
+	Network      string   `yaml:"network"`
 }
 
 func (opts *ContainerRunOptions) IsSet() bool {
@@ -61,7 +62,8 @@ func (opts *ContainerRunOptions) IsSet() bool {
 		len(opts.EnvFile) > 0 ||
 		(opts.EnvVars != nil && len(opts.EnvVars) > 0) ||
 		(opts.Capabilities != nil && len(opts.Capabilities) > 0) ||
-		(opts.BindMounts != nil && len(opts.BindMounts) > 0)
+		(opts.BindMounts != nil && len(opts.BindMounts) > 0) ||
+		len(opts.Network) != 0
 }
 
 type TestResult struct {
