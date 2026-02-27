@@ -19,12 +19,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/joho/godotenv"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/joho/godotenv"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -64,17 +65,9 @@ func NewDockerDriver(args DriverConfig) (Driver, error) {
 }
 
 func (d *DockerDriver) hostConfig() *docker.HostConfig {
-	if d.runOpts.IsSet() && d.runtime != "" {
-		return &docker.HostConfig{
-			Capabilities: d.runOpts.Capabilities,
-			Binds:        d.runOpts.BindMounts,
-			Privileged:   d.runOpts.Privileged,
-			NetworkMode:  d.runOpts.Network,
-			Runtime:      d.runtime,
-		}
-	}
+	var hc *docker.HostConfig
 	if d.runOpts.IsSet() {
-		return &docker.HostConfig{
+		hc = &docker.HostConfig{
 			Capabilities: d.runOpts.Capabilities,
 			Binds:        d.runOpts.BindMounts,
 			Privileged:   d.runOpts.Privileged,
@@ -82,11 +75,12 @@ func (d *DockerDriver) hostConfig() *docker.HostConfig {
 		}
 	}
 	if d.runtime != "" {
-		return &docker.HostConfig{
-			Runtime: d.runtime,
+		if hc == nil {
+			hc = &docker.HostConfig{}
 		}
+		hc.Runtime = d.runtime
 	}
-	return nil
+	return hc
 }
 
 func (d *DockerDriver) Destroy() {

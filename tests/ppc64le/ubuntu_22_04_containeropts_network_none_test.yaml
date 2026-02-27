@@ -1,0 +1,8 @@
+schemaVersion: "2.0.0"
+containerRunOptions:
+  network: "none"
+commandTests:
+  - name: "network none test"
+    command: "getent"
+    args: ["hosts", "google.com"]
+    exitCode: 2
