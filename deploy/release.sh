@@ -24,4 +24,4 @@ if [ -z "$COMMIT" ]; then
   usage
 fi
 
-gsutil cp gs://container-structure-test/builds/$COMMIT/container-structure-test gs://container-structure-test/latest/
+gcloud storage cp gs://container-structure-test/builds/$COMMIT/container-structure-test gs://container-structure-test/latest/

@@ -26,8 +26,8 @@ steps:
 
 
 # Upload to GCS
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', '-r', 'out/*', 'gs://container-structure-test/builds/$COMMIT_SHA/']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['storage', 'cp', '--recursive', 'out/*', 'gs://container-structure-test/builds/$COMMIT_SHA/']
 
 # Build the image
   - name: 'gcr.io/cloud-builders/docker'
