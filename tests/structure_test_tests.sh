@@ -246,6 +246,22 @@ else
   echo "PASS: oci success test case"
 fi
 
+HEADER "OCI layout with tar driver test case"
+
+res=$(./out/container-structure-test test --driver tar --image-from-oci-layout="$tmp" --config "${test_config_dir}/ubuntu_22_04_tar_test.yaml" 2>&1)
+code=$?
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+then
+  echo "FAIL: oci layout with tar driver test case"
+  echo "$res"
+  echo "$code"
+  failures=$((failures +1))
+else
+  echo "PASS: oci layout with tar driver test case"
+fi
+
+rm -rf "$tmp"
+
 HEADER "Platform test cases"
 
 docker run --rm --privileged tonistiigi/binfmt --install all > /dev/null

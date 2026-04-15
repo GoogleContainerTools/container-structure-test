@@ -32,6 +32,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/daemon"
+	"github.com/google/go-containerregistry/pkg/v1/layout"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
@@ -178,6 +179,58 @@ func GetImage(imageName string, includeLayers bool, cacheDir string) (Image, err
 		Digest: imageDigest,
 		Layers: layers,
 	}, nil
+}
+
+// ImageFromV1 takes a pre-loaded v1.Image and extracts its filesystem,
+// returning an Image suitable for use with the tar driver.
+func ImageFromV1(img v1.Image, source string) (Image, error) {
+	imageDigest, err := getImageDigest(img)
+	if err != nil {
+		return Image{}, err
+	}
+	path, err := getExtractPathForName("", "")
+	if err != nil {
+		return Image{}, err
+	}
+	if err := GetFileSystemForImage(img, path, nil); err != nil {
+		os.RemoveAll(path)
+		return Image{}, errors.Wrap(err, "getting filesystem for image")
+	}
+	return Image{
+		Image:  img,
+		Source: source,
+		FSPath: path,
+		Digest: imageDigest,
+	}, nil
+}
+
+// ImageFromOCILayout loads a single image from an OCI image layout directory.
+// It returns the image and its descriptor (for access to annotations).
+// The layout must contain exactly one non-index manifest entry.
+func ImageFromOCILayout(path string) (v1.Image, v1.Descriptor, error) {
+	l, err := layout.ImageIndexFromPath(path)
+	if err != nil {
+		return nil, v1.Descriptor{}, errors.Wrapf(err, "loading %s as OCI layout", path)
+	}
+	m, err := l.IndexManifest()
+	if err != nil {
+		return nil, v1.Descriptor{}, errors.Wrapf(err, "reading OCI index manifest %s", path)
+	}
+	if len(m.Manifests) != 1 {
+		return nil, v1.Descriptor{}, errors.Errorf("OCI layout contains %d entries, expected only one", len(m.Manifests))
+	}
+
+	desc := m.Manifests[0]
+	if desc.MediaType.IsIndex() {
+		return nil, v1.Descriptor{}, errors.New("multi-arch images are not supported yet")
+	}
+
+	img, err := l.Image(desc.Digest)
+	if err != nil {
+		return nil, v1.Descriptor{}, errors.Wrapf(err, "getting image from %s", path)
+	}
+
+	return img, desc, nil
 }
 
 func getExtractPathForName(name string, cacheDir string) (string, error) {

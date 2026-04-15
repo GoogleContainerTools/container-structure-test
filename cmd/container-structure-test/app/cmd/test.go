@@ -21,6 +21,7 @@ import (
 	"runtime"
 
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test"
+	"github.com/GoogleContainerTools/container-structure-test/internal/pkgutil"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/GoogleContainerTools/container-structure-test/pkg/color"
@@ -33,7 +34,6 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/daemon"
-	"github.com/google/go-containerregistry/pkg/v1/layout"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -106,66 +106,51 @@ func run(out io.Writer) error {
 	var err error
 
 	if opts.ImageFromLayout != "" {
-		if opts.Driver != drivers.Docker {
-			logrus.Fatal("--image-from-oci-layout is not supported when not using Docker driver")
-		}
-		l, err := layout.ImageIndexFromPath(opts.ImageFromLayout)
-		if err != nil {
-			logrus.Fatalf("loading %s as OCI layout: %v", opts.ImageFromLayout, err)
-		}
-		m, err := l.IndexManifest()
-		if err != nil {
-			logrus.Fatalf("could not read OCI index manifest %s: %v", opts.ImageFromLayout, err)
+		if opts.Driver != drivers.Docker && opts.Driver != drivers.Tar {
+			logrus.Fatal("--image-from-oci-layout is only supported with Docker or Tar drivers")
 		}
 
-		if len(m.Manifests) != 1 {
-			logrus.Fatalf("OCI layout contains %d entries. expected only one", len(m.Manifests))
-		}
-
-		desc := m.Manifests[0]
-
-		if desc.MediaType.IsIndex() {
-			logrus.Fatal("multi-arch images are not supported yet.")
-		}
-
-		img, err := l.Image(desc.Digest)
-
-		if err != nil {
-			logrus.Fatalf("could not get image from %s: %v", opts.ImageFromLayout, err)
-		}
-
-		var tag name.Tag
-
-		ref := desc.Annotations[v1.AnnotationRefName]
-		if ref != "" && !opts.IgnoreRefAnnotation {
-			tag, err = name.NewTag(ref)
-			if err != nil {
-				logrus.Fatalf("could not parse ref annotation %s: %v", v1.AnnotationRefName, err)
-			}
+		if opts.Driver == drivers.Tar {
+			args.OCILayout = opts.ImageFromLayout
 		} else {
-			if opts.DefaultImageTag == "" {
-				logrus.Fatalf("index does not contain a reference annotation. --default-image-tag must be provided.")
-			}
-			tag, err = name.NewTag(opts.DefaultImageTag, name.StrictValidation)
+			img, desc, err := pkgutil.ImageFromOCILayout(opts.ImageFromLayout)
 			if err != nil {
-				logrus.Fatalf("could parse the default image tag %s: %v", opts.DefaultImageTag, err)
+				logrus.Fatalf("loading OCI layout %s: %v", opts.ImageFromLayout, err)
 			}
-		}
-		var r string
-		if r, err = daemon.Write(tag, img); err != nil {
-			logrus.Fatalf("error loading oci layout into daemon: %v, %s", err)
-		}
-		// For some reason, daemon.Write doesn't return errors for some edge cases.
-		// We should always print what the daemon sent back so that errors are transparent.
-		fmt.Println("Loaded ", tag.String(), r)
 
-		_, err = daemon.Image(tag)
-		if err != nil {
-			logrus.Fatalf("error loading oci layout into daemon: %v", err)
-		}
+			var tag name.Tag
 
-		opts.ImagePath = tag.String()
-		args.Image = tag.String()
+			ref := desc.Annotations[v1.AnnotationRefName]
+			if ref != "" && !opts.IgnoreRefAnnotation {
+				tag, err = name.NewTag(ref)
+				if err != nil {
+					logrus.Fatalf("could not parse ref annotation %s: %v", v1.AnnotationRefName, err)
+				}
+			} else {
+				if opts.DefaultImageTag == "" {
+					logrus.Fatalf("index does not contain a reference annotation. --default-image-tag must be provided.")
+				}
+				tag, err = name.NewTag(opts.DefaultImageTag, name.StrictValidation)
+				if err != nil {
+					logrus.Fatalf("could parse the default image tag %s: %v", opts.DefaultImageTag, err)
+				}
+			}
+			var r string
+			if r, err = daemon.Write(tag, img); err != nil {
+				logrus.Fatalf("error loading oci layout into daemon:, %v", err)
+			}
+			// For some reason, daemon.Write doesn't return errors for some edge cases.
+			// We should always print what the daemon sent back so that errors are transparent.
+			fmt.Println("Loaded ", tag.String(), r)
+
+			_, err = daemon.Image(tag)
+			if err != nil {
+				logrus.Fatalf("error loading oci layout into daemon: %v", err)
+			}
+
+			opts.ImagePath = tag.String()
+			args.Image = tag.String()
+		}
 	}
 
 	if opts.Pull {

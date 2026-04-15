@@ -29,12 +29,13 @@ const (
 )
 
 type DriverConfig struct {
-	Image    string                          // used by Docker/Tar drivers
-	Save     bool                            // used by Docker/Tar drivers
-	Metadata string                          // used by Host driver
-	Runtime  string                          // used by Docker driver
-	Platform string                          // used by Docker driver
-	RunOpts  unversioned.ContainerRunOptions // used by Docker driver
+	Image     string                          // used by Docker/Tar drivers
+	Save      bool                            // used by Docker/Tar drivers
+	Metadata  string                          // used by Host driver
+	Runtime   string                          // used by Docker driver
+	Platform  string                          // used by Docker driver
+	RunOpts   unversioned.ContainerRunOptions // used by Docker driver
+	OCILayout string                          // used by Tar driver for OCI layout directories
 }
 
 type Driver interface {

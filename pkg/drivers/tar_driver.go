@@ -35,6 +35,16 @@ type TarDriver struct {
 }
 
 func NewTarDriver(args DriverConfig) (Driver, error) {
+	if args.OCILayout != "" {
+		image, err := imageFromOCILayout(args.OCILayout)
+		if err != nil {
+			return nil, errors.Wrap(err, "processing OCI layout")
+		}
+		return &TarDriver{
+			Image: image,
+			Save:  args.Save,
+		}, nil
+	}
 	if pkgutil.IsTar(args.Image) {
 		// tar provided, so don't provide any prefix. container-diff can figure this out.
 		image, err := pkgutil.GetImageForName(args.Image)
@@ -66,6 +76,14 @@ func NewTarDriver(args DriverConfig) (Driver, error) {
 		Image: image,
 		Save:  args.Save,
 	}, nil
+}
+
+func imageFromOCILayout(path string) (pkgutil.Image, error) {
+	img, _, err := pkgutil.ImageFromOCILayout(path)
+	if err != nil {
+		return pkgutil.Image{}, err
+	}
+	return pkgutil.ImageFromV1(img, path)
 }
 
 func (d *TarDriver) Destroy() {
