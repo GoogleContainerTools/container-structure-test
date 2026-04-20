@@ -1,0 +1,8 @@
+schemaVersion: "2.0.0"
+containerRunOptions:
+  network: "host"
+commandTests:
+  - name: "network host exposes host network interfaces"
+    command: "cat"
+    args: ["/proc/net/dev"]
+    expectedOutput: ["eth0|en[a-z0-9]+|ens|eno|wlan"]

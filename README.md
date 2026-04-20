@@ -299,6 +299,7 @@ The following list of options are currently supported:
 containerRunOptions:
   user: "root"                  # set the --user/-u flag
   privileged: true              # set the --privileged flag (default: false)
+  network: "bridge"             # set the --net flag (default: bridge)
   allocateTty: true             # set the --tty flag (default: false)
   envFile: path/to/.env         # load environment variables from file and pass to container (equivalent to --env-file)
   envVars:                      # if not empty, read each envVar from the environment and pass to test (equivalent to --env/e)

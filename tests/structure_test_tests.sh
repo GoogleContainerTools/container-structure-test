@@ -144,6 +144,27 @@ else
   echo "PASS: Run options (envFile) test case passed"
 fi
 
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_22_04_containeropts_network_none_test.yaml")
+code=$?
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+then
+  echo "FAIL: Run options (network none) test case failed"
+  echo "$res"
+  failures=$((failures +1))
+else
+  echo "PASS: Run options (network none) test case passed"
+fi
+
+res=$(./out/container-structure-test test --image "$test_image" --config "${test_config_dir}/ubuntu_22_04_containeropts_network_host_test.yaml")
+code=$?
+if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+then
+  echo "FAIL: Run options (network host) test case failed"
+  echo "$res"
+  failures=$((failures +1))
+else
+  echo "PASS: Run options (network host) test case passed"
+fi
 
 HEADER "Metadata Test Case"
 # test image metadata
@@ -218,8 +239,7 @@ HEADER "OCI layout test case"
 
 go install github.com/google/go-containerregistry/cmd/crane
 tmp="$(mktemp -d)"
-
-crane pull "$test_image" --format=oci "$tmp" --platform="linux/$go_architecture"
+"$(go env GOPATH)/bin/crane" pull "$test_image" --format=oci "$tmp" --platform="linux/$go_architecture"
 
 
 res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --config "${test_config_dir}/ubuntu_22_04_test.yaml" 2>&1)
@@ -263,7 +283,7 @@ fi
 
 res=$(./out/container-structure-test test --image "$test_image" --platform="linux/riscv64" --config "${test_config_dir}/ubuntu_22_04_test.yaml" 2>&1)
 code=$?
-if ! [[ "$res" =~ image\ with\ reference.+was\ found\ but\ its\ platform\ \(linux\/${go_architecture}\)\ does\ not\ match\ the\ specified\ platform\ \(linux\/riscv64\) && "$code" == "1" ]];
+if ! [[ ("$res" =~ image\ with\ reference.+was\ found\ but\ does\ not\ provide\ the\ specified\ platform\ \(linux\/riscv64\) || "$res" =~ image\ with\ reference.+was\ found\ but\ its\ platform\ \(linux\/${go_architecture}\)\ does\ not\ match\ the\ specified\ platform\ \(linux\/riscv64\)) && "$code" == "1" ]];
 then
   echo "FAIL: platform failing test case"
   echo "$res"
