@@ -16,7 +16,7 @@ Tests can be run either through a standalone binary, or through a Docker image.
 Install via [brew](https://brew.sh/):
 
 ```bash
-$ brew install container-structure-test
+brew install container-structure-test
 ```
 
 ```shell
