@@ -19,12 +19,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/joho/godotenv"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/joho/godotenv"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -70,6 +71,7 @@ func (d *DockerDriver) hostConfig() *docker.HostConfig {
 			Binds:        d.runOpts.BindMounts,
 			Privileged:   d.runOpts.Privileged,
 			Runtime:      d.runtime,
+			NetworkMode:  d.runOpts.Network,
 		}
 	}
 	if d.runOpts.IsSet() {
@@ -77,6 +79,7 @@ func (d *DockerDriver) hostConfig() *docker.HostConfig {
 			Capabilities: d.runOpts.Capabilities,
 			Binds:        d.runOpts.BindMounts,
 			Privileged:   d.runOpts.Privileged,
+			NetworkMode:  d.runOpts.Network,
 		}
 	}
 	if d.runtime != "" {
@@ -335,8 +338,12 @@ func (d *DockerDriver) runAndCommit(env []string, command []string) (string, err
 		HostConfig:       d.hostConfig(),
 		NetworkingConfig: nil,
 	}
+
 	if d.runOpts.IsSet() && len(d.runOpts.User) > 0 {
 		createOpts.Config.User = d.runOpts.User
+	}
+	if d.runOpts.IsSet() && len(d.runOpts.Network) > 0 {
+		createOpts.HostConfig.NetworkMode = d.runOpts.Network
 	}
 	container, err := d.cli.CreateContainer(createOpts)
 	if err != nil {
