@@ -246,6 +246,41 @@ else
   echo "PASS: oci success test case"
 fi
 
+HEADER "OCI multi-arch image index test case"
+
+if [[ "$go_architecture" == "amd64" || "$go_architecture" == "arm64" ]]; then
+  test_index="cr.fluentbit.io/fluent/fluent-bit:4.0.4"
+
+  manifest=$(docker manifest inspect "$test_index")
+  if [[ $(echo "$manifest" | jq '.mediaType') != '"application/vnd.docker.distribution.manifest.list.v2+json"' ]]; then
+     echo "FAIL: multi-arch image index test case - $test_index is not an image index"
+     echo "$manifest" | jq '.mediaType'
+     failures=$((failures +1))
+  fi
+  image_count=$(echo "$manifest" | jq '.manifests | length')
+  if [[ $image_count < 2 ]]; then
+     echo "FAIL: multi-arch image index test case - $test_index only has $image_count image(s)"
+     failures=$((failures +1))
+  fi
+
+  tmp="$(mktemp -d)"
+  crane pull "$test_index" --format=oci "$tmp"
+
+  res=$(./out/container-structure-test test --image-from-oci-layout="$tmp" --default-image-tag="test.local/$test_index" --config "${test_config_dir}/fluent_bit_test.yaml" 2>&1)
+  code=$?
+  if ! [[ ("$res" =~ "PASS" && "$code" == "0") ]];
+  then
+    echo "FAIL: oci image index success test case"
+    echo "$res"
+    echo "$code"
+    failures=$((failures +1))
+  else
+    echo "PASS: oci image index test case"
+  fi
+else
+  echo "SKIP: oci image index text case not supported on $go_architecture"
+fi
+
 HEADER "Platform test cases"
 
 docker run --rm --privileged tonistiigi/binfmt --install all > /dev/null

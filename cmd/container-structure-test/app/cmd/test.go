@@ -15,10 +15,12 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/GoogleContainerTools/container-structure-test/cmd/container-structure-test/app/cmd/test"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
@@ -32,6 +34,7 @@ import (
 
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/google/go-containerregistry/pkg/name"
+	gcrv1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/daemon"
 	"github.com/google/go-containerregistry/pkg/v1/layout"
 	"github.com/sirupsen/logrus"
@@ -44,12 +47,59 @@ Be sure you know what you're doing before continuing!
 
 Continue? (y/n)`
 
+const maxSubIndexes = 5
+
 var (
 	opts = &config.StructureTestOptions{}
 
 	args       *drivers.DriverConfig
 	driverImpl func(drivers.DriverConfig) (drivers.Driver, error)
+
+	errNoImageFound = errors.New("no compatible image found")
 )
+
+func parsePlatform(s string) (*gcrv1.Platform, error) {
+	parts := strings.Split(s, "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid platform %q", s)
+	}
+	os, arch := parts[0], parts[1]
+	platform := &gcrv1.Platform{
+		Architecture: arch,
+		OS:           os,
+	}
+	return platform, nil
+}
+
+func findImageInIndex(index gcrv1.ImageIndex, requirements *gcrv1.Platform, depth int) (gcrv1.Image, error) {
+	if depth > maxSubIndexes {
+		return nil, fmt.Errorf("too many subindexes (%d)", maxSubIndexes)
+	}
+
+	manifest, err := index.IndexManifest()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read index manifest: %w", err)
+	}
+
+	for _, desc := range manifest.Manifests {
+		if desc.MediaType.IsImage() && desc.Platform.Satisfies(*requirements) {
+			return index.Image(desc.Digest)
+		}
+		if desc.MediaType.IsIndex() {
+			// Recursively check subindex.
+			childIndex, err := index.ImageIndex(desc.Digest)
+			if err != nil {
+				return nil, err
+			}
+			img, err := findImageInIndex(childIndex, requirements, depth+1)
+			if !errors.Is(err, errNoImageFound) {
+				return img, err
+			}
+		}
+	}
+
+	return nil, errNoImageFound
+}
 
 func NewCmdTest(out io.Writer) *cobra.Command {
 	var testCmd = &cobra.Command{
@@ -124,14 +174,22 @@ func run(out io.Writer) error {
 
 		desc := m.Manifests[0]
 
+		var img gcrv1.Image
 		if desc.MediaType.IsIndex() {
-			logrus.Fatal("multi-arch images are not supported yet.")
-		}
+			platform, err := parsePlatform(opts.Platform)
+			if err != nil {
+				logrus.Fatalf("%s", err)
+			}
 
-		img, err := l.Image(desc.Digest)
-
-		if err != nil {
-			logrus.Fatalf("could not get image from %s: %v", opts.ImageFromLayout, err)
+			img, err = findImageInIndex(l, platform, 0)
+			if err != nil {
+				logrus.Fatalf("could not get image from %s (platform %v): %v", opts.ImageFromLayout, opts.Platform, err)
+			}
+		} else {
+			img, err = l.Image(desc.Digest)
+			if err != nil {
+				logrus.Fatalf("could not get image from %s: %v", opts.ImageFromLayout, err)
+			}
 		}
 
 		var tag name.Tag
