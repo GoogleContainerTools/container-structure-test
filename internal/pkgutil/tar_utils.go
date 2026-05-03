@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	pathpkg "path"
 	"path/filepath"
 	"strings"
 
@@ -50,7 +51,10 @@ func unpackTar(tr *tar.Reader, path string, whitelist []string) error {
 		if err != nil {
 			return errors.Wrap(err, "Error getting next tar header")
 		}
-		target := filepath.Clean(filepath.Join(path, header.Name))
+		target, err := ResolvePathInRoot(path, header.Name, false)
+		if err != nil {
+			return errors.Wrap(err, "resolving tar entry path")
+		}
 		// Make sure the target isn't part of the whitelist
 		if checkWhitelist(target, whitelist) {
 			continue
@@ -60,7 +64,7 @@ func unpackTar(tr *tar.Reader, path string, whitelist []string) error {
 
 		// if its a dir and it doesn't exist create it
 		case tar.TypeDir:
-			if _, err := os.Stat(target); os.IsNotExist(err) {
+			if _, err := os.Lstat(target); os.IsNotExist(err) {
 				if mode.Perm()&(1<<(uint(7))) == 0 {
 					logrus.Debugf("Write permission bit not set on %s by default; setting manually", target)
 					originalMode := mode
@@ -93,7 +97,7 @@ func unpackTar(tr *tar.Reader, path string, whitelist []string) error {
 			}
 			// It's possible we end up creating files that can't be overwritten based on their permissions.
 			// Explicitly delete an existing file before continuing.
-			if _, err := os.Stat(target); !os.IsNotExist(err) {
+			if _, err := os.Lstat(target); !os.IsNotExist(err) {
 				logrus.Debugf("Removing %s for overwrite", target)
 				if err := os.Remove(target); err != nil {
 					logrus.Errorf("error removing file %s", target)
@@ -118,9 +122,12 @@ func unpackTar(tr *tar.Reader, path string, whitelist []string) error {
 			}
 			currFile.Close()
 		case tar.TypeSymlink:
+			if _, err := ResolvePathInRoot(path, tarLinkTarget(header.Name, header.Linkname), true); err != nil {
+				return errors.Wrap(err, "resolving tar symlink path")
+			}
 			// It's possible we end up creating files that can't be overwritten based on their permissions.
 			// Explicitly delete an existing file before continuing.
-			if _, err := os.Stat(target); !os.IsNotExist(err) {
+			if _, err := os.Lstat(target); !os.IsNotExist(err) {
 				logrus.Debugf("Removing %s to create symlink", target)
 				if err := os.RemoveAll(target); err != nil {
 					logrus.Debugf("Unable to remove %s: %s", target, err)
@@ -131,11 +138,16 @@ func unpackTar(tr *tar.Reader, path string, whitelist []string) error {
 				logrus.Errorf("Failed to create symlink between %s and %s: %s", header.Linkname, target, err)
 			}
 		case tar.TypeLink:
-			linkname := filepath.Clean(filepath.Join(path, header.Linkname))
+			linkname, err := ResolvePathInRoot(path, header.Linkname, false)
+			if err != nil {
+				return errors.Wrap(err, "resolving tar hard link path")
+			}
 			// Check if the linkname already exists
 			if _, err := os.Stat(linkname); !os.IsNotExist(err) {
 				// If it exists, create the hard link
-				resolveHardlink(linkname, target)
+				if err := resolveHardlink(path, linkname, target); err != nil {
+					return errors.Wrap(err, fmt.Sprintf("Unable to create hard link from %s to %s", linkname, target))
+				}
 			} else {
 				hardlinks.Store(target, linkname)
 			}
@@ -148,7 +160,7 @@ func unpackTar(tr *tar.Reader, path string, whitelist []string) error {
 		logrus.Info("Resolving hard links")
 		if _, err := os.Stat(linkname); !os.IsNotExist(err) {
 			// If it exists, create the hard link
-			if err := resolveHardlink(linkname, target); err != nil {
+			if err := resolveHardlink(path, linkname, target); err != nil {
 				resolveError.Store(errors.Wrap(err, fmt.Sprintf("Unable to create hard link from %s to %s", linkname, target)))
 				return false
 			}
@@ -168,7 +180,36 @@ func unpackTar(tr *tar.Reader, path string, whitelist []string) error {
 	return nil
 }
 
-func resolveHardlink(linkname, target string) error {
+func tarLinkTarget(name, linkname string) string {
+	if pathpkg.IsAbs(filepath.ToSlash(linkname)) {
+		return linkname
+	}
+	return pathpkg.Join(pathpkg.Dir(filepath.ToSlash(name)), filepath.ToSlash(linkname))
+}
+
+func resolveHardlink(root, linkname, target string) error {
+	info, err := os.Lstat(linkname)
+	if err != nil {
+		return err
+	}
+	if info.Mode()&os.ModeSymlink != 0 {
+		linkTarget, err := os.Readlink(linkname)
+		if err != nil {
+			return err
+		}
+		relLink, err := filepath.Rel(root, linkname)
+		if err != nil {
+			return err
+		}
+		if _, err := ResolvePathInRoot(root, tarLinkTarget(relLink, linkTarget), true); err != nil {
+			return err
+		}
+		if err := os.Symlink(linkTarget, target); err != nil {
+			return err
+		}
+		logrus.Debugf("Created symlink from %s to %s for hard link source %s", linkTarget, target, linkname)
+		return nil
+	}
 	if err := os.Link(linkname, target); err != nil {
 		return err
 	}
