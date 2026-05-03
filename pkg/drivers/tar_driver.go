@@ -17,7 +17,6 @@ package drivers
 import (
 	"io/fs"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -138,16 +137,28 @@ func (d *TarDriver) ProcessCommand(_ []unversioned.EnvVar, _ []string) (string, 
 	return "", "", -1, errors.New("Tar driver is unable to process commands, please use a different driver")
 }
 
-func (d *TarDriver) StatFile(path string) (os.FileInfo, error) {
-	return os.Lstat(filepath.Join(d.Image.FSPath, path))
+func (d *TarDriver) StatFile(imagePath string) (os.FileInfo, error) {
+	path, err := pkgutil.ResolvePathInRoot(d.Image.FSPath, imagePath, false)
+	if err != nil {
+		return nil, err
+	}
+	return os.Lstat(path)
 }
 
-func (d *TarDriver) ReadFile(path string) ([]byte, error) {
-	return os.ReadFile(filepath.Join(d.Image.FSPath, path))
+func (d *TarDriver) ReadFile(imagePath string) ([]byte, error) {
+	path, err := pkgutil.ResolvePathInRoot(d.Image.FSPath, imagePath, true)
+	if err != nil {
+		return nil, err
+	}
+	return os.ReadFile(path)
 }
 
-func (d *TarDriver) ReadDir(path string) ([]os.FileInfo, error) {
-	entries, err := os.ReadDir(filepath.Join(d.Image.FSPath, path))
+func (d *TarDriver) ReadDir(imagePath string) ([]os.FileInfo, error) {
+	path, err := pkgutil.ResolvePathInRoot(d.Image.FSPath, imagePath, true)
+	if err != nil {
+		return nil, err
+	}
+	entries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
