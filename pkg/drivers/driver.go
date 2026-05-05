@@ -23,18 +23,20 @@ import (
 )
 
 const (
-	Docker = "docker"
-	Tar    = "tar"
-	Host   = "host"
+	Docker     = "docker"
+	Tar        = "tar"
+	Host       = "host"
+	Kubernetes = "kubernetes"
 )
 
 type DriverConfig struct {
-	Image    string                          // used by Docker/Tar drivers
-	Save     bool                            // used by Docker/Tar drivers
-	Metadata string                          // used by Host driver
-	Runtime  string                          // used by Docker driver
-	Platform string                          // used by Docker driver
-	RunOpts  unversioned.ContainerRunOptions // used by Docker driver
+	Image       string                          // used by Docker/Tar drivers
+	Save        bool                            // used by Docker/Tar drivers
+	Metadata    string                          // used by Host driver
+	Runtime     string                          // used by Docker driver
+	Platform    string                          // used by Docker driver
+	RunOpts     unversioned.ContainerRunOptions // used by Docker driver
+	PodTemplate string
 }
 
 type Driver interface {
@@ -71,6 +73,8 @@ func InitDriverImpl(driver string) func(DriverConfig) (Driver, error) {
 		return NewTarDriver
 	case Host:
 		return NewHostDriver
+	case Kubernetes:
+		return NewK8sDriver
 	default:
 		return nil
 	}

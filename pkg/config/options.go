@@ -36,4 +36,7 @@ type StructureTestOptions struct {
 	Quiet          bool
 	Force          bool
 	NoColor        bool
+	AllowReuse     bool
+
+	PodTemplate string
 }

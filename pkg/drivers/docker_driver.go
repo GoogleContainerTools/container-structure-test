@@ -19,12 +19,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/joho/godotenv"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/joho/godotenv"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"

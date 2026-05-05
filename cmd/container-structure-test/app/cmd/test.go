@@ -96,11 +96,12 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 
 func run(out io.Writer) error {
 	args = &drivers.DriverConfig{
-		Image:    opts.ImagePath,
-		Save:     opts.Save,
-		Metadata: opts.Metadata,
-		Runtime:  opts.Runtime,
-		Platform: opts.Platform,
+		Image:       opts.ImagePath,
+		Save:        opts.Save,
+		Metadata:    opts.Metadata,
+		Runtime:     opts.Runtime,
+		Platform:    opts.Platform,
+		PodTemplate: opts.PodTemplate,
 	}
 
 	var err error
@@ -247,7 +248,7 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().VarP(&opts.Output, "output", "o", "output format for the test report (available format: text, json, junit)")
 	cmd.Flags().BoolVar(&opts.NoColor, "no-color", false, "no color in the output")
 	cmd.Flags().StringVar(&opts.JunitSuiteName, "junit-suite-name", "", fmt.Sprintf("name to use for the junit test suite (defaults to '%s')", output.DefaultJunitSuiteName))
-
+	cmd.Flags().StringVar(&opts.PodTemplate, "pod-template", "", "pod template to instantiate pods from with kubernetes driver")
 	cmd.Flags().StringArrayVarP(&opts.ConfigFiles, "config", "c", []string{}, "test config files")
 	cmd.MarkFlagRequired("config")
 	cmd.Flags().StringVar(&opts.TestReport, "test-report", "", "generate test report and write it to specified file (supported format: json, junit; default: json)")
