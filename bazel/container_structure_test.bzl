@@ -52,6 +52,17 @@ def _structure_test_impl(ctx):
     test_bin = ctx.toolchains["@container_structure_test//bazel:structure_test_toolchain_type"].st_info.binary
     jq_bin = ctx.toolchains["@aspect_bazel_lib//lib:jq_toolchain_type"].jqinfo.bin
 
+    # On Windows the downloaded binary has no file extension. Windows requires
+    # a .exe extension to recognise a file as directly executable — without it,
+    # invoking the binary from a batch script triggers an "Open With" dialog
+    # instead of running it. Symlink the binary to <name>.exe so the generated
+    # launcher scripts can call it without this problem.
+    is_windows = ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo])
+    if is_windows and not test_bin.basename.endswith(".exe"):
+        test_bin_exe = ctx.actions.declare_file(test_bin.basename + ".exe")
+        ctx.actions.symlink(output = test_bin_exe, target_file = test_bin)
+        test_bin = test_bin_exe
+
     default_info = ctx.attr.image[DefaultInfo] if DefaultInfo in ctx.attr.image else None
     output_group_info = ctx.attr.image[OutputGroupInfo] if OutputGroupInfo in ctx.attr.image else None
     image = None
