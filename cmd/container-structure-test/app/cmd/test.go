@@ -98,6 +98,7 @@ func run(out io.Writer) error {
 	args = &drivers.DriverConfig{
 		Image:    opts.ImagePath,
 		Save:     opts.Save,
+		CacheDir: opts.CacheDir,
 		Metadata: opts.Metadata,
 		Runtime:  opts.Runtime,
 		Platform: opts.Platform,
@@ -240,6 +241,7 @@ func AddTestFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&opts.Pull, "pull", false, "force a pull of the image before running tests")
 	cmd.MarkFlagsMutuallyExclusive("image-from-oci-layout", "pull")
 	cmd.Flags().BoolVar(&opts.Save, "save", false, "preserve created containers after test run")
+	cmd.Flags().StringVar(&opts.CacheDir, "cache-dir", "", "cache extracted image filesystems here and reuse them across tests (tar driver); use with --save to keep the cache after the run")
 	cmd.Flags().BoolVarP(&opts.Quiet, "quiet", "q", false, "flag to suppress output")
 	cmd.Flags().BoolVarP(&opts.Force, "force", "f", false, "force run of host driver (without user prompt)")
 	cmd.Flags().BoolVarP(&opts.JSON, "json", "j", false, "output test results in json format")

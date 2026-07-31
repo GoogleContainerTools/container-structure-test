@@ -31,6 +31,7 @@ const (
 type DriverConfig struct {
 	Image    string                          // used by Docker/Tar drivers
 	Save     bool                            // used by Docker/Tar drivers
+	CacheDir string                          // used by Tar driver
 	Metadata string                          // used by Host driver
 	Runtime  string                          // used by Docker driver
 	Platform string                          // used by Docker driver

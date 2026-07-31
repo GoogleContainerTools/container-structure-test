@@ -184,6 +184,9 @@ func getExtractPathForName(name string, cacheDir string) (string, error) {
 	path := cacheDir
 	var err error
 	if cacheDir != "" {
+		sanitized := strings.NewReplacer("/", "_", ":", "_", "@", "_").Replace(name)
+		path = filepath.Join(cacheDir, sanitized)
+		cacheDir = path
 		// if cachedir doesn't exist, create it
 		if _, err := os.Stat(cacheDir); err != nil && os.IsNotExist(err) {
 			err = os.MkdirAll(cacheDir, 0700)

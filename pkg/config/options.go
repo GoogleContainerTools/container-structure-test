@@ -33,6 +33,7 @@ type StructureTestOptions struct {
 	JunitSuiteName string
 	Pull           bool
 	Save           bool
+	CacheDir       string
 	Quiet          bool
 	Force          bool
 	NoColor        bool
