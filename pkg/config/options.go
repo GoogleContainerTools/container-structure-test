@@ -26,6 +26,7 @@ type StructureTestOptions struct {
 	Platform            string
 	Metadata            string
 	TestReport          string
+	TestReportFormat    unversioned.OutputValue
 	ConfigFiles         []string
 
 	JSON           bool

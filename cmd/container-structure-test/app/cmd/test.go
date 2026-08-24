@@ -60,20 +60,30 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 			return test.ValidateArgs(opts)
 		},
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if opts.TestReport != "" {
-				// Force JsonOutput
-				if opts.Output == unversioned.Text {
-					opts.JSON = true
-					opts.Output = unversioned.Json
+			// Open test report file if specified
+			var reportOut io.Writer
+			reportFormatFlag := cmd.Flags().Lookup("test-report-format")
 
-					logrus.Warn("raw text format unsupported for writing output file, defaulting to JSON")
+			if opts.TestReport != "" {
+				// Validate report format - only json and junit are supported
+				if opts.TestReportFormat == unversioned.Text {
+					if reportFormatFlag.Changed {
+						// User explicitly set --test-report-format text, which is not supported
+						return fmt.Errorf("--test-report-format does not support 'text'; use 'json' or 'junit'")
+					}
+					// Default to JSON for backward compatibility (Text is zero value when flag not set)
+					opts.TestReportFormat = unversioned.Json
 				}
+
 				testReportFile, err := os.Create(opts.TestReport)
 				if err != nil {
 					return err
 				}
-				rootCmd.SetOutput(testReportFile)
-				out = testReportFile // override writer
+				defer testReportFile.Close()
+				reportOut = testReportFile
+			} else if reportFormatFlag.Changed {
+				// User specified --test-report-format without --test-report
+				return fmt.Errorf("--test-report-format requires --test-report to be specified")
 			}
 
 			if opts.Quiet {
@@ -86,7 +96,7 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 				opts.Output = unversioned.Json
 			}
 
-			return run(out)
+			return run(out, reportOut)
 		},
 	}
 
@@ -94,7 +104,7 @@ func NewCmdTest(out io.Writer) *cobra.Command {
 	return testCmd
 }
 
-func run(out io.Writer) error {
+func run(out, reportOut io.Writer) error {
 	args = &drivers.DriverConfig{
 		Image:    opts.ImagePath,
 		Save:     opts.Save,
@@ -153,7 +163,7 @@ func run(out io.Writer) error {
 		}
 		var r string
 		if r, err = daemon.Write(tag, img); err != nil {
-			logrus.Fatalf("error loading oci layout into daemon: %v, %s", err)
+			logrus.Fatalf("error loading oci layout into daemon: %v", err)
 		}
 		// For some reason, daemon.Write doesn't return errors for some edge cases.
 		// We should always print what the daemon sent back so that errors are transparent.
@@ -205,7 +215,7 @@ func run(out io.Writer) error {
 	channel := make(chan interface{}, 1)
 	go runTests(out, channel, args, driverImpl)
 	// TODO(nkubala): put a sync.WaitGroup here
-	return test.ProcessResults(out, opts.Output, opts.JunitSuiteName, channel)
+	return test.ProcessResults(out, reportOut, opts.Output, opts.TestReportFormat, opts.JunitSuiteName, channel)
 }
 
 func runTests(out io.Writer, channel chan interface{}, args *drivers.DriverConfig, driverImpl func(drivers.DriverConfig) (drivers.Driver, error)) {
@@ -250,5 +260,7 @@ func AddTestFlags(cmd *cobra.Command) {
 
 	cmd.Flags().StringArrayVarP(&opts.ConfigFiles, "config", "c", []string{}, "test config files")
 	cmd.MarkFlagRequired("config")
-	cmd.Flags().StringVar(&opts.TestReport, "test-report", "", "generate test report and write it to specified file (supported format: json, junit; default: json)")
+	cmd.Flags().StringVar(&opts.TestReport, "test-report", "", "generate test report and write it to specified file")
+	cmd.Flags().VarP(&opts.TestReportFormat, "test-report-format", "", "format for the test report file (json, junit)")
+	cmd.Flags().Lookup("test-report-format").DefValue = "json"
 }

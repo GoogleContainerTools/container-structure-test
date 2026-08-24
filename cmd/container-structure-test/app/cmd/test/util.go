@@ -105,7 +105,14 @@ func Parse(fp string, args *drivers.DriverConfig, driverImpl func(drivers.Driver
 	return tests, nil
 }
 
-func ProcessResults(out io.Writer, format unversioned.OutputValue, junitSuiteName string, c chan interface{}) error {
+// ProcessResults processes test results and writes output to the appropriate destinations.
+// - out: primary output writer (stdout) - format controlled by the format parameter
+// - reportOut: optional test report writer - format controlled by reportFormat parameter
+// - format: output format for the primary output (text, json, or junit)
+// - reportFormat: output format for the report file (json or junit)
+// - junitSuiteName: name for the JUnit test suite
+// - c: channel of test results
+func ProcessResults(out, reportOut io.Writer, format, reportFormat unversioned.OutputValue, junitSuiteName string, c chan interface{}) error {
 	totalPass := 0
 	totalFail := 0
 	totalDuration := time.Duration(0)
@@ -116,7 +123,7 @@ func ProcessResults(out io.Writer, format unversioned.OutputValue, junitSuiteNam
 	}
 	for _, r := range results {
 		if format == unversioned.Text {
-			// output individual results if we're not in json mode
+			// output individual results if we're in text mode
 			output.OutputResult(out, r)
 		}
 		if r.IsPass() {
@@ -139,11 +146,20 @@ func ProcessResults(out io.Writer, format unversioned.OutputValue, junitSuiteNam
 		Fail:     totalFail,
 		Duration: totalDuration,
 	}
-	if format == unversioned.Json || format == unversioned.Junit {
-		// only output results here if we're in json mode
-		summary.Results = results
+
+	summary.Results = results
+
+	// Write final summary to primary output (stdout)
+	if outputErr := output.FinalResults(out, format, junitSuiteName, summary); outputErr != nil {
+		return outputErr
 	}
-	output.FinalResults(out, format, junitSuiteName, summary)
+
+	// If a test report file is specified, write to it using the report format
+	if reportOut != nil {
+		if reportErr := output.FinalResults(reportOut, reportFormat, junitSuiteName, summary); reportErr != nil {
+			return reportErr
+		}
+	}
 
 	return err
 }
