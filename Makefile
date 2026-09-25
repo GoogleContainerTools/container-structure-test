@@ -75,7 +75,7 @@ $(BUILD_DIR):
 
 .PHONY: release
 release: cross
-	gsutil cp $(BUILD_DIR)/$(PROJECT)-* gs://$(RELEASE_BUCKET)/$(VERSION)/
+	gcloud storage cp $(BUILD_DIR)/$(PROJECT)-* gs://$(RELEASE_BUCKET)/$(VERSION)/
 
 .PHONY: clean
 clean:

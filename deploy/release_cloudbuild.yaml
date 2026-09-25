@@ -26,11 +26,11 @@ steps:
     env: ['GOARCH=ppc64le']
 
 # Upload to GCS
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', '-r', 'out/*', 'gs://container-structure-test/$TAG_NAME/']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['storage', 'cp', '--recursive', 'out/*', 'gs://container-structure-test/$TAG_NAME/']
 
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', '-r', 'gs://container-structure-test/$TAG_NAME/*', 'gs://container-structure-test/latest/']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['storage', 'cp', '--recursive', 'gs://container-structure-test/$TAG_NAME/*', 'gs://container-structure-test/latest/']
 
 # Build the image
   - name: 'gcr.io/cloud-builders/docker'
