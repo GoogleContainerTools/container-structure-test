@@ -37,9 +37,17 @@ readonly image=$(rlocation {image_path})
 # When the image points to a folder, we can read the index.json file inside
 if [[ -d "$image" ]]; then
   readonly DIGEST=$("$jq" -r '.manifests[0].digest | sub(":"; "-")' "$image/index.json")
-  exec "$st" test --driver {driver} {fixed_args} --default-image-tag "cst.oci.local/$DIGEST:$DIGEST" $@
+  readonly TEST_TAG="cst.oci.local/$DIGEST:$DIGEST"
+
+  # Register a cleanup trap to remove the loaded image from Docker
+  cleanup() {{
+    docker rmi "$TEST_TAG" >/dev/null 2>&1 || true
+  }}
+  trap cleanup EXIT
+
+  "$st" test --driver {driver} {fixed_args} --default-image-tag "$TEST_TAG" "$@"
 else
-  exec "$st" test --driver {driver} {fixed_args} $@
+  exec "$st" test --driver {driver} {fixed_args} "$@"
 fi
 """
 
